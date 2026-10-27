@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>練習入口（暗色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 56px 24px 0; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 24px; font-weight: 700">練習</span><span style="font-size: 14px; color: {{t.muted}}">系統會依照你答錯的紀錄出題</span></div><div style="padding: 16px 24px 0"><a href="C2-08-QuizSee.dc.html" style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 22px; padding: 20px; text-decoration: none; color: {{t.text}}; display: flex; flex-direction: column; gap: 12px"><span style="font-size: 19px; font-weight: 700">自動練習</span><span style="font-size: 14px; color: {{t.muted}}; line-height: 1.5">聽音選字、看字選音、易混淆字混合出題，10 題</span><span style="align-self: flex-start; min-height: 44px; padding: 0 20px; border-radius: 999px; background: {{accent}}; color: {{onAccent}}; font-size: 15px; font-weight: 700; display: flex; align-items: center">開始</span></a></div><div style="padding: 18px 24px 8px; display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">最近常搞混</span><span style="font-size: 12px; color: {{t.muted}}">點一組單獨練</span></div><div style="padding: 0 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><sc-for list="{{pairs}}" as="p" hint-placeholder-count="4"><a href="C2-14-Confuse.dc.html" style="min-height: 54px; border-radius: 16px; background: {{t.surface}}; border: 1px solid {{t.line}}; color: {{t.text}}; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding: 0 14px"><span style="font-family: 'Klee One', serif; font-size: 22px; letter-spacing: 4px">{{p.k}}</span><span style="font-size: 12px; color: {{t.accentText}}">錯 {{p.n}} 次</span></a></sc-for></div><div style="padding: 18px 24px 8px; font-size: 15px; font-weight: 700">特殊音</div><div style="padding: 0 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{special}}" as="s" hint-placeholder-count="3"><a href="{{s.href}}" style="min-height: 72px; border-radius: 16px; background: {{t.surface}}; border: 1px solid {{t.line}}; color: {{t.text}}; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px"><span style="font-family: 'Klee One', serif; font-size: 22px">{{s.k}}</span><span style="font-size: 12px; color: {{t.muted}}">{{s.l}}</span></a></sc-for></div><div style="flex: 1"></div><nav style="border-top: 1px solid {{t.line}}; padding: 8px 8px 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px"><a href="C2-02-Home.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>今天</a><a href="C2-03-Chart.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>五十音表</a><a href="C2-13-Practice.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.accentText}}; font-weight: 700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path></svg>練習</a><a href="C2-12-Settings.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>設定</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const R = { pairs: [{ k: 'ぬめ', n: 4 }, { k: 'るろ', n: 2 }, { k: 'シツ', n: 5 }, { k: 'ソン', n: 3 }], special: [{ k: 'おばあさん', l: '長音', href: 'C2-15-Long.dc.html' }, { k: 'きって', l: '促音', href: 'C2-16-Sokuon.dc.html' }, { k: 'きゃ', l: '拗音', href: 'C2-17-Youon.dc.html' }] };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

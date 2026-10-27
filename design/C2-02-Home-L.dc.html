@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>首頁（亮色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 15px; color: {{t.muted}}">平假名</span><span style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: {{t.accentText}}; font-weight: 700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3 4 4.5 4 9a4 4 0 0 1-8 0c0-2 1-3 1-3s.5 2 2 2c0-3-1-5 1-8z"></path></svg>7 天</span></div><div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px"><span style="font-size: 14px; color: {{t.muted}}">下一個新字</span><span style="font-family: 'Klee One', serif; font-size: 190px; line-height: 1.05">く</span><span style="font-size: 18px; color: {{t.muted}}; letter-spacing: 2px">ku</span></div><div style="padding: 0 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px"><sc-for list="{{stats}}" as="s" hint-placeholder-count="3"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 22px; font-weight: 700">{{s.v}}<span style="font-size: 13px; color: {{t.muted}}; font-weight: 400">{{s.u}}</span></span><span style="font-size: 12px; color: {{t.muted}}">{{s.l}}</span></div></sc-for></div><div style="padding: 14px 24px 0; display: flex; gap: 4px" aria-hidden="true"><sc-for list="{{dots}}" as="d" hint-placeholder-count="46"><span style="flex: 1; height: 6px; border-radius: 3px; background: {{d.c}}"></span></sc-for></div><div style="padding: 18px 24px 16px"><a href="C2-05-LearnIntro-L.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">開始今天的 5 分鐘</a></div><nav style="border-top: 1px solid {{t.line}}; padding: 8px 8px 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px"><a href="C2-02-Home-L.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.accentText}}; font-weight: 700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>今天</a><a href="C2-03-Chart-L.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>五十音表</a><a href="C2-13-Practice-L.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path></svg>練習</a><a href="C2-12-Settings-L.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>設定</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'light') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const R = { stats: [{ v: '7', u: ' / 46', l: '已學' }, { v: '5', u: '', l: '待複習' }, { v: '3', u: '', l: '今天新字' }], dots: Array.from({ length: 46 }, (_, i) => ({ c: i < 7 ? accent : (i === 7 ? t.next : t.track) })) };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

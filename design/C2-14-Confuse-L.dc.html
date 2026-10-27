@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>易混淆字對比（亮色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 52px 16px 0; display: flex; align-items: center; gap: 4px"><a href="C2-13-Practice-L.dc.html" aria-label="返回" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.text}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a><span style="font-size: 17px; font-weight: 700">長得很像的字</span></div><div style="padding: 12px 24px 0; display: flex; gap: 8px; flex-wrap: wrap"><sc-for list="{{pairs}}" as="p" hint-placeholder-count="4"><button onClick="{{p.pick}}" style="min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid {{p.border}}; background: {{p.bg}}; color: {{p.color}}; font-family: 'Klee One', serif; font-size: 18px; cursor: pointer">{{p.label}}</button></sc-for></div><div style="padding: 18px 24px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 24px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-family: 'Klee One', serif; font-size: 104px; line-height: 1.1">{{a.kana}}</span><span style="font-size: 15px; color: {{t.muted}}">{{a.roma}}</span></div><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 24px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-family: 'Klee One', serif; font-size: 104px; line-height: 1.1">{{b.kana}}</span><span style="font-size: 15px; color: {{t.muted}}">{{b.roma}}</span></div></div><div style="padding: 12px 24px 0"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 20px; padding: 16px 18px; "><span style="font-size: 12px; font-weight: 700; color: {{t.accentText}}">差在哪裡</span><div style="font-size: 15px; line-height: 1.55; margin-top: 4px">{{tip}}</div></div></div><div style="padding: 10px 24px 0"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 20px; padding: 16px 18px; "><div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; color: {{t.muted}}">最近在這組答錯</span><span style="font-size: 15px; font-weight: 700">{{miss}} 次</span></div></div></div><div style="flex: 1"></div><div style="padding: 0 24px 44px"><a href="C2-09-QuizHear-L.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">快速辨識 10 題</a></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = {"sel": 0}; }
+  renderVals() {
+    const dark = (this.props.theme ?? 'light') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const sel = this.state.sel; const data = [{ label: 'ぬ・め', a: { kana: 'ぬ', roma: 'nu' }, b: { kana: 'め', roma: 'me' }, tip: 'ぬ 的尾巴多繞一個小圈；め 收尾直接撇出去，沒有圈。', miss: 4 }, { label: 'る・ろ', a: { kana: 'る', roma: 'ru' }, b: { kana: 'ろ', roma: 'ro' }, tip: 'る 底部捲成一個圈；ろ 底部是開口，不打圈。', miss: 2 }, { label: 'シ・ツ', a: { kana: 'シ', roma: 'shi' }, b: { kana: 'ツ', roma: 'tsu' }, tip: 'シ 的點橫著排、長筆由下往上挑；ツ 的點直著排、長筆由上往下撇。', miss: 5 }, { label: 'ソ・ン', a: { kana: 'ソ', roma: 'so' }, b: { kana: 'ン', roma: 'n' }, tip: 'ソ 的點在上方、長筆由上往下；ン 的點在左側、長筆由下往上挑。', miss: 3 }]; const cur = data[sel]; const R = { a: cur.a, b: cur.b, tip: cur.tip, miss: cur.miss, pairs: data.map((d, i) => ({ label: d.label, border: i === sel ? t.text : t.line, bg: i === sel ? t.text : t.surface, color: i === sel ? t.bg : t.text, pick: () => this.setState({ sel: i }) })) };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

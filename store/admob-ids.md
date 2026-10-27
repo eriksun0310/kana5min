@@ -1,0 +1,14 @@
+# AdMob ID（發布商 pub-7018554061213551，Google 帳號 authuser=1）
+
+這些是公開 ID（會被編進 App），不是金鑰。開發時一律用 TestIds，不要點自己的正式廣告。
+
+| 項目 | 值 |
+|---|---|
+| Android App ID | ca-app-pub-7018554061213551~6244207587 |
+| Android Banner | ca-app-pub-7018554061213551/8421060190 |
+| Android Interstitial | ca-app-pub-7018554061213551/6392169362 |
+| iOS App ID | ca-app-pub-7018554061213551~5849243880 |
+| iOS Banner | ca-app-pub-7018554061213551/6180628406 |
+| iOS Interstitial | ca-app-pub-7018554061213551/2452924358 |
+
+`.env` 變數名稱以 `.env.example` 為準。

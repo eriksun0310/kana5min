@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>片假名・讀外來語（暗色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 52px 16px 0; display: flex; align-items: center; gap: 10px"><a href="C2-18-KataStart.dc.html" aria-label="結束" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a><div style="flex: 1; height: 6px; background: {{t.track}}; border-radius: 3px; overflow: hidden"><div style="width: 60%; height: 100%; background: {{accent}}"></div></div><span style="width: 44px; text-align: center; font-size: 13px; color: {{t.muted}}"></span></div><div style="padding: 36px 24px 0; display: flex; flex-direction: column; align-items: center; gap: 12px"><span style="font-size: 15px; color: {{t.muted}}">讀讀看，這是什麼？</span><span style="font-family: 'Klee One', serif; font-size: 72px; line-height: 1.2; letter-spacing: 4px">コーヒー</span><button aria-label="播放發音" style="width: 48px; height: 48px; border-radius: 999px; border: 1px solid {{t.line}}; background: {{t.surface}}; color: {{t.text}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16 9a4 4 0 0 1 0 6"></path><path d="M18.5 6.5a8 8 0 0 1 0 11"></path></svg></button></div><div style="padding: 24px 24px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><sc-for list="{{opts}}" as="o" hint-placeholder-count="4"><button onClick="{{o.pick}}" style="min-height: 72px; border-radius: 18px; border: 2px solid {{o.border}}; background: {{o.bg}}; color: {{t.text}}; font-family: inherit; font-size: 17px; font-weight: 700; cursor: pointer">{{o.label}}</button></sc-for></div><sc-if value="{{done}}" hint-placeholder-val="{{ false }}"><div style="padding: 16px 24px 0; font-size: 15px; line-height: 1.6; color: {{fbColor}}; text-align: center">{{fb}}</div></sc-if><div style="flex: 1"></div><div style="padding: 0 24px 44px"><sc-if value="{{waiting}}" hint-placeholder-val="{{ true }}"><button disabled style="width: 100%; min-height: 58px; border-radius: 18px; border: none; background: {{t.track}}; color: {{t.muted}}; font-family: inherit; font-size: 16px; font-weight: 700">選一個答案</button></sc-if><sc-if value="{{done}}" hint-placeholder-val="{{ false }}"><a href="C2-21-Graduate.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">下一題</a></sc-if></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = {"picked": null}; }
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const okB = dark ? '#7FC8A9' : '#2F8A63', okBg = dark ? '#1D2E28' : '#E5F3EC', okT = dark ? '#9FDCC2' : '#1F6B49', noB = dark ? '#F28C7A' : '#D9644F', noBg = dark ? '#33221F' : '#FBE9E5', noT = dark ? '#F7B0A4' : '#A23A28'; const picked = this.state.picked; const R = { waiting: picked === null, done: picked !== null, fb: picked === '咖啡' ? '答對了！コーヒー 讀作 kōhī，「ー」是長音。' : 'コーヒー 是咖啡，讀作 kōhī，「ー」是長音。', fbColor: picked === '咖啡' ? okT : noT, opts: ['可樂', '咖啡', '蛋糕', '電視'].map(label => { let border = t.line, bg = t.surface; if (picked !== null) { if (label === '咖啡') { border = okB; bg = okBg; } else if (label === picked) { border = noB; bg = noBg; } } return { label, border, bg, pick: () => this.setState({ picked: label }) }; }) };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

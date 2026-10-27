@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>導流到壽司日檢（亮色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 52px 16px 0; display: flex; justify-content: flex-end"><a href="C2-02-Home-L.dc.html" aria-label="關閉" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a></div><div style="padding: 8px 24px 0; display: flex; flex-direction: column; gap: 8px"><span style="font-size: 14px; color: {{t.accentText}}; font-weight: 700">下一步</span><span style="font-size: 28px; font-weight: 700">開始累積日文單字</span><span style="font-size: 15px; line-height: 1.6; color: {{t.muted}}">會讀假名之後，最好的下一步就是背單字。我們也做了一款日檢單字 App，可以直接接著學。</span></div><div style="padding: 22px 24px 0"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 20px; padding: 16px 18px; padding: 18px"><div style="display: flex; align-items: center; gap: 14px"><div style="width: 64px; height: 64px; border-radius: 16px; border: 1px dashed {{t.muted}}; display: flex; align-items: center; justify-content: center; font-size: 11px; color: {{t.muted}}; text-align: center">App<br>圖示</div><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 700">壽司日檢</span><span style="font-size: 13px; color: {{t.muted}}">日檢單字練習</span></div></div><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px"><sc-for list="{{points}}" as="p" hint-placeholder-count="3"><div style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5"><span style="color: {{t.accentText}}; margin-top: 1px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span>{{p.t}}</span></div></sc-for></div></div></div><div style="flex: 1"></div><div style="padding: 0 24px 6px"><a href="C2-22-Next-L.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">到 App Store 看看</a></div><div style="padding: 0 24px 30px"><a href="C2-02-Home-L.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}; font-size: 14px; text-decoration: none">之後再說</a></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'light') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const R = { points: [{ t: '從 N5 基礎單字開始' }, { t: '單字都用你已經會讀的假名標音' }, { t: '[壽司日檢的其他賣點]' }] };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

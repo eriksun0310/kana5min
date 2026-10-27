@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>畢業（亮色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="flex: 1; padding: 0 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center"><span style="width: 96px; height: 96px; border-radius: 999px; background: {{accent}}; color: {{onAccent}}; display: flex; align-items: center; justify-content: center"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="font-size: 30px; font-weight: 700">五十音全部學完了</span><span style="font-size: 15px; line-height: 1.6; color: {{t.muted}}">現在任何用假名寫的字，你都讀得出來。</span><div style="width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 8px"><sc-for list="{{stats}}" as="s" hint-placeholder-count="3"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 16px; padding: 14px 8px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 20px; font-weight: 700">{{s.v}}</span><span style="font-size: 12px; color: {{t.muted}}">{{s.l}}</span></div></sc-for></div></div><div style="padding: 0 24px 6px"><a href="C2-22-Next-L.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">看看下一步</a></div><div style="padding: 0 24px 30px"><a href="C2-02-Home-L.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}; font-size: 14px; text-decoration: none">回首頁繼續複習</a></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'light') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const R = { stats: [{ v: '46', l: '平假名' }, { v: '46', l: '片假名' }, { v: '[天數]', l: '練習天數' }] };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

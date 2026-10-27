@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>練習結果・複習排程（暗色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 52px 16px 0; display: flex; justify-content: flex-end"><a href="C2-02-Home.dc.html" aria-label="關閉" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a></div><div style="padding: 8px 24px 0; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 28px; font-weight: 700">今天完成了</span><span style="font-size: 15px; color: {{t.muted}}">學了 3 個新字，也複習了 5 個舊字。</span></div><div style="padding: 20px 24px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px"><sc-for list="{{stats}}" as="s" hint-placeholder-count="3"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 22px; font-weight: 700">{{s.v}}</span><span style="font-size: 12px; color: {{t.muted}}">{{s.l}}</span></div></sc-for></div><div style="padding: 22px 24px 8px; font-size: 15px; font-weight: 700">接下來的複習</div><div style="padding: 0 24px; display: flex; flex-direction: column; gap: 8px"><sc-for list="{{items}}" as="i" hint-placeholder-count="5"><div style="background: {{t.surface}}; border: 1px solid {{t.line}}; border-radius: 16px; padding: 10px 16px; display: flex; align-items: center; gap: 14px"><span style="font-family: 'Klee One', serif; font-size: 28px; width: 36px">{{i.k}}</span><span style="flex: 1; font-size: 14px; color: {{i.color}}">{{i.state}}</span><span style="font-size: 13px; color: {{t.muted}}">{{i.when}}</span></div></sc-for></div><div style="flex: 1"></div><div style="padding: 0 24px 6px"><a href="C2-02-Home.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">回首頁</a></div><div style="padding: 0 24px 30px"><a href="C2-13-Practice.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}; font-size: 14px; text-decoration: none">再練一輪</a></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const noT = dark ? '#F7B0A4' : '#A23A28'; const R = { stats: [{ v: '9 / 10', l: '答對' }, { v: '3', l: '新字' }, { v: '4 分', l: '用時' }], items: [{ k: 'く', state: '新學會', when: '明天', color: t.text }, { k: 'け', state: '新學會', when: '明天', color: t.text }, { k: 'こ', state: '答錯 1 次', when: '10 分鐘後', color: noT }, { k: 'か', state: '記得很熟', when: '7 天後', color: t.text }, { k: 'き', state: '記得', when: '3 天後', color: t.text }] };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

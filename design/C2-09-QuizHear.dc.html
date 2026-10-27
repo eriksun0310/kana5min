@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>測驗・聽音選字（暗色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 52px 16px 0; display: flex; align-items: center; gap: 10px"><a href="C2-02-Home.dc.html" aria-label="結束" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a><div style="flex: 1; height: 6px; background: {{t.track}}; border-radius: 3px; overflow: hidden"><div style="width: 90%; height: 100%; background: {{accent}}"></div></div><span style="width: 44px; text-align: center; font-size: 13px; color: {{t.muted}}"></span></div><div style="padding: 34px 24px 0; display: flex; flex-direction: column; align-items: center; gap: 16px"><span style="font-size: 18px; font-weight: 700">聽聲音，選出正確的字</span><button aria-label="再聽一次" style="width: 120px; height: 120px; border-radius: 999px; border: 1px solid {{t.line}}; background: {{t.surface}}; color: {{t.text}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16 9a4 4 0 0 1 0 6"></path><path d="M18.5 6.5a8 8 0 0 1 0 11"></path></svg></button><button style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: transparent; color: {{t.muted}}; font-family: inherit; font-size: 14px; display: flex; align-items: center; gap: 6px; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M10 9l5 3-5 3z"></path></svg>慢速播放</button></div><div style="padding: 16px 24px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px"><sc-for list="{{opts}}" as="o" hint-placeholder-count="4"><button onClick="{{o.pick}}" aria-label="{{o.k}}" style="height: 116px; border-radius: 22px; border: 2px solid {{o.border}}; background: {{o.bg}}; color: {{t.text}}; font-family: 'Klee One', serif; font-size: 60px; cursor: pointer; display: flex; align-items: center; justify-content: center">{{o.k}}</button></sc-for></div><div style="flex: 1"></div><div style="padding: 0 24px 44px"><sc-if value="{{waiting}}" hint-placeholder-val="{{ true }}"><button disabled style="width: 100%; min-height: 58px; border-radius: 18px; border: none; background: {{t.track}}; color: {{t.muted}}; font-family: inherit; font-size: 16px; font-weight: 700">選一個答案</button></sc-if><sc-if value="{{done}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 15px; color: {{fbColor}}; text-align: center">{{fb}}</span><a href="C2-10-Result.dc.html" style="min-height: 58px; border-radius: 18px; background: {{accent}}; color: {{onAccent}}; font-size: 16px; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center">完成，看結果</a></div></sc-if></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = {"picked": null}; }
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const okB = dark ? '#7FC8A9' : '#2F8A63', okBg = dark ? '#1D2E28' : '#E5F3EC', okT = dark ? '#9FDCC2' : '#1F6B49', noB = dark ? '#F28C7A' : '#D9644F', noBg = dark ? '#33221F' : '#FBE9E5', noT = dark ? '#F7B0A4' : '#A23A28'; const picked = this.state.picked; const R = { waiting: picked === null, done: picked !== null, fb: picked === 'く' ? '答對了！く 讀作 ku' : '剛剛的聲音是 く（ku），等一下會再出現', fbColor: picked === 'く' ? okT : noT, opts: ['こ', 'く', 'へ', 'つ'].map(k => { let border = t.line, bg = t.surface; if (picked !== null) { if (k === 'く') { border = okB; bg = okBg; } else if (k === picked) { border = noB; bg = noBg; } } return { k, border, bg, pick: () => this.setState({ picked: k }) }; }) };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>

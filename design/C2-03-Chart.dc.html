@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>五十音表（暗色）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A5F0E}a:hover{color:#6B4A0B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden"><div style="padding: 56px 24px 0; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 24px; font-weight: 700">五十音表</span><div style="display: flex; background: {{t.chip}}; border-radius: 999px; padding: 4px"><button style="min-height: 34px; padding: 0 12px; border: none; border-radius: 999px; background: {{t.surface}}; color: {{t.text}}; font-family: inherit; font-size: 13px; font-weight: 700">平假名</button><a href="C2-03-Chart.dc.html" style="min-height: 34px; padding: 0 12px; border-radius: 999px; color: {{t.muted}}; font-size: 13px; text-decoration: none; display: flex; align-items: center">片假名</a></div></div><div style="padding: 14px 24px 0; display: flex; gap: 8px"><sc-for list="{{kinds}}" as="k" hint-placeholder-count="3"><button onClick="{{k.pick}}" style="min-height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid {{k.border}}; background: {{k.bg}}; color: {{k.color}}; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer">{{k.label}}</button></sc-for></div><div style="padding: 14px 24px 0; display: grid; grid-template-columns: repeat({{cols}}, minmax(0, 1fr)); gap: 5px"><sc-for list="{{cells}}" as="c" hint-placeholder-count="55"><sc-if value="{{c.blank}}" hint-placeholder-val="{{ false }}"><div style="height: 42px"></div></sc-if><sc-if value="{{c.real}}" hint-placeholder-val="{{ true }}"><a href="C2-04-Detail.dc.html" aria-label="{{c.k}}" style="position: relative; height: 42px; border-radius: 10px; background: {{t.surface}}; border: 1px solid {{t.line}}; box-sizing: border-box; color: {{c.color}}; text-decoration: none; font-family: 'Klee One', serif; font-size: {{c.fs}}; display: flex; align-items: center; justify-content: center">{{c.k}}<sc-if value="{{c.learned}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; right: 5px; top: 5px; width: 6px; height: 6px; border-radius: 3px; background: {{accent}}"></span></sc-if></a></sc-if></sc-for></div><div style="flex: 1"></div><div style="padding: 0 24px 10px; font-size: 12px; color: {{t.muted}}; text-align: center">點任何一個字，聽發音、看筆順</div><nav style="border-top: 1px solid {{t.line}}; padding: 8px 8px 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px"><a href="C2-02-Home.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>今天</a><a href="C2-03-Chart.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.accentText}}; font-weight: 700"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>五十音表</a><a href="C2-13-Practice.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path></svg>練習</a><a href="C2-12-Settings.dc.html" style="min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; color: {{t.muted}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>設定</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"accent":{"editor":"color","default":"#F2B54A","options":["#F2B54A","#7FC8A9","#8FB3FF","#F28C7A"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = {"kind": 0}; }
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const t = dark ? { bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038', chip: '#262A31', next: '#6B6760', faint: '#2A2E35', guide: '#2C3038', accentText: '#F2B54A', accentSoft: '#3A3020' } : { bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA', chip: '#F0EDE7', next: '#A7A198', faint: '#ECE8E1', guide: '#E2DDD5', accentText: '#8A5F0E', accentSoft: '#FBEFD6' };
+    const accent = this.props.accent ?? '#F2B54A';
+    const onAccent = '#15171B';
+    const kind = this.state.kind; const L = { 0: 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもや・ゆ・よらりるれろわ・・・をん・・・・', 1: 'がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ', 2: 'きゃ,きゅ,きょ,しゃ,しゅ,しょ,ちゃ,ちゅ,ちょ,にゃ,にゅ,にょ,ひゃ,ひゅ,ひょ,みゃ,みゅ,みょ,りゃ,りゅ,りょ,ぎゃ,ぎゅ,ぎょ,じゃ,じゅ,じょ,びゃ,びゅ,びょ,ぴゃ,ぴゅ,ぴょ' }; const list = kind === 2 ? L[2].split(',') : [...L[kind]]; let n = 0; const cells = list.map(k => { if (k === '・') return { k: '', blank: true, real: false, learned: false }; const i = n++; const learned = kind === 0 && i < 7; return { k, blank: false, real: true, learned, color: t.text, fs: kind === 2 ? '20px' : '22px' }; }); const R = { cols: kind === 2 ? 3 : 5, cells, kinds: ['清音', '濁音', '拗音'].map((label, i) => ({ label, border: i === kind ? t.text : t.line, bg: i === kind ? t.text : 'transparent', color: i === kind ? t.bg : t.muted, pick: () => this.setState({ kind: i }) })) };
+    return Object.assign({ t, accent, onAccent }, R);
+  }
+}
+</script>
+</body>
+</html>
