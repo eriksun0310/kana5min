@@ -1,0 +1,69 @@
+# 五十音表：切換清音／濁音／拗音 → 點字進詳情 → 播放、慢速、例字播放 → 看筆順（返回）→ 描寫（返回）
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- tapOn:
+    id: tab-chart
+- assertVisible: 五十音表
+- assertVisible:
+    id: cell-h-a
+- tapOn:
+    id: kind-dakuon
+- assertVisible:
+    id: cell-h-ga
+- tapOn:
+    id: kind-youon
+- assertVisible:
+    id: cell-h-kya
+- tapOn:
+    id: kind-seion
+# 點「か」進詳情
+- tapOn:
+    id: cell-h-ka
+- assertVisible:
+    id: detail-char
+- assertVisible:
+    id: detail-confusable
+- tapOn:
+    id: play-audio
+- tapOn:
+    id: play-slow
+- assertVisible:
+    id: detail-word
+- tapOn:
+    id: play-word
+# 看筆順，返回
+- tapOn:
+    id: detail-stroke
+- assertVisible:
+    id: stroke-canvas
+- tapOn:
+    id: replay
+- tapOn:
+    id: next-step
+- assertVisible:
+    id: detail-char
+# 描寫（詳情進來只描一次），長按通過後自動返回
+- tapOn:
+    id: detail-trace
+- assertVisible:
+    id: trace-canvas
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertNotVisible:
+          id: trace-hint
+- assertVisible:
+    id: detail-char
+# 返回五十音表
+- tapOn:
+    id: back
+- assertVisible:
+    id: cell-h-a

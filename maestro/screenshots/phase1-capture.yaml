@@ -1,0 +1,230 @@
+# 階段 1 截圖：C2-01～C2-12。不屬於必須跑通的 phase 流程，請用 maestro/screenshots/run-phase1.sh 執行
+# （它會先切換模擬器的系統外觀，再以 THEME=light|dark 各跑一次）。
+# THEME 由 run-phase1.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值，檔頭的 env 會蓋掉命令列）。
+# App 的主題設定維持「跟隨系統」，所以這支流程同時驗證主題跟著系統切換。
+# Maestro 會把 takeScreenshot 的檔案寫進測試輸出目錄（不是工作目錄），
+# run-phase1.sh 以 --debug-output 指定暫存目錄，跑完再複製到 screenshots/phase1/。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- evalScript: ${output.seeN = 0; output.hearN = 0}
+- launchApp:
+    clearState: true
+- assertVisible: 從零開始學五十音
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-01-Welcome-${THEME}
+- tapOn:
+    id: goal-5
+- tapOn:
+    id: start-learning
+- assertVisible:
+    id: start-today
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-02-Home-${THEME}
+
+# 五十音表與詳情
+- tapOn:
+    id: tab-chart
+- assertVisible:
+    id: cell-h-a
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-03-Chart-${THEME}
+- tapOn:
+    id: cell-h-ka
+- assertVisible:
+    id: detail-char
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-04-Detail-${THEME}
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-home
+
+# 第一輪：3 個新字（あ い う）
+- tapOn:
+    id: start-today
+- assertVisible:
+    id: learn-kana
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-05-LearnIntro-${THEME}
+- waitForAnimationToEnd
+- tapOn:
+    id: next-step
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: learn-kana
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: stroke-canvas
+- extendedWaitUntil:
+    notVisible:
+      id: no-such-element
+    timeout: 3500
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-06-Stroke-${THEME}
+- tapOn:
+    id: next-step
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: stroke-canvas
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: trace-canvas
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-07-Trace-${THEME}
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertNotVisible:
+          id: trace-hint
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertNotVisible:
+          id: trace-hint
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+
+# 測驗：每種題型各截「選擇中」「答對」「答錯」；每題都用條件判斷，題型順序是隨機的
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 30
+    commands:
+      # 看字選音：第 1 題先選（已聽狀態）再確定（答對），第 2 題故意答錯
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.seeN == 0}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase1/C2-08-QuizSee-selected-${THEME}
+                  - tapOn:
+                      id: quiz-confirm
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase1/C2-08-QuizSee-correct-${THEME}
+            - runFlow:
+                when:
+                  true: ${output.seeN == 1}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - tapOn:
+                      id: quiz-confirm
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase1/C2-08-QuizSee-wrong-${THEME}
+            - runFlow:
+                when:
+                  true: ${output.seeN >= 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+                  - tapOn:
+                      id: quiz-confirm
+            - evalScript: ${output.seeN = output.seeN + 1}
+      # 聽音選字：第 1 題答錯，第 2 題答對
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.hearN == 0}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase1/C2-09-QuizHear-wrong-${THEME}
+            - runFlow:
+                when:
+                  true: ${output.hearN == 1}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase1/C2-09-QuizHear-correct-${THEME}
+            - runFlow:
+                when:
+                  true: ${output.hearN >= 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+            - evalScript: ${output.hearN = output.hearN + 1}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-10-Result-${THEME}
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: start-today
+
+# 學完 3 個字之後的五十音表：已學的字會有 accent 小圓點
+- tapOn:
+    id: tab-chart
+- assertVisible:
+    id: cell-h-a
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-03-Chart-learned-${THEME}
+- tapOn:
+    id: tab-home
+- assertVisible:
+    id: start-today
+
+# 第二輪：學 え お か（每輪固定 3 個新字，跨行就跨行），湊滿あ行 → 一行學完
+- tapOn:
+    id: start-today
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/answer-quiz.yaml
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: row-title
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-11-RowDone-${THEME}
+
+# 設定
+- stopApp
+- launchApp
+- tapOn:
+    id: tab-settings
+- assertVisible: 外觀
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-12-Settings-${THEME}

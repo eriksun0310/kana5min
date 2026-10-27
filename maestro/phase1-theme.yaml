@@ -1,0 +1,50 @@
+# 設定頁切換主題：暗色、亮色、跟隨系統；每個主題下回首頁，畫面仍可見。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- tapOn:
+    id: tab-settings
+- assertVisible: 外觀
+- tapOn:
+    id: theme-dark
+- tapOn:
+    id: tab-home
+- assertVisible:
+    id: start-today
+- assertVisible:
+    id: home-next-kana
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-light
+- tapOn:
+    id: tab-home
+- assertVisible:
+    id: start-today
+- assertVisible:
+    id: home-next-kana
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-system
+- tapOn:
+    id: tab-home
+- assertVisible:
+    id: start-today
+- assertVisible:
+    id: home-next-kana
+# 重開 App 後主題設定仍在（選過「跟隨系統」以外時最能看出，這裡再切暗色確認保存）
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-dark
+- stopApp
+- launchApp
+- tapOn:
+    id: tab-settings
+- assertVisible:
+    id: theme-dark
+- assertVisible: 學習紀錄只存在這支手機上.*

@@ -1,0 +1,1078 @@
+[
+  {
+    "id": "h-a",
+    "char": "あ",
+    "romaji": "a",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "a",
+    "strokes": 3,
+    "exampleWordId": "w-ai"
+  },
+  {
+    "id": "h-i",
+    "char": "い",
+    "romaji": "i",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "a",
+    "strokes": 2,
+    "exampleWordId": "w-ie"
+  },
+  {
+    "id": "h-u",
+    "char": "う",
+    "romaji": "u",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "a",
+    "strokes": 2,
+    "exampleWordId": "w-ue"
+  },
+  {
+    "id": "h-e",
+    "char": "え",
+    "romaji": "e",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "a",
+    "strokes": 2,
+    "exampleWordId": "w-eki"
+  },
+  {
+    "id": "h-o",
+    "char": "お",
+    "romaji": "o",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "a",
+    "strokes": 3,
+    "exampleWordId": "w-okashi"
+  },
+  {
+    "id": "h-ka",
+    "char": "か",
+    "romaji": "ka",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ka",
+    "strokes": 3,
+    "exampleWordId": "w-kao"
+  },
+  {
+    "id": "h-ki",
+    "char": "き",
+    "romaji": "ki",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ka",
+    "strokes": 4,
+    "exampleWordId": "w-kiku",
+    "confusableWith": [
+      "h-sa"
+    ]
+  },
+  {
+    "id": "h-ku",
+    "char": "く",
+    "romaji": "ku",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ka",
+    "strokes": 1,
+    "exampleWordId": "w-kuchi"
+  },
+  {
+    "id": "h-ke",
+    "char": "け",
+    "romaji": "ke",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ka",
+    "strokes": 3,
+    "exampleWordId": "w-kesa"
+  },
+  {
+    "id": "h-ko",
+    "char": "こ",
+    "romaji": "ko",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ka",
+    "strokes": 2,
+    "exampleWordId": "w-koko"
+  },
+  {
+    "id": "h-sa",
+    "char": "さ",
+    "romaji": "sa",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "sa",
+    "strokes": 3,
+    "exampleWordId": "w-sake",
+    "confusableWith": [
+      "h-ki"
+    ]
+  },
+  {
+    "id": "h-shi",
+    "char": "し",
+    "romaji": "shi",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "sa",
+    "strokes": 1,
+    "exampleWordId": "w-shio"
+  },
+  {
+    "id": "h-su",
+    "char": "す",
+    "romaji": "su",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "sa",
+    "strokes": 2,
+    "exampleWordId": "w-suki"
+  },
+  {
+    "id": "h-se",
+    "char": "せ",
+    "romaji": "se",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "sa",
+    "strokes": 3,
+    "exampleWordId": "w-sekai"
+  },
+  {
+    "id": "h-so",
+    "char": "そ",
+    "romaji": "so",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "sa",
+    "strokes": 1,
+    "exampleWordId": "w-sora"
+  },
+  {
+    "id": "h-ta",
+    "char": "た",
+    "romaji": "ta",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ta",
+    "strokes": 4,
+    "exampleWordId": "w-tako"
+  },
+  {
+    "id": "h-chi",
+    "char": "ち",
+    "romaji": "chi",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ta",
+    "strokes": 2,
+    "exampleWordId": "w-chikai"
+  },
+  {
+    "id": "h-tsu",
+    "char": "つ",
+    "romaji": "tsu",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ta",
+    "strokes": 1,
+    "exampleWordId": "w-tsuki"
+  },
+  {
+    "id": "h-te",
+    "char": "て",
+    "romaji": "te",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ta",
+    "strokes": 1,
+    "exampleWordId": "w-tera"
+  },
+  {
+    "id": "h-to",
+    "char": "と",
+    "romaji": "to",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ta",
+    "strokes": 2,
+    "exampleWordId": "w-tokei"
+  },
+  {
+    "id": "h-na",
+    "char": "な",
+    "romaji": "na",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "na",
+    "strokes": 4,
+    "exampleWordId": "w-natsu"
+  },
+  {
+    "id": "h-ni",
+    "char": "に",
+    "romaji": "ni",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "na",
+    "strokes": 3,
+    "exampleWordId": "w-niku"
+  },
+  {
+    "id": "h-nu",
+    "char": "ぬ",
+    "romaji": "nu",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "na",
+    "strokes": 2,
+    "exampleWordId": "w-nuno",
+    "confusableWith": [
+      "h-me"
+    ]
+  },
+  {
+    "id": "h-ne",
+    "char": "ね",
+    "romaji": "ne",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "na",
+    "strokes": 2,
+    "exampleWordId": "w-neko",
+    "confusableWith": [
+      "h-wa",
+      "h-re"
+    ]
+  },
+  {
+    "id": "h-no",
+    "char": "の",
+    "romaji": "no",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "na",
+    "strokes": 1,
+    "exampleWordId": "w-nori"
+  },
+  {
+    "id": "h-ha",
+    "char": "は",
+    "romaji": "ha",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ha",
+    "strokes": 3,
+    "exampleWordId": "w-hana",
+    "confusableWith": [
+      "h-ho"
+    ]
+  },
+  {
+    "id": "h-hi",
+    "char": "ひ",
+    "romaji": "hi",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ha",
+    "strokes": 1,
+    "exampleWordId": "w-hito"
+  },
+  {
+    "id": "h-fu",
+    "char": "ふ",
+    "romaji": "fu",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ha",
+    "strokes": 4,
+    "exampleWordId": "w-fune"
+  },
+  {
+    "id": "h-he",
+    "char": "へ",
+    "romaji": "he",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ha",
+    "strokes": 1,
+    "exampleWordId": "w-heya"
+  },
+  {
+    "id": "h-ho",
+    "char": "ほ",
+    "romaji": "ho",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ha",
+    "strokes": 4,
+    "exampleWordId": "w-hoshi",
+    "confusableWith": [
+      "h-ha"
+    ]
+  },
+  {
+    "id": "h-ma",
+    "char": "ま",
+    "romaji": "ma",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ma",
+    "strokes": 3,
+    "exampleWordId": "w-machi"
+  },
+  {
+    "id": "h-mi",
+    "char": "み",
+    "romaji": "mi",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ma",
+    "strokes": 2,
+    "exampleWordId": "w-mise"
+  },
+  {
+    "id": "h-mu",
+    "char": "む",
+    "romaji": "mu",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ma",
+    "strokes": 3,
+    "exampleWordId": "w-mushi"
+  },
+  {
+    "id": "h-me",
+    "char": "め",
+    "romaji": "me",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ma",
+    "strokes": 2,
+    "exampleWordId": "w-meishi",
+    "confusableWith": [
+      "h-nu"
+    ]
+  },
+  {
+    "id": "h-mo",
+    "char": "も",
+    "romaji": "mo",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ma",
+    "strokes": 3,
+    "exampleWordId": "w-momo"
+  },
+  {
+    "id": "h-ya",
+    "char": "や",
+    "romaji": "ya",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ya",
+    "strokes": 3,
+    "exampleWordId": "w-yama"
+  },
+  {
+    "id": "h-yu",
+    "char": "ゆ",
+    "romaji": "yu",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ya",
+    "strokes": 2,
+    "exampleWordId": "w-yuki"
+  },
+  {
+    "id": "h-yo",
+    "char": "よ",
+    "romaji": "yo",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ya",
+    "strokes": 2,
+    "exampleWordId": "w-yomu"
+  },
+  {
+    "id": "h-ra",
+    "char": "ら",
+    "romaji": "ra",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ra",
+    "strokes": 2,
+    "exampleWordId": "w-rainen"
+  },
+  {
+    "id": "h-ri",
+    "char": "り",
+    "romaji": "ri",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ra",
+    "strokes": 2,
+    "exampleWordId": "w-risu"
+  },
+  {
+    "id": "h-ru",
+    "char": "る",
+    "romaji": "ru",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ra",
+    "strokes": 1,
+    "exampleWordId": "w-rusu",
+    "confusableWith": [
+      "h-ro"
+    ]
+  },
+  {
+    "id": "h-re",
+    "char": "れ",
+    "romaji": "re",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ra",
+    "strokes": 2,
+    "exampleWordId": "w-rekishi",
+    "confusableWith": [
+      "h-wa",
+      "h-ne"
+    ]
+  },
+  {
+    "id": "h-ro",
+    "char": "ろ",
+    "romaji": "ro",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "ra",
+    "strokes": 1,
+    "exampleWordId": "w-roku",
+    "confusableWith": [
+      "h-ru"
+    ]
+  },
+  {
+    "id": "h-wa",
+    "char": "わ",
+    "romaji": "wa",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "wa",
+    "strokes": 2,
+    "exampleWordId": "w-watashi",
+    "confusableWith": [
+      "h-ne",
+      "h-re"
+    ]
+  },
+  {
+    "id": "h-wo",
+    "char": "を",
+    "romaji": "wo",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "wa",
+    "strokes": 3,
+    "exampleWordId": "w-hono"
+  },
+  {
+    "id": "h-n",
+    "char": "ん",
+    "romaji": "n",
+    "script": "hiragana",
+    "kind": "seion",
+    "row": "wa",
+    "strokes": 1,
+    "exampleWordId": "w-hon"
+  },
+  {
+    "id": "h-ga",
+    "char": "が",
+    "romaji": "ga",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ga",
+    "strokes": 5,
+    "exampleWordId": "w-gakusei"
+  },
+  {
+    "id": "h-gi",
+    "char": "ぎ",
+    "romaji": "gi",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ga",
+    "strokes": 6,
+    "exampleWordId": "w-ginkou"
+  },
+  {
+    "id": "h-gu",
+    "char": "ぐ",
+    "romaji": "gu",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ga",
+    "strokes": 3,
+    "exampleWordId": "w-guai"
+  },
+  {
+    "id": "h-ge",
+    "char": "げ",
+    "romaji": "ge",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ga",
+    "strokes": 5,
+    "exampleWordId": "w-genki"
+  },
+  {
+    "id": "h-go",
+    "char": "ご",
+    "romaji": "go",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ga",
+    "strokes": 4,
+    "exampleWordId": "w-gohan"
+  },
+  {
+    "id": "h-za",
+    "char": "ざ",
+    "romaji": "za",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "za",
+    "strokes": 5,
+    "exampleWordId": "w-zasshi"
+  },
+  {
+    "id": "h-ji",
+    "char": "じ",
+    "romaji": "ji",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "za",
+    "strokes": 3,
+    "exampleWordId": "w-jikan"
+  },
+  {
+    "id": "h-zu",
+    "char": "ず",
+    "romaji": "zu",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "za",
+    "strokes": 4,
+    "exampleWordId": "w-zubon"
+  },
+  {
+    "id": "h-ze",
+    "char": "ぜ",
+    "romaji": "ze",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "za",
+    "strokes": 5,
+    "exampleWordId": "w-zenbu"
+  },
+  {
+    "id": "h-zo",
+    "char": "ぞ",
+    "romaji": "zo",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "za",
+    "strokes": 3,
+    "exampleWordId": "w-zou"
+  },
+  {
+    "id": "h-da",
+    "char": "だ",
+    "romaji": "da",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "da",
+    "strokes": 6,
+    "exampleWordId": "w-daigaku"
+  },
+  {
+    "id": "h-di",
+    "char": "ぢ",
+    "romaji": "ji",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "da",
+    "strokes": 4,
+    "exampleWordId": "w-hanaji"
+  },
+  {
+    "id": "h-du",
+    "char": "づ",
+    "romaji": "zu",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "da",
+    "strokes": 3,
+    "exampleWordId": "w-tsuzuku"
+  },
+  {
+    "id": "h-de",
+    "char": "で",
+    "romaji": "de",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "da",
+    "strokes": 3,
+    "exampleWordId": "w-denwa"
+  },
+  {
+    "id": "h-do",
+    "char": "ど",
+    "romaji": "do",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "da",
+    "strokes": 4,
+    "exampleWordId": "w-doko"
+  },
+  {
+    "id": "h-ba",
+    "char": "ば",
+    "romaji": "ba",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ba",
+    "strokes": 5,
+    "exampleWordId": "w-basho"
+  },
+  {
+    "id": "h-bi",
+    "char": "び",
+    "romaji": "bi",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ba",
+    "strokes": 3,
+    "exampleWordId": "w-bin"
+  },
+  {
+    "id": "h-bu",
+    "char": "ぶ",
+    "romaji": "bu",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ba",
+    "strokes": 6,
+    "exampleWordId": "w-buta"
+  },
+  {
+    "id": "h-be",
+    "char": "べ",
+    "romaji": "be",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ba",
+    "strokes": 3,
+    "exampleWordId": "w-bentou"
+  },
+  {
+    "id": "h-bo",
+    "char": "ぼ",
+    "romaji": "bo",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "ba",
+    "strokes": 6,
+    "exampleWordId": "w-boushi"
+  },
+  {
+    "id": "h-pa",
+    "char": "ぱ",
+    "romaji": "pa",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "pa",
+    "strokes": 4,
+    "exampleWordId": "w-pan"
+  },
+  {
+    "id": "h-pi",
+    "char": "ぴ",
+    "romaji": "pi",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "pa",
+    "strokes": 2,
+    "exampleWordId": "w-pikapika"
+  },
+  {
+    "id": "h-pu",
+    "char": "ぷ",
+    "romaji": "pu",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "pa",
+    "strokes": 5,
+    "exampleWordId": "w-purin"
+  },
+  {
+    "id": "h-pe",
+    "char": "ぺ",
+    "romaji": "pe",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "pa",
+    "strokes": 2,
+    "exampleWordId": "w-pekopeko"
+  },
+  {
+    "id": "h-po",
+    "char": "ぽ",
+    "romaji": "po",
+    "script": "hiragana",
+    "kind": "dakuon",
+    "row": "pa",
+    "strokes": 5,
+    "exampleWordId": "w-pokapoka"
+  },
+  {
+    "id": "h-kya",
+    "char": "きゃ",
+    "romaji": "kya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "kya",
+    "strokes": 7,
+    "exampleWordId": "w-kyaku"
+  },
+  {
+    "id": "h-kyu",
+    "char": "きゅ",
+    "romaji": "kyu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "kya",
+    "strokes": 6,
+    "exampleWordId": "w-kyuu"
+  },
+  {
+    "id": "h-kyo",
+    "char": "きょ",
+    "romaji": "kyo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "kya",
+    "strokes": 6,
+    "exampleWordId": "w-kyou"
+  },
+  {
+    "id": "h-sha",
+    "char": "しゃ",
+    "romaji": "sha",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "sha",
+    "strokes": 4,
+    "exampleWordId": "w-shashin"
+  },
+  {
+    "id": "h-shu",
+    "char": "しゅ",
+    "romaji": "shu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "sha",
+    "strokes": 3,
+    "exampleWordId": "w-shumi"
+  },
+  {
+    "id": "h-sho",
+    "char": "しょ",
+    "romaji": "sho",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "sha",
+    "strokes": 3,
+    "exampleWordId": "w-shokuji"
+  },
+  {
+    "id": "h-cha",
+    "char": "ちゃ",
+    "romaji": "cha",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "cha",
+    "strokes": 5,
+    "exampleWordId": "w-ocha"
+  },
+  {
+    "id": "h-chu",
+    "char": "ちゅ",
+    "romaji": "chu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "cha",
+    "strokes": 4,
+    "exampleWordId": "w-chuui"
+  },
+  {
+    "id": "h-cho",
+    "char": "ちょ",
+    "romaji": "cho",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "cha",
+    "strokes": 4,
+    "exampleWordId": "w-choucho"
+  },
+  {
+    "id": "h-nya",
+    "char": "にゃ",
+    "romaji": "nya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "nya",
+    "strokes": 6,
+    "exampleWordId": "w-konnyaku"
+  },
+  {
+    "id": "h-nyu",
+    "char": "にゅ",
+    "romaji": "nyu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "nya",
+    "strokes": 5,
+    "exampleWordId": "w-gyuunyuu"
+  },
+  {
+    "id": "h-nyo",
+    "char": "にょ",
+    "romaji": "nyo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "nya",
+    "strokes": 5,
+    "exampleWordId": "w-nyoubou"
+  },
+  {
+    "id": "h-hya",
+    "char": "ひゃ",
+    "romaji": "hya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "hya",
+    "strokes": 4,
+    "exampleWordId": "w-hyaku"
+  },
+  {
+    "id": "h-hyu",
+    "char": "ひゅ",
+    "romaji": "hyu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "hya",
+    "strokes": 3,
+    "exampleWordId": "w-hyuuga"
+  },
+  {
+    "id": "h-hyo",
+    "char": "ひょ",
+    "romaji": "hyo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "hya",
+    "strokes": 3,
+    "exampleWordId": "w-hyougen"
+  },
+  {
+    "id": "h-mya",
+    "char": "みゃ",
+    "romaji": "mya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "mya",
+    "strokes": 5,
+    "exampleWordId": "w-myaku"
+  },
+  {
+    "id": "h-myu",
+    "char": "みゅ",
+    "romaji": "myu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "mya",
+    "strokes": 4,
+    "exampleWordId": "w-myuu"
+  },
+  {
+    "id": "h-myo",
+    "char": "みょ",
+    "romaji": "myo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "mya",
+    "strokes": 4,
+    "exampleWordId": "w-myouji"
+  },
+  {
+    "id": "h-rya",
+    "char": "りゃ",
+    "romaji": "rya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "rya",
+    "strokes": 5,
+    "exampleWordId": "w-ryaku"
+  },
+  {
+    "id": "h-ryu",
+    "char": "りゅ",
+    "romaji": "ryu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "rya",
+    "strokes": 4,
+    "exampleWordId": "w-ryuu"
+  },
+  {
+    "id": "h-ryo",
+    "char": "りょ",
+    "romaji": "ryo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "rya",
+    "strokes": 4,
+    "exampleWordId": "w-ryokou"
+  },
+  {
+    "id": "h-gya",
+    "char": "ぎゃ",
+    "romaji": "gya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "gya",
+    "strokes": 9,
+    "exampleWordId": "w-gyaku"
+  },
+  {
+    "id": "h-gyu",
+    "char": "ぎゅ",
+    "romaji": "gyu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "gya",
+    "strokes": 8,
+    "exampleWordId": "w-gyuuniku"
+  },
+  {
+    "id": "h-gyo",
+    "char": "ぎょ",
+    "romaji": "gyo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "gya",
+    "strokes": 8,
+    "exampleWordId": "w-gyouza"
+  },
+  {
+    "id": "h-ja",
+    "char": "じゃ",
+    "romaji": "ja",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "ja",
+    "strokes": 6,
+    "exampleWordId": "w-jagaimo"
+  },
+  {
+    "id": "h-ju",
+    "char": "じゅ",
+    "romaji": "ju",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "ja",
+    "strokes": 5,
+    "exampleWordId": "w-juu"
+  },
+  {
+    "id": "h-jo",
+    "char": "じょ",
+    "romaji": "jo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "ja",
+    "strokes": 5,
+    "exampleWordId": "w-jouzu"
+  },
+  {
+    "id": "h-bya",
+    "char": "びゃ",
+    "romaji": "bya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "bya",
+    "strokes": 6,
+    "exampleWordId": "w-sanbyaku"
+  },
+  {
+    "id": "h-byu",
+    "char": "びゅ",
+    "romaji": "byu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "bya",
+    "strokes": 5,
+    "exampleWordId": "w-byuubyuu"
+  },
+  {
+    "id": "h-byo",
+    "char": "びょ",
+    "romaji": "byo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "bya",
+    "strokes": 5,
+    "exampleWordId": "w-byouin"
+  },
+  {
+    "id": "h-pya",
+    "char": "ぴゃ",
+    "romaji": "pya",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "pya",
+    "strokes": 5,
+    "exampleWordId": "w-roppyaku"
+  },
+  {
+    "id": "h-pyu",
+    "char": "ぴゅ",
+    "romaji": "pyu",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "pya",
+    "strokes": 4,
+    "exampleWordId": "w-pyuupyuu"
+  },
+  {
+    "id": "h-pyo",
+    "char": "ぴょ",
+    "romaji": "pyo",
+    "script": "hiragana",
+    "kind": "youon",
+    "row": "pya",
+    "strokes": 4,
+    "exampleWordId": "w-pyonpyon"
+  }
+]

@@ -1,0 +1,1150 @@
+[
+  {
+    "id": "w-ai",
+    "text": "あい",
+    "romaji": "ai",
+    "meaning": "愛",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ie",
+    "text": "いえ",
+    "romaji": "ie",
+    "meaning": "家",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ue",
+    "text": "うえ",
+    "romaji": "ue",
+    "meaning": "上面",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-aoi",
+    "text": "あおい",
+    "romaji": "aoi",
+    "meaning": "藍色的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-iu",
+    "text": "いう",
+    "romaji": "iu",
+    "meaning": "說",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-au",
+    "text": "あう",
+    "romaji": "au",
+    "meaning": "見面",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kao",
+    "text": "かお",
+    "romaji": "kao",
+    "meaning": "臉",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-aki",
+    "text": "あき",
+    "romaji": "aki",
+    "meaning": "秋天",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ike",
+    "text": "いけ",
+    "romaji": "ike",
+    "meaning": "池塘",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-koe",
+    "text": "こえ",
+    "romaji": "koe",
+    "meaning": "聲音",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kau",
+    "text": "かう",
+    "romaji": "kau",
+    "meaning": "買",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kiku",
+    "text": "きく",
+    "romaji": "kiku",
+    "meaning": "聽",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-akai",
+    "text": "あかい",
+    "romaji": "akai",
+    "meaning": "紅色的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kuuki",
+    "text": "くうき",
+    "romaji": "kuuki",
+    "meaning": "空氣",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-eki",
+    "text": "えき",
+    "romaji": "eki",
+    "meaning": "車站",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kaki",
+    "text": "かき",
+    "romaji": "kaki",
+    "meaning": "柿子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kaku",
+    "text": "かく",
+    "romaji": "kaku",
+    "meaning": "寫",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-iku",
+    "text": "いく",
+    "romaji": "iku",
+    "meaning": "去",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kioku",
+    "text": "きおく",
+    "romaji": "kioku",
+    "meaning": "記憶",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-koko",
+    "text": "ここ",
+    "romaji": "koko",
+    "meaning": "這裡",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-okashi",
+    "text": "おかし",
+    "romaji": "okashi",
+    "meaning": "點心",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kesa",
+    "text": "けさ",
+    "romaji": "kesa",
+    "meaning": "今天早上",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sake",
+    "text": "さけ",
+    "romaji": "sake",
+    "meaning": "酒",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-asa",
+    "text": "あさ",
+    "romaji": "asa",
+    "meaning": "早晨",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kasa",
+    "text": "かさ",
+    "romaji": "kasa",
+    "meaning": "傘",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-isu",
+    "text": "いす",
+    "romaji": "isu",
+    "meaning": "椅子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-suki",
+    "text": "すき",
+    "romaji": "suki",
+    "meaning": "喜歡",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-shio",
+    "text": "しお",
+    "romaji": "shio",
+    "meaning": "鹽",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sekai",
+    "text": "せかい",
+    "romaji": "sekai",
+    "meaning": "世界",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-uso",
+    "text": "うそ",
+    "romaji": "uso",
+    "meaning": "謊話",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sushi",
+    "text": "すし",
+    "romaji": "sushi",
+    "meaning": "壽司",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-soko",
+    "text": "そこ",
+    "romaji": "soko",
+    "meaning": "那裡",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-seki",
+    "text": "せき",
+    "romaji": "seki",
+    "meaning": "座位",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ase",
+    "text": "あせ",
+    "romaji": "ase",
+    "meaning": "汗",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sora",
+    "text": "そら",
+    "romaji": "sora",
+    "meaning": "天空",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tako",
+    "text": "たこ",
+    "romaji": "tako",
+    "meaning": "章魚",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-chikai",
+    "text": "ちかい",
+    "romaji": "chikai",
+    "meaning": "近的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tsuki",
+    "text": "つき",
+    "romaji": "tsuki",
+    "meaning": "月亮",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tera",
+    "text": "てら",
+    "romaji": "tera",
+    "meaning": "寺廟",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tokei",
+    "text": "とけい",
+    "romaji": "tokei",
+    "meaning": "時鐘",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kuchi",
+    "text": "くち",
+    "romaji": "kuchi",
+    "meaning": "嘴巴",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-atsui",
+    "text": "あつい",
+    "romaji": "atsui",
+    "meaning": "熱的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-otoko",
+    "text": "おとこ",
+    "romaji": "otoko",
+    "meaning": "男人",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-takai",
+    "text": "たかい",
+    "romaji": "takai",
+    "meaning": "高的、貴的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-chichi",
+    "text": "ちち",
+    "romaji": "chichi",
+    "meaning": "爸爸",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-natsu",
+    "text": "なつ",
+    "romaji": "natsu",
+    "meaning": "夏天",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-niku",
+    "text": "にく",
+    "romaji": "niku",
+    "meaning": "肉",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-nuno",
+    "text": "ぬの",
+    "romaji": "nuno",
+    "meaning": "布",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-neko",
+    "text": "ねこ",
+    "romaji": "neko",
+    "meaning": "貓",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-nori",
+    "text": "のり",
+    "romaji": "nori",
+    "meaning": "海苔",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-inu",
+    "text": "いぬ",
+    "romaji": "inu",
+    "meaning": "狗",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sakana",
+    "text": "さかな",
+    "romaji": "sakana",
+    "meaning": "魚",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-onaka",
+    "text": "おなか",
+    "romaji": "onaka",
+    "meaning": "肚子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-anata",
+    "text": "あなた",
+    "romaji": "anata",
+    "meaning": "你",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tanoshii",
+    "text": "たのしい",
+    "romaji": "tanoshii",
+    "meaning": "開心的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-nani",
+    "text": "なに",
+    "romaji": "nani",
+    "meaning": "什麼",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hana",
+    "text": "はな",
+    "romaji": "hana",
+    "meaning": "花、鼻子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hito",
+    "text": "ひと",
+    "romaji": "hito",
+    "meaning": "人",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-fune",
+    "text": "ふね",
+    "romaji": "fune",
+    "meaning": "船",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-heya",
+    "text": "へや",
+    "romaji": "heya",
+    "meaning": "房間",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hoshi",
+    "text": "ほし",
+    "romaji": "hoshi",
+    "meaning": "星星",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hashi",
+    "text": "はし",
+    "romaji": "hashi",
+    "meaning": "筷子、橋",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hako",
+    "text": "はこ",
+    "romaji": "hako",
+    "meaning": "箱子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-fuku",
+    "text": "ふく",
+    "romaji": "fuku",
+    "meaning": "衣服",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hone",
+    "text": "ほね",
+    "romaji": "hone",
+    "meaning": "骨頭",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hanashi",
+    "text": "はなし",
+    "romaji": "hanashi",
+    "meaning": "故事、談話",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hitotsu",
+    "text": "ひとつ",
+    "romaji": "hitotsu",
+    "meaning": "一個",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-machi",
+    "text": "まち",
+    "romaji": "machi",
+    "meaning": "城鎮",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-mise",
+    "text": "みせ",
+    "romaji": "mise",
+    "meaning": "商店",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-mushi",
+    "text": "むし",
+    "romaji": "mushi",
+    "meaning": "蟲",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-meishi",
+    "text": "めいし",
+    "romaji": "meishi",
+    "meaning": "名片",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-momo",
+    "text": "もも",
+    "romaji": "momo",
+    "meaning": "桃子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ame",
+    "text": "あめ",
+    "romaji": "ame",
+    "meaning": "雨",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-uma",
+    "text": "うま",
+    "romaji": "uma",
+    "meaning": "馬",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kuma",
+    "text": "くま",
+    "romaji": "kuma",
+    "meaning": "熊",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-mimi",
+    "text": "みみ",
+    "romaji": "mimi",
+    "meaning": "耳朵",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hima",
+    "text": "ひま",
+    "romaji": "hima",
+    "meaning": "空閒",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-amai",
+    "text": "あまい",
+    "romaji": "amai",
+    "meaning": "甜的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yama",
+    "text": "やま",
+    "romaji": "yama",
+    "meaning": "山",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yuki",
+    "text": "ゆき",
+    "romaji": "yuki",
+    "meaning": "雪",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yomu",
+    "text": "よむ",
+    "romaji": "yomu",
+    "meaning": "讀",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yasai",
+    "text": "やさい",
+    "romaji": "yasai",
+    "meaning": "蔬菜",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yasui",
+    "text": "やすい",
+    "romaji": "yasui",
+    "meaning": "便宜的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yume",
+    "text": "ゆめ",
+    "romaji": "yume",
+    "meaning": "夢",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yoko",
+    "text": "よこ",
+    "romaji": "yoko",
+    "meaning": "旁邊",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-rainen",
+    "text": "らいねん",
+    "romaji": "rainen",
+    "meaning": "明年",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-risu",
+    "text": "りす",
+    "romaji": "risu",
+    "meaning": "松鼠",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-rusu",
+    "text": "るす",
+    "romaji": "rusu",
+    "meaning": "不在家",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-rekishi",
+    "text": "れきし",
+    "romaji": "rekishi",
+    "meaning": "歷史",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-roku",
+    "text": "ろく",
+    "romaji": "roku",
+    "meaning": "六",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sakura",
+    "text": "さくら",
+    "romaji": "sakura",
+    "meaning": "櫻花",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kuruma",
+    "text": "くるま",
+    "romaji": "kuruma",
+    "meaning": "車子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tori",
+    "text": "とり",
+    "romaji": "tori",
+    "meaning": "鳥",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-iro",
+    "text": "いろ",
+    "romaji": "iro",
+    "meaning": "顏色",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-haru",
+    "text": "はる",
+    "romaji": "haru",
+    "meaning": "春天",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-aruku",
+    "text": "あるく",
+    "romaji": "aruku",
+    "meaning": "走路",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-furui",
+    "text": "ふるい",
+    "romaji": "furui",
+    "meaning": "舊的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ureshii",
+    "text": "うれしい",
+    "romaji": "ureshii",
+    "meaning": "開心的",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-watashi",
+    "text": "わたし",
+    "romaji": "watashi",
+    "meaning": "我",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hon",
+    "text": "ほん",
+    "romaji": "hon",
+    "meaning": "書",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hono",
+    "text": "ほんを",
+    "romaji": "hon o",
+    "meaning": "（把）書",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-nihon",
+    "text": "にほん",
+    "romaji": "nihon",
+    "meaning": "日本",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-mikan",
+    "text": "みかん",
+    "romaji": "mikan",
+    "meaning": "橘子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sensei",
+    "text": "せんせい",
+    "romaji": "sensei",
+    "meaning": "老師",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-onna",
+    "text": "おんな",
+    "romaji": "onna",
+    "meaning": "女人",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-wakaru",
+    "text": "わかる",
+    "romaji": "wakaru",
+    "meaning": "懂",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gakusei",
+    "text": "がくせい",
+    "romaji": "gakusei",
+    "meaning": "學生",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ginkou",
+    "text": "ぎんこう",
+    "romaji": "ginkou",
+    "meaning": "銀行",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-guai",
+    "text": "ぐあい",
+    "romaji": "guai",
+    "meaning": "狀況",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-genki",
+    "text": "げんき",
+    "romaji": "genki",
+    "meaning": "有精神",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gohan",
+    "text": "ごはん",
+    "romaji": "gohan",
+    "meaning": "飯",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-zasshi",
+    "text": "ざっし",
+    "romaji": "zasshi",
+    "meaning": "雜誌",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-jikan",
+    "text": "じかん",
+    "romaji": "jikan",
+    "meaning": "時間",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-zubon",
+    "text": "ずぼん",
+    "romaji": "zubon",
+    "meaning": "褲子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-zenbu",
+    "text": "ぜんぶ",
+    "romaji": "zenbu",
+    "meaning": "全部",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-zou",
+    "text": "ぞう",
+    "romaji": "zou",
+    "meaning": "大象",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-daigaku",
+    "text": "だいがく",
+    "romaji": "daigaku",
+    "meaning": "大學",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hanaji",
+    "text": "はなぢ",
+    "romaji": "hanaji",
+    "meaning": "鼻血",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-tsuzuku",
+    "text": "つづく",
+    "romaji": "tsuzuku",
+    "meaning": "繼續",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-denwa",
+    "text": "でんわ",
+    "romaji": "denwa",
+    "meaning": "電話",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-doko",
+    "text": "どこ",
+    "romaji": "doko",
+    "meaning": "哪裡",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-basho",
+    "text": "ばしょ",
+    "romaji": "basho",
+    "meaning": "地方",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-bin",
+    "text": "びん",
+    "romaji": "bin",
+    "meaning": "瓶子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-buta",
+    "text": "ぶた",
+    "romaji": "buta",
+    "meaning": "豬",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-bentou",
+    "text": "べんとう",
+    "romaji": "bentou",
+    "meaning": "便當",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-boushi",
+    "text": "ぼうし",
+    "romaji": "boushi",
+    "meaning": "帽子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pan",
+    "text": "ぱん",
+    "romaji": "pan",
+    "meaning": "麵包",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pikapika",
+    "text": "ぴかぴか",
+    "romaji": "pikapika",
+    "meaning": "閃閃發亮",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-purin",
+    "text": "ぷりん",
+    "romaji": "purin",
+    "meaning": "布丁",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pekopeko",
+    "text": "ぺこぺこ",
+    "romaji": "pekopeko",
+    "meaning": "肚子很餓",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pokapoka",
+    "text": "ぽかぽか",
+    "romaji": "pokapoka",
+    "meaning": "暖呼呼",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kyaku",
+    "text": "きゃく",
+    "romaji": "kyaku",
+    "meaning": "客人",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kyuu",
+    "text": "きゅう",
+    "romaji": "kyuu",
+    "meaning": "九",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kyou",
+    "text": "きょう",
+    "romaji": "kyou",
+    "meaning": "今天",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-shashin",
+    "text": "しゃしん",
+    "romaji": "shashin",
+    "meaning": "照片",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-shumi",
+    "text": "しゅみ",
+    "romaji": "shumi",
+    "meaning": "興趣",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-shokuji",
+    "text": "しょくじ",
+    "romaji": "shokuji",
+    "meaning": "用餐",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ocha",
+    "text": "おちゃ",
+    "romaji": "ocha",
+    "meaning": "茶",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-chuui",
+    "text": "ちゅうい",
+    "romaji": "chuui",
+    "meaning": "注意",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-choucho",
+    "text": "ちょうちょ",
+    "romaji": "choucho",
+    "meaning": "蝴蝶",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-konnyaku",
+    "text": "こんにゃく",
+    "romaji": "konnyaku",
+    "meaning": "蒟蒻",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gyuunyuu",
+    "text": "ぎゅうにゅう",
+    "romaji": "gyuunyuu",
+    "meaning": "牛奶",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-nyoubou",
+    "text": "にょうぼう",
+    "romaji": "nyoubou",
+    "meaning": "妻子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hyaku",
+    "text": "ひゃく",
+    "romaji": "hyaku",
+    "meaning": "一百",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hyuuga",
+    "text": "ひゅうが",
+    "romaji": "hyuuga",
+    "meaning": "日向（地名）",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-hyougen",
+    "text": "ひょうげん",
+    "romaji": "hyougen",
+    "meaning": "表達",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-myaku",
+    "text": "みゃく",
+    "romaji": "myaku",
+    "meaning": "脈搏",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-myuu",
+    "text": "みゅう",
+    "romaji": "myuu",
+    "meaning": "喵（貓叫聲）",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-myouji",
+    "text": "みょうじ",
+    "romaji": "myouji",
+    "meaning": "姓氏",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ryaku",
+    "text": "りゃく",
+    "romaji": "ryaku",
+    "meaning": "省略",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ryuu",
+    "text": "りゅう",
+    "romaji": "ryuu",
+    "meaning": "龍",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ryokou",
+    "text": "りょこう",
+    "romaji": "ryokou",
+    "meaning": "旅行",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gyaku",
+    "text": "ぎゃく",
+    "romaji": "gyaku",
+    "meaning": "相反",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gyuuniku",
+    "text": "ぎゅうにく",
+    "romaji": "gyuuniku",
+    "meaning": "牛肉",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-gyouza",
+    "text": "ぎょうざ",
+    "romaji": "gyouza",
+    "meaning": "餃子",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-jagaimo",
+    "text": "じゃがいも",
+    "romaji": "jagaimo",
+    "meaning": "馬鈴薯",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-juu",
+    "text": "じゅう",
+    "romaji": "juu",
+    "meaning": "十",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-jouzu",
+    "text": "じょうず",
+    "romaji": "jouzu",
+    "meaning": "擅長",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-sanbyaku",
+    "text": "さんびゃく",
+    "romaji": "sanbyaku",
+    "meaning": "三百",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-byuubyuu",
+    "text": "びゅうびゅう",
+    "romaji": "byuubyuu",
+    "meaning": "呼呼（風聲）",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-byouin",
+    "text": "びょういん",
+    "romaji": "byouin",
+    "meaning": "醫院",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-roppyaku",
+    "text": "ろっぴゃく",
+    "romaji": "roppyaku",
+    "meaning": "六百",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pyuupyuu",
+    "text": "ぴゅうぴゅう",
+    "romaji": "pyuupyuu",
+    "meaning": "咻咻（風聲）",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-pyonpyon",
+    "text": "ぴょんぴょん",
+    "romaji": "pyonpyon",
+    "meaning": "蹦蹦跳跳",
+    "script": "hiragana"
+  }
+]

@@ -10,3 +10,5 @@ android/
 .env.local
 coverage/
 /screenshots/**/tmp/
+expo-env.d.ts
+*.tsbuildinfo

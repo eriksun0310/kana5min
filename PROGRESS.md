@@ -6,7 +6,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 | 階段 | 檔案 | 狀態 | commit |
 |---|---|---|---|
-| 1 | goals/01-hiragana.md | 未開始 | |
+| 1 | goals/01-hiragana.md | 完成 | phase 1 complete |
 | 2 | goals/02-practice-special.md | 未開始 | |
 | 3 | goals/03-katakana.md | 未開始 | |
 | 4 | goals/04-graduate-release.md | 未開始 | |
@@ -15,18 +15,77 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 （每個階段完成後，在這裡寫下做了什麼、遇到什麼問題、怎麼解決。）
 
+架構決策統一記在 `docs/architecture.md`。
+
+### 階段 1：平假名 MVP（2026-10-27）
+
+- 專案：Expo SDK 58、React Native 0.88、expo-router、TypeScript、zustand（設定用 AsyncStorage persist）、expo-sqlite（progress、confusion 兩張表）、expo-audio、Klee One、react-native-svg、expo-notifications。
+- 資料：平假名清音 46、濁音半濁音 25、拗音 33（`src/data/kana.json`），例字與「一行學完」單字池 164 筆（`src/data/words.json`）。
+- 邏輯（`src/logic/`，純函式加單元測試）：SRS（5.3 間隔）、羅馬拼音淡出、每日練習組成與出題、首頁統計與連續天數、描寫判定、自動練習；記憶體版 repository 測試保存與讀回。
+- 畫面：C2-01～C2-12 全部完成，練習分頁為簡版（自動練習 10 題）。每日提醒用本機排程通知。
+- 筆順：`scripts/build-strokes.mjs` 從 KanjiVG 取 151 個假名（含片假名與 ー）的筆畫路徑，輸出 `src/data/strokes.json`。授權見 `assets/strokes/LICENSE-KanjiVG.txt` 與設定頁「關於」。
+- 音檔：`scripts/gen-audio.mjs` 產生 536 檔（見下方音檔清單）。
+- 測試：`npm test` 12 個 suite、128 個測試通過；`maestro --device <UDID> test maestro/` 跑 phase1 四個流程（onboarding、daily-practice、chart-detail、theme）全部通過。`maestro/config.yaml` 只收集 `phase*.yaml`。
+- 截圖：`screenshots/phase1/` 有 C2-01～C2-12 的亮暗截圖，另外加上作答狀態與已學標記。重跑指令：`maestro/screenshots/run-phase1.sh <UDID>`。
+- 遇到的問題：
+  - CocoaPods 需要 UTF-8 語系，要先 `export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8` 再 `npx expo run:ios`。
+  - Metro 用 `CI=1` 啟動時不監看檔案，新路由不會進 bundle，所以開發時不要帶 `CI=1`。
+  - 設定頁的 header 用 minHeight 加 padding 會把內容擠成 0 高，已改成固定高度。
+  - 歡迎頁的推入動畫會讓截圖偏移，已改成無動畫。
+  - 開發版偶發「onAnimatedValueUpdate with no listeners」警告，來源是 expo-router 的 tab 動畫，已用 `LogBox.ignoreLogs` 忽略這一條。
+
+### 音檔清單（階段 1）
+
+- 共 536 檔，等於（104 個假名 + 164 個單字）× 2（一般、慢速），約 3.2 MB。
+  - 聲音 `ja-JP-NanamiNeural`，24kHz 48kbps mono mp3；慢速 rate -40%。
+  - 產生後用 ffmpeg 裁掉頭尾的靜音。
+- 用法：`node scripts/gen-audio.mjs`，可加 `--force`、`--only id,id`、`--list`、`--no-trim`。
+- `scripts/tts-overrides.json`（39 筆）：
+  - h-ha → ハ、h-he → ヘ：避免念成助詞的 wa、e。
+  - h-wo → オ：を 統一念 o。
+  - h-di → ジ、h-du → ズ。
+  - w-hono → ほんお：例字「ほんを」的 を 念 o。
+  - 拗音 33 個改用片假名（キャ、シュ…）。
+- **請人工聽**（ASR 辨識結果可疑）：
+  - 假名：ぬ、ら、り、れ、ぶ、ぷ、び、りゃ、りゅ、ぎゃ、ぎょ、ちゃ。
+  - 單字：あう（w-au）、りゅう（w-ryuu）、へや（w-heya）、みゃく（w-myaku）、いう。
+
 ## 假設
 
 （spec 沒寫清楚、由 Claude Code 自行決定的事情記在這裡，例如外來語例字清單。）
 
+### 階段 1
+
+- 假名 id：平假名 `h-<romaji>`，片假名 `k-<romaji>`。ぢ、づ 的 id 是 `h-di`、`h-du`，顯示為 ji、zu。を 顯示 wo、發音念 o。
+- 筆畫數以 KanjiVG 為準：濁點算 2 筆、半濁點算 1 筆（例如 が 5 畫），拗音為兩字相加。
+- 記憶小提示只用在 あ行、か行。`kana-puns.md` 標 ❌ 的句子（お、け）不顯示卡片；き 用新的 ✅ 句子。
+- 「已學」的定義：完成一次學新字流程，並在測驗中作答過。
+- 每輪新字固定最多 3 個，依五十音順序，可以跨行。
+- 每輪最多帶 20 個到期複習字，其餘留到下一輪。
+- 測驗出題：每個新字 2 題（看字選音、聽音選字各 1），每個複習字 1 題。
+  - 一輪結束後，某個字全對就升一級，有錯就回到 0 級（10 分鐘後到期）。
+  - 答錯的題目在同一輪不重出，「等一下會再出現」靠 10 分鐘後的 SRS 達成。
+- 看字選音的選項是聲音，需要先聽再選：第一次點選項會播放並暫選，再點一次或按「選這個」才確定作答。
+- 答錯時一律顯示羅馬拼音，不套用淡出規則。
+- 描寫判定：畫出的筆畫數至少要有該字筆畫數的一半，且第一筆的方向和標準方向夾角小於 90°。開發版長按畫布 1 秒視為通過，給 Maestro 用。
+- 筆順動畫與描寫底字用 KanjiVG 骨架路徑，不是 Klee One 字形。
+- 結果頁「再練一輪」直接進自動練習；若這輪剛學完一行，按「回首頁」或關閉時會先顯示一行學完畫面。
+- 自動練習（簡版）：從已學的字隨機出 10 題。
+- 易混淆字：kana 資料多加了 き／さ、は／ほ，只用於詳情頁「容易搞混」，不進練習清單。
+- 片假名在解鎖前，五十音表的切換鈕點了只顯示「平假名學完後解鎖」。
+- 設定頁是分頁，所以不顯示設計檔的返回箭頭。
+- 部分拗音例字較罕見（例如 ひゅうが、みゅう），只是為了補齊，可以再替換。
+
 ## 待確認事項
 
-- App 名稱（目前：五十音）
+- App 名稱（目前：Kana 5min - 五十音入門）
 - Bundle identifier（目前：com.ptalk.kana5min）
 - 壽司日檢 App Store 連結
 - 導流頁第三個賣點文案
 - 人工聽過所有單一假名音檔，特別是 は、へ、を、ん 與拗音（音檔清單由 Claude Code 列在下方）
 - App 圖示
+- `kana-puns.md` 的 ❌ 句子（お、け 等）換新句後，同步更新 `src/data/hints.ts`
+- Maestro 官方安裝程式在 `~/.zshrc` 加了 `export PATH=$PATH:$HOME/.maestro/bin`，並新建 `~/.bash_profile`；是否保留由使用者決定
 
 ## 上傳 TestFlight 的步驟
 

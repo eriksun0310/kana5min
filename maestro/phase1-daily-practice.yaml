@@ -1,0 +1,38 @@
+# 完成一次每日練習：3 個新字（看與聽 → 筆順 → 描寫）→ 測驗 → 結果頁 → 回首頁已學 3；重開 App 後進度仍在。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- assertVisible:
+    id: stat-learned
+- assertVisible: "0 / 46"
+- tapOn:
+    id: start-today
+# 3 個新字：あ い う
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+# 測驗：3 個新字 × 2 題
+- runFlow: common/answer-quiz.yaml
+- assertVisible: 今天完成了
+- assertVisible: 學了 3 個新字。
+- assertVisible:
+    id: result-item-h-a
+- assertVisible:
+    id: result-item-h-i
+- assertVisible:
+    id: result-item-h-u
+- tapOn:
+    id: result-home
+# 回到首頁：已學 3、下一個新字變成え
+- assertVisible:
+    id: stat-learned
+- assertVisible: "3 / 46"
+- assertVisible: え
+# 關掉 App 再開，進度仍在
+- stopApp
+- launchApp
+- assertVisible: "3 / 46"
+- assertVisible: え

@@ -1,0 +1,63 @@
+# 一個新字的學習流程：看與聽 → 筆順（重播）→ 描寫兩次（第一次先重寫一次）
+# 長按偶爾沒被 App 收到（會出現 trace-hint 提示），所以包 retry。
+# 長按 trace-canvas 在 __DEV__ 版本會直接判定描寫通過。
+appId: com.ptalk.kana5min
+---
+- assertVisible:
+    id: learn-kana
+- waitForAnimationToEnd
+- tapOn:
+    id: play-audio
+- tapOn:
+    id: next-step
+# 轉場動畫中的點擊偶爾會被吃掉：還停在看與聽就再點一次
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: learn-kana
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: stroke-canvas
+- tapOn:
+    id: replay
+- tapOn:
+    id: next-step
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: stroke-canvas
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: trace-canvas
+- assertVisible: 第 1 次／共 2 次
+- tapOn:
+    id: trace-redo
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertNotVisible:
+          id: trace-hint
+- assertVisible: 第 2 次／共 2 次
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertNotVisible:
+          id: trace-hint

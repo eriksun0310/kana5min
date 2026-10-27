@@ -1,0 +1,13 @@
+# 全新安裝：清除狀態 → 歡迎頁選每日目標 → 開始學習 → 到首頁
+# 用法：runFlow: { file: common/onboard.yaml, env: { GOAL: '10' } }
+appId: com.ptalk.kana5min
+---
+- launchApp:
+    clearState: true
+- assertVisible: 從零開始學五十音
+- tapOn:
+    id: goal-${GOAL}
+- tapOn:
+    id: start-learning
+- assertVisible:
+    id: start-today

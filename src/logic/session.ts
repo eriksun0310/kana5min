@@ -1,0 +1,200 @@
+// 每日練習的組成與測驗出題（spec 5.1、5.2，docs/architecture.md 第 5 節）。
+// 純函式；隨機一律透過可注入的 rng，方便測試。
+
+import { allKana, byId, byRow, ROW_ORDER, seionOrder } from '../data';
+import type { Kana, Progress, Script } from '../data/types';
+import { isDue, isLearned } from './srs';
+
+export type Rng = () => number;
+
+/** 每次練習預設的新字數 */
+export const NEW_PER_SESSION = 3;
+
+export interface DailySession {
+  /** 今天要學的新字（依學習順序，最多 3 個） */
+  newKanaIds: string[];
+  /** 到期複習的字（最久沒複習的在前） */
+  reviewKanaIds: string[];
+  /** 已學過的字（出題選項取干擾項用；不含今天的新字） */
+  learnedIds: string[];
+}
+
+export interface DailySessionOptions {
+  newPerSession?: number;
+  /** 學習順序（Kana id 陣列）；預設為平假名清音順序 */
+  learningOrder?: string[];
+}
+
+export function defaultLearningOrder(script: Script = 'hiragana'): string[] {
+  return seionOrder(script).map((k) => k.id);
+}
+
+/** 學習進度裡已學過（learnedAt 有值）的 Kana id 集合。 */
+export function learnedIdSet(allProgress: Progress[]): Set<string> {
+  return new Set(allProgress.filter(isLearned).map((p) => p.kanaId));
+}
+
+/** 下一批尚未學過的新字（依學習順序）。 */
+export function nextNewKanaIds(
+  allProgress: Progress[],
+  limit: number = NEW_PER_SESSION,
+  order: string[] = defaultLearningOrder(),
+): string[] {
+  const learned = learnedIdSet(allProgress);
+  return order.filter((id) => !learned.has(id)).slice(0, limit);
+}
+
+/** 到期複習的 Kana id，最久沒複習（nextReviewAt 最小）的在前。 */
+export function dueKanaIds(allProgress: Progress[], now: number): string[] {
+  return allProgress
+    .filter((p) => isDue(p, now))
+    .sort((a, b) => a.nextReviewAt - b.nextReviewAt || a.kanaId.localeCompare(b.kanaId))
+    .map((p) => p.kanaId);
+}
+
+/** 今天的練習：新字（最多 3，依序）+ 到期複習。 */
+export function buildDailySession(
+  allProgress: Progress[],
+  now: number,
+  options: DailySessionOptions = {},
+): DailySession {
+  const limit = options.newPerSession ?? NEW_PER_SESSION;
+  const order = options.learningOrder ?? defaultLearningOrder();
+  return {
+    newKanaIds: nextNewKanaIds(allProgress, limit, order),
+    reviewKanaIds: dueKanaIds(allProgress, now),
+    learnedIds: [...learnedIdSet(allProgress)],
+  };
+}
+
+// ---------------------------------------------------------------- 測驗
+
+/** see = 看字選音（C2-08）；hear = 聽音選字（C2-09） */
+export type QuizType = 'see' | 'hear';
+
+export interface QuizQuestion {
+  /** 題目序號 id，例如 'q-0' */
+  id: string;
+  kanaId: string;
+  type: QuizType;
+  /** 4 個選項，皆為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現） */
+  options: string[];
+  /** 正確選項的 Kana id（= kanaId） */
+  answerId: string;
+}
+
+export const QUIZ_OPTION_COUNT = 4;
+
+function shuffle<T>(items: readonly T[], rng: Rng): T[] {
+  const a = items.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/**
+ * 挑 3 個干擾項（同文字、同種類）。優先順序：
+ * 1. 已學（含今天的新字）的易混淆字
+ * 2. 其他已學的字
+ * 3. 還沒學的易混淆字
+ * 4. 同種類的其他字
+ */
+export function pickDistractors(
+  target: Kana,
+  known: ReadonlySet<string>,
+  rng: Rng,
+  count: number = QUIZ_OPTION_COUNT - 1,
+): string[] {
+  const pool = allKana.filter(
+    (k) => k.script === target.script && k.kind === target.kind && k.id !== target.id,
+  );
+  const poolIds = new Set(pool.map((k) => k.id));
+  const conf = (target.confusableWith ?? []).filter((id) => poolIds.has(id));
+  const confSet = new Set(conf);
+  const knownConf = conf.filter((id) => known.has(id));
+  const unknownConf = conf.filter((id) => !known.has(id));
+  const rest = pool.filter((k) => !confSet.has(k.id));
+  const knownRest = shuffle(rest.filter((k) => known.has(k.id)), rng).map((k) => k.id);
+  const unknownRest = shuffle(rest.filter((k) => !known.has(k.id)), rng).map((k) => k.id);
+  return [...shuffle(knownConf, rng), ...knownRest, ...shuffle(unknownConf, rng), ...unknownRest].slice(
+    0,
+    count,
+  );
+}
+
+/**
+ * 依 session 出題：
+ * - 每個新字 2 題（看字選音、聽音選字各 1）
+ * - 每個複習字 1 題（題型隨機）
+ * - 題目順序打散，且同一個字的兩題不相鄰（可行時）
+ * - 選項 4 個，正確選項位置隨機
+ */
+export function buildQuiz(session: DailySession, rng: Rng = Math.random): QuizQuestion[] {
+  const known = new Set([...session.learnedIds, ...session.newKanaIds, ...session.reviewKanaIds]);
+
+  type Draft = Omit<QuizQuestion, 'id'>;
+  const make = (kanaId: string, type: QuizType): Draft | undefined => {
+    const target = byId(kanaId);
+    if (!target) return undefined;
+    const options = shuffle([kanaId, ...pickDistractors(target, known, rng)], rng);
+    return { kanaId, type, options, answerId: kanaId };
+  };
+
+  const drafts: Draft[] = [];
+  for (const id of session.newKanaIds) {
+    for (const type of ['see', 'hear'] as const) {
+      const d = make(id, type);
+      if (d) drafts.push(d);
+    }
+  }
+  for (const id of session.reviewKanaIds) {
+    const d = make(id, rng() < 0.5 ? 'see' : 'hear');
+    if (d) drafts.push(d);
+  }
+
+  return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
+}
+
+/**
+ * 打散順序並避免同一個字相鄰：每一步從「不同於上一題」的題目裡隨機選；
+ * 若某個字剩下的題數必須立刻交錯才排得完（2c-1 >= 剩餘題數），就強制先選它。
+ */
+function arrange<T extends { kanaId: string }>(items: T[], rng: Rng): T[] {
+  const remaining = shuffle(items, rng);
+  const out: T[] = [];
+  while (remaining.length > 0) {
+    const last = out[out.length - 1]?.kanaId;
+    const counts = new Map<string, number>();
+    for (const q of remaining) counts.set(q.kanaId, (counts.get(q.kanaId) ?? 0) + 1);
+
+    let candidates = remaining.filter((q) => q.kanaId !== last);
+    if (candidates.length === 0) candidates = remaining; // 無法避免相鄰
+    const forced = candidates.filter((q) => 2 * (counts.get(q.kanaId) ?? 0) - 1 >= remaining.length);
+    const pool = forced.length > 0 ? forced : candidates;
+    const pick = pool[Math.floor(rng() * pool.length)];
+    remaining.splice(remaining.indexOf(pick), 1);
+    out.push(pick);
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- 一行學完
+
+/**
+ * 這一輪「才湊滿」的行：after 裡整行清音都已學，但 before 還沒有。
+ * 回傳 row key（'ka' 等），依五十音順序。
+ */
+export function completedRows(
+  before: Progress[],
+  after: Progress[],
+  script: Script = 'hiragana',
+): string[] {
+  const b = learnedIdSet(before);
+  const a = learnedIdSet(after);
+  return ROW_ORDER.filter((row) => {
+    const ids = byRow(row, script).map((k) => k.id);
+    return ids.length > 0 && ids.every((id) => a.has(id)) && !ids.every((id) => b.has(id));
+  });
+}

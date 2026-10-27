@@ -1,0 +1,25 @@
+# 首次開啟：歡迎頁 → 選 10 分鐘 → 開始學習 → 首頁；重開 App 後設定仍在、不再出現歡迎頁。
+appId: com.ptalk.kana5min
+---
+- launchApp:
+    clearState: true
+- assertVisible: 從零開始學五十音
+- assertVisible: 每天想練多久？
+- assertVisible: 3 分鐘.*
+- assertVisible: 5 分鐘.*
+- assertVisible: 10 分鐘.*
+- tapOn:
+    id: goal-10
+- tapOn:
+    id: start-learning
+- assertVisible: 開始今天的 10 分鐘
+- assertNotVisible: 從零開始學五十音
+# 關掉 App 再打開（不清狀態）
+- stopApp
+- launchApp
+- assertVisible: 開始今天的 10 分鐘
+- assertNotVisible: 從零開始學五十音
+# 設定頁的每日目標也是 10 分鐘
+- tapOn:
+    id: tab-settings
+- assertVisible: ".*每日目標.*10 分鐘.*"

@@ -1,0 +1,4 @@
+# 工作區設定：`maestro test maestro/` 只收集 phase 流程，
+# 不會跑 common/（被 runFlow 引用的片段）與 screenshots/（截圖流程）。
+flows:
+  - "phase*.yaml"
