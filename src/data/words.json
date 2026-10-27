@@ -1146,5 +1146,110 @@
     "romaji": "pyonpyon",
     "meaning": "蹦蹦跳跳",
     "script": "hiragana"
+  },
+  {
+    "id": "w-obasan",
+    "text": "おばさん",
+    "romaji": "obasan",
+    "meaning": "阿姨",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-obaasan",
+    "text": "おばあさん",
+    "romaji": "obaasan",
+    "meaning": "奶奶",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ojisan",
+    "text": "おじさん",
+    "romaji": "ojisan",
+    "meaning": "叔叔",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ojiisan",
+    "text": "おじいさん",
+    "romaji": "ojiisan",
+    "meaning": "爺爺",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-yuuki",
+    "text": "ゆうき",
+    "romaji": "yuuki",
+    "meaning": "勇氣",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kite",
+    "text": "きて",
+    "romaji": "kite",
+    "meaning": "來",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kitte",
+    "text": "きって",
+    "romaji": "kitte",
+    "meaning": "郵票",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-oto",
+    "text": "おと",
+    "romaji": "oto",
+    "meaning": "聲響",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-otto",
+    "text": "おっと",
+    "romaji": "otto",
+    "meaning": "丈夫",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kako",
+    "text": "かこ",
+    "romaji": "kako",
+    "meaning": "過去",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-kakko",
+    "text": "かっこ",
+    "romaji": "kakko",
+    "meaning": "括號",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-biyouin",
+    "text": "びよういん",
+    "romaji": "biyouin",
+    "meaning": "美容院",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-jiyuu",
+    "text": "じゆう",
+    "romaji": "jiyuu",
+    "meaning": "自由",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-riyou",
+    "text": "りよう",
+    "romaji": "riyou",
+    "meaning": "利用",
+    "script": "hiragana"
+  },
+  {
+    "id": "w-ryou",
+    "text": "りょう",
+    "romaji": "ryou",
+    "meaning": "宿舍",
+    "script": "hiragana"
   }
 ]

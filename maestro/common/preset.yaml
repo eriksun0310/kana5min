@@ -1,0 +1,17 @@
+# 以開發用深連結套用進度預設（只在 __DEV__ 版本有效，見 docs/architecture.md 第 10 節）。
+# 用法：runFlow: { file: common/preset.yaml, env: { PRESET: hiragana-done } }
+# PRESET = hiragana-done | all-done | reset
+# 模擬器開 custom scheme 時可能跳出「要在「Kana 5min」中打開嗎？」系統確認框，出現就點「打開」。
+appId: com.ptalk.kana5min
+---
+- openLink: kana5min://debug?preset=${PRESET}
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 15000
+- waitForAnimationToEnd

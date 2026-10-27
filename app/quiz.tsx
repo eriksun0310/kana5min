@@ -9,12 +9,13 @@ import { currentProgressList, useSessionStore } from '../src/store/sessionStore'
 /**
  * 測驗（C2-08 看字選音／C2-09 聽音選字，依題型切換）。
  * - 預設（每日練習）：session 已由 /learn 建好，這裡只負責出題與作答。
- * - mode=auto：自動練習，從已學的字隨機出 10 題；進畫面時建立新的一輪。
+ * - mode=auto：自動練習，see／hear／confuse 混合 10 題；進畫面時建立新的一輪。
+ * - mode=confuse&group=<id>：易混淆字組快速辨識 10 題（confuse 題與選項限該組的看字選音題）。
  * 最後一題按「完成，看結果」→ 提交 SRS → 到結果頁。
  */
 export default function QuizScreen() {
   const router = useRouter();
-  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const { mode, group } = useLocalSearchParams<{ mode?: string; group?: string }>();
   // 這個畫面「擁有」的那一輪；store 的 sid 與它一致才顯示（避免短暫顯示上一輪的殘留狀態）
   const [ownedSid, setOwnedSid] = useState<number | null>(null);
   const started = useRef(false);
@@ -37,12 +38,18 @@ export default function QuizScreen() {
         return;
       }
       setOwnedSid(useSessionStore.getState().sid);
+    } else if (mode === 'confuse') {
+      if (!group || !store.startConfuse(group, currentProgressList(), Date.now())) {
+        router.replace('/');
+        return;
+      }
+      setOwnedSid(useSessionStore.getState().sid);
     } else if (store.active && store.phase === 'quiz' && store.questions.length > 0) {
       setOwnedSid(store.sid);
     } else {
       router.replace('/');
     }
-  }, [mode, router]);
+  }, [mode, group, router]);
 
   const question = questions[qIndex];
   if (ownedSid === null || ownedSid !== sid || !active || !question) {
@@ -69,6 +76,7 @@ export default function QuizScreen() {
     }
   };
 
+  // confuse 題沿用聽音選字的版面（選項數可變）
   const QuestionView = question.type === 'see' ? QuizSee : QuizHear;
 
   return (

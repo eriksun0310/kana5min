@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { confusionGroupId } from '../data';
 import type { Progress } from '../data/types';
 import type { ConfusionRecord, ProgressRepository } from '../db/types';
+import { groupsForWrongAnswer } from '../logic/confusion';
 import { applyRoundResult } from '../logic/srs';
 
 export interface CommitResult {
@@ -19,11 +19,19 @@ export interface ProgressState {
   load: (repo: ProgressRepository) => Promise<void>;
   /**
    * 提交一輪結果：answers = 每個字這輪所有題目的對錯。
-   * 依 SRS 更新等級與下次複習時間、寫入 repository，並累計易混淆字組的答錯次數。
+   * 依 SRS 更新等級與下次複習時間並寫入 repository。
+   * 易混淆字組的答錯次數不在這裡累計，而是作答當下由 recordWrongAnswer 寫入。
    */
   commitRound: (answers: Record<string, boolean[]>, now: number) => Promise<CommitResult>;
+  /**
+   * 作答當下呼叫（只在答錯時）：正確答案所屬的易混淆字組答錯次數 +1，立刻寫入 repository。
+   * 先更新記憶體（畫面立即看到）再寫入；字不屬於任何組時什麼都不做。
+   */
+  recordWrongAnswer: (kanaId: string, now: number) => Promise<void>;
   /** 清除全部進度（設定或除錯用） */
   reset: () => Promise<void>;
+  /** 以給定進度取代全部進度並清空易混淆紀錄（開發用預設） */
+  replaceAll: (items: Progress[]) => Promise<void>;
 }
 
 export function progressList(record: Record<string, Progress>): Progress[] {
@@ -63,21 +71,39 @@ export function createProgressStore() {
       }
       await r.upsertMany(updated);
 
-      for (const [kanaId, list] of Object.entries(answers)) {
-        const group = confusionGroupId(kanaId);
-        const wrong = list.filter((ok) => !ok).length;
-        if (group && wrong > 0) await r.addConfusion(group, now, wrong);
-      }
-
       const next = { ...get().progress };
       for (const p of updated) next[p.kanaId] = p;
-      set({ progress: next, confusions: await r.getConfusions() });
+      set({ progress: next });
       return { before, after: progressList(next) };
+    },
+
+    async recordWrongAnswer(kanaId, now) {
+      const groups = groupsForWrongAnswer(kanaId);
+      if (groups.length === 0) return;
+      const r = need();
+      for (const g of groups) {
+        const list = get().confusions;
+        const prev = list.find((c) => c.groupId === g.id);
+        const nextRecord: ConfusionRecord = {
+          groupId: g.id,
+          wrongCount: (prev?.wrongCount ?? 0) + 1,
+          updatedAt: now,
+        };
+        set({ confusions: [...list.filter((c) => c.groupId !== g.id), nextRecord] });
+        await r.addConfusion(g.id, now, 1);
+      }
     },
 
     async reset() {
       await need().reset();
       set({ progress: {}, confusions: [] });
+    },
+
+    async replaceAll(items) {
+      const r = need();
+      await r.reset();
+      await r.upsertMany(items);
+      set({ progress: Object.fromEntries(items.map((p) => [p.kanaId, p])), confusions: [] });
     },
   }));
 }

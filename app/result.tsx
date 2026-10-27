@@ -13,7 +13,9 @@ function minutesLabel(ms: number): string {
   return `${Math.max(1, Math.round(ms / 60000))} 分`;
 }
 
-function describe(newCount: number, reviewCount: number): string {
+function describe(newCount: number, reviewCount: number, correct: number, total: number): string {
+  // 快速辨識只答了還沒學的字時，沒有新字也沒有複習字
+  if (newCount === 0 && reviewCount === 0) return `練習了 ${total} 題，答對 ${correct} 題。`;
   if (newCount > 0 && reviewCount > 0) return `學了 ${newCount} 個新字，也複習了 ${reviewCount} 個舊字。`;
   if (newCount > 0) return `學了 ${newCount} 個新字。`;
   return `複習了 ${reviewCount} 個字。`;
@@ -51,7 +53,7 @@ export default function ResultScreen() {
       <View style={styles.titleBox}>
         <Text style={[styles.title, { color: t.text }]}>今天完成了</Text>
         <Text testID="result-desc" style={[styles.desc, { color: t.muted }]}>
-          {describe(summary.newCount, summary.reviewCount)}
+          {describe(summary.newCount, summary.reviewCount, summary.correct, summary.total)}
         </Text>
       </View>
       <View style={styles.stats}>
@@ -90,7 +92,13 @@ export default function ResultScreen() {
         <Pressable
           testID="result-again"
           accessibilityRole="button"
-          onPress={() => router.replace({ pathname: '/quiz', params: { mode: 'auto' } })}
+          onPress={() =>
+            router.replace(
+              result.mode === 'confuse' && result.groupId
+                ? { pathname: '/quiz', params: { mode: 'confuse', group: result.groupId } }
+                : { pathname: '/quiz', params: { mode: 'auto' } },
+            )
+          }
           style={styles.again}
         >
           <Text style={[styles.againLabel, { color: t.muted }]}>再練一輪</Text>

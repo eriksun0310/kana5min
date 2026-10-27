@@ -1,0 +1,139 @@
+# 易混淆字：練習分頁三組（無片假名組）→ 對比頁切換字組 → 快速辨識 10 題（故意答錯一題）
+# → 回練習分頁，該組「錯 N 次」且排到第一。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: group-nume
+- assertVisible:
+    id: group-ruro
+- assertVisible:
+    id: group-wanere
+- assertVisible: 最近常搞混
+# 片假名組在片假名資料加入前（第三階段）不會出現
+- assertNotVisible: "(シツ|シ・ツ).*"
+- assertNotVisible: "(ソン|ソ・ン).*"
+- assertNotVisible:
+    id: group-shitsu
+- assertNotVisible:
+    id: group-son
+# 一組一個「錯 0 次」
+- assertVisible: "ぬ・め，錯 0 次"
+- tapOn:
+    id: group-wanere
+- assertVisible:
+    id: confuse-tip
+- assertVisible:
+    id: confuse-card-h-wa
+- assertVisible:
+    id: confuse-card-h-ne
+- assertVisible:
+    id: confuse-card-h-re
+- tapOn:
+    id: confuse-card-h-ne
+# 切換字組
+- tapOn:
+    id: pill-nume
+- assertVisible:
+    id: confuse-card-h-nu
+- assertVisible:
+    id: confuse-card-h-me
+- assertNotVisible:
+    id: confuse-card-h-wa
+- tapOn:
+    id: pill-ruro
+- assertVisible:
+    id: confuse-card-h-ru
+- assertVisible:
+    id: confuse-card-h-ro
+- tapOn:
+    id: pill-wanere
+- assertVisible:
+    id: confuse-card-h-wa
+- assertVisible: "0 次"
+# 快速辨識（わねれ 組）：第一題故意答錯（看字選音要再按 quiz-confirm），其餘答對
+- tapOn:
+    id: quick-confuse
+# wrongDone：0 = 還沒答錯過，1 = 這題剛故意答錯，2 = 之後都答對
+- evalScript: ${output.wrongDone = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 0}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - evalScript: ${output.wrongDone = 1}
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 0}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - evalScript: ${output.wrongDone = 1}
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 1}
+                commands:
+                  - evalScript: ${output.wrongDone = 2}
+- assertVisible: 今天完成了
+- assertVisible:
+    id: stat-correct
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: stat-learned
+# 回練習分頁：わねれ 組顯示「錯 1 次」並排到第一（左上，在 ぬ・め 左邊）
+- tapOn:
+    id: tab-practice
+- assertVisible: "わ・ね・れ，錯 1 次"
+- assertVisible:
+    id: group-wanere
+    leftOf:
+      id: group-nume
+- assertVisible: "ぬ・め，錯 0 次"

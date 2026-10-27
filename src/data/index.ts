@@ -98,8 +98,9 @@ export function newlyReadableWords(
 }
 
 /**
- * 易混淆字組的 id：組內所有 Kana id 排序後以 | 相連（わ／ね／れ 為同一組）。
- * 沒有易混淆字時回傳 undefined。
+ * 詳情頁「容易搞混」用的 kana 層級分組 id（階段 1 遺留）。
+ * 練習用的易混淆字組（答錯紀錄、練習入口）請用 data/confusables.ts 的 group id 與
+ * logic/confusion.ts 的 groupsForWrongAnswer。
  */
 export function confusionGroupId(kanaId: string): string | undefined {
   const k = kanaMap.get(kanaId);

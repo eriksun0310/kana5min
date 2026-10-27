@@ -1,0 +1,83 @@
+# 特殊音：練習分頁 → 長音（播放兩個例詞）→ 切促音 → 切拗音 → 練習聽出拗音 6 題 → 完成狀態 → 回特殊音。
+# 特殊音頁與練習不需要任何學習進度，所以不用套用預設。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: special-long
+- assertVisible:
+    id: special-sokuon
+- assertVisible:
+    id: special-youon
+# 長音
+- tapOn:
+    id: special-long
+- assertVisible:
+    id: seg-long
+- assertVisible: 長音
+- tapOn:
+    id: play-w-obasan
+- tapOn:
+    id: play-w-obaasan
+# 促音
+- tapOn:
+    id: seg-sokuon
+- assertVisible:
+    id: play-w-kite
+- tapOn:
+    id: play-w-kite
+- tapOn:
+    id: play-w-kitte
+# 拗音
+- tapOn:
+    id: seg-youon
+- assertVisible:
+    id: play-w-biyouin
+- assertVisible:
+    id: youon-kya
+- tapOn:
+    id: youon-kya
+- tapOn:
+    id: play-w-biyouin
+- tapOn:
+    id: play-w-byouin
+# 拗音練習：6 題，全部選對
+- tapOn:
+    id: special-practice
+- assertVisible:
+    id: replay-audio
+- repeat:
+    while:
+      notVisible:
+        id: special-score
+    times: 30
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: "答對 6 / 6"
+- assertVisible:
+    id: special-again
+- tapOn:
+    id: special-done
+# 回到特殊音頁（拗音）
+- assertVisible:
+    id: special-practice
+- assertVisible:
+    id: seg-youon

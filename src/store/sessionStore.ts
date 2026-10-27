@@ -4,7 +4,13 @@
 
 import { create } from 'zustand';
 import type { Progress } from '../data/types';
-import { buildAutoSession } from '../logic/autoQuiz';
+import {
+  buildAutoPractice10,
+  buildQuickConfuse10,
+  confusionCounts,
+  type ConfusionCounts,
+} from '../logic/confusion';
+import { confusableGroupById } from '../data/confusables';
 import {
   buildResultSummary,
   type ResultSummary,
@@ -13,13 +19,15 @@ import {
   buildDailySession,
   buildQuiz,
   completedRows,
+  learnedIdSet,
   type QuizQuestion,
   type Rng,
 } from '../logic/session';
 import { progressList, useProgressStore } from './progressStore';
 import { useSettingsStore } from './settingsStore';
 
-export type SessionMode = 'daily' | 'auto';
+/** daily = 每日練習；auto = 自動練習；confuse = 易混淆字組快速辨識 */
+export type SessionMode = 'daily' | 'auto' | 'confuse';
 export type SessionPhase = 'learn' | 'quiz';
 
 /** 每輪最多帶入的到期複習字數（其餘留到下一輪，避免一次出太多題） */
@@ -30,6 +38,8 @@ export const STEPS_PER_NEW_KANA = 3;
 
 export interface SessionResultData {
   mode: SessionMode;
+  /** confuse 模式的字組 id（結果頁「再練一輪」用） */
+  groupId: string | null;
   summary: ResultSummary;
   /** 這輪才湊滿的行（row key，依五十音順序） */
   completedRows: string[];
@@ -44,6 +54,8 @@ export interface SessionState {
   sid: number;
   active: boolean;
   mode: SessionMode;
+  /** confuse 模式的字組 id */
+  groupId: string | null;
   phase: SessionPhase;
   newKanaIds: string[];
   reviewKanaIds: string[];
@@ -61,10 +73,19 @@ export interface SessionState {
 
   /** 開始每日練習：有新字 → 'learn'；只有複習 → 直接建好題目 'quiz'；都沒有 → 'empty' */
   startDaily: (allProgress: Progress[], now: number, rng?: Rng) => StartDailyOutcome;
-  /** 開始自動練習；沒有任何已學字時回傳 false */
-  startAuto: (allProgress: Progress[], now: number, rng?: Rng) => boolean;
+  /**
+   * 開始自動練習（see／hear／confuse 混合 10 題）；沒有任何已學字時回傳 false。
+   * counts 預設取 progressStore 目前的易混淆答錯次數。
+   */
+  startAuto: (allProgress: Progress[], now: number, rng?: Rng, counts?: ConfusionCounts) => boolean;
+  /**
+   * 開始易混淆字組快速辨識 10 題；字組不存在或資料不足時回傳 false。
+   * 已學的字照常更新 SRS；未學的字只記答錯次數，不寫 SRS。
+   */
+  startConfuse: (groupId: string, allProgress: Progress[], now: number, rng?: Rng) => boolean;
   /** 目前新字的學習步驟都完成了：有下一個新字回 'next'，否則建立題目進入測驗回 'quiz' */
   advanceNew: (rng?: Rng) => 'next' | 'quiz';
+  /** 記錄一題的對錯；答錯時同時把所屬易混淆字組的答錯次數即時寫入 */
   recordAnswer: (kanaId: string, correct: boolean) => void;
   /** 前進到下一題；已經是最後一題時回傳 false（不動） */
   nextQuestion: () => boolean;
@@ -76,6 +97,7 @@ export interface SessionState {
 const empty = {
   active: false,
   mode: 'daily' as SessionMode,
+  groupId: null as string | null,
   phase: 'learn' as SessionPhase,
   newKanaIds: [] as string[],
   reviewKanaIds: [] as string[],
@@ -116,10 +138,10 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     return hasNew ? 'learn' : 'quiz';
   },
 
-  startAuto(allProgress, now, rng = Math.random) {
-    const auto = buildAutoSession(allProgress, rng);
-    if (!auto) return false;
-    const questions = buildQuiz(auto, rng);
+  startAuto(allProgress, now, rng = Math.random, counts) {
+    const usedCounts = counts ?? confusionCounts(useProgressStore.getState().confusions);
+    const questions = buildAutoPractice10(allProgress, usedCounts, rng);
+    if (!questions || questions.length === 0) return false;
     set((s) => ({
       ...empty,
       sid: s.sid + 1,
@@ -128,7 +150,29 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       phase: 'quiz',
       // newKanaIds 在自動練習中不代表新字，不放進狀態
       reviewKanaIds: [...new Set(questions.map((q) => q.kanaId))],
-      learnedIds: auto.learnedIds,
+      learnedIds: [...learnedIdSet(allProgress)],
+      questions,
+      startedAt: now,
+    }));
+    return true;
+  },
+
+  startConfuse(groupId, allProgress, now, rng = Math.random) {
+    const group = confusableGroupById(groupId);
+    if (!group) return false;
+    const questions = buildQuickConfuse10(group, rng);
+    if (questions.length === 0) return false;
+    const learnedIds = [...learnedIdSet(allProgress)];
+    const learned = new Set(learnedIds);
+    set((s) => ({
+      ...empty,
+      sid: s.sid + 1,
+      active: true,
+      mode: 'confuse',
+      groupId: group.id,
+      phase: 'quiz',
+      reviewKanaIds: [...new Set(questions.map((q) => q.kanaId))].filter((id) => learned.has(id)),
+      learnedIds,
       questions,
       startedAt: now,
     }));
@@ -151,6 +195,13 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
   recordAnswer(kanaId, correct) {
     set((s) => ({ answers: { ...s.answers, [kanaId]: [...(s.answers[kanaId] ?? []), correct] } }));
+    if (!correct) {
+      // 作答當下就寫入易混淆字組的答錯次數，不等一輪結束；寫入失敗不影響作答流程
+      useProgressStore
+        .getState()
+        .recordWrongAnswer(kanaId, Date.now())
+        .catch(() => {});
+    }
   },
 
   nextQuestion() {
@@ -176,7 +227,12 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     }
     set({ finishing: true });
     try {
-      const { before, after } = await useProgressStore.getState().commitRound(s.answers, now);
+      // SRS 只更新已學的字與這輪的新字；快速辨識裡還沒學的字只記答錯次數（已在作答當下寫入）
+      const eligible = new Set([...s.learnedIds, ...s.newKanaIds]);
+      const srsAnswers = Object.fromEntries(
+        Object.entries(s.answers).filter(([kanaId]) => eligible.has(kanaId)),
+      );
+      const { before, after } = await useProgressStore.getState().commitRound(srsAnswers, now);
       useSettingsStore.getState().markPracticed(now);
       const summary = buildResultSummary({
         answers: s.answers,
@@ -187,6 +243,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       });
       const result: SessionResultData = {
         mode: s.mode,
+        groupId: s.groupId,
         summary,
         completedRows: completedRows(before, after),
         before,

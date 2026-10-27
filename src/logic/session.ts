@@ -69,23 +69,28 @@ export function buildDailySession(
 
 // ---------------------------------------------------------------- 測驗
 
-/** see = 看字選音（C2-08）；hear = 聽音選字（C2-09） */
-export type QuizType = 'see' | 'hear';
+/**
+ * see = 看字選音（C2-08）；hear = 聽音選字（C2-09）；
+ * confuse = 易混淆字辨識：播放聲音，選項是該組成員（2～3 個，不補到 4 個）。
+ */
+export type QuizType = 'see' | 'hear' | 'confuse';
 
 export interface QuizQuestion {
   /** 題目序號 id，例如 'q-0' */
   id: string;
   kanaId: string;
   type: QuizType;
-  /** 4 個選項，皆為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現） */
+  /** 選項，皆為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現）。see／hear 為 4 個，confuse 為 2～3 個 */
   options: string[];
   /** 正確選項的 Kana id（= kanaId） */
   answerId: string;
+  /** confuse 題（以及易混淆字組快速辨識的 see 題）所屬的字組 id */
+  groupId?: string;
 }
 
 export const QUIZ_OPTION_COUNT = 4;
 
-function shuffle<T>(items: readonly T[], rng: Rng): T[] {
+export function shuffle<T>(items: readonly T[], rng: Rng): T[] {
   const a = items.slice();
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
@@ -134,34 +139,41 @@ export function pickDistractors(
 export function buildQuiz(session: DailySession, rng: Rng = Math.random): QuizQuestion[] {
   const known = new Set([...session.learnedIds, ...session.newKanaIds, ...session.reviewKanaIds]);
 
-  type Draft = Omit<QuizQuestion, 'id'>;
-  const make = (kanaId: string, type: QuizType): Draft | undefined => {
-    const target = byId(kanaId);
-    if (!target) return undefined;
-    const options = shuffle([kanaId, ...pickDistractors(target, known, rng)], rng);
-    return { kanaId, type, options, answerId: kanaId };
-  };
-
-  const drafts: Draft[] = [];
+  const drafts: QuizDraft[] = [];
   for (const id of session.newKanaIds) {
     for (const type of ['see', 'hear'] as const) {
-      const d = make(id, type);
+      const d = makeChoiceQuestion(id, type, known, rng);
       if (d) drafts.push(d);
     }
   }
   for (const id of session.reviewKanaIds) {
-    const d = make(id, rng() < 0.5 ? 'see' : 'hear');
+    const d = makeChoiceQuestion(id, rng() < 0.5 ? 'see' : 'hear', known, rng);
     if (d) drafts.push(d);
   }
 
   return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
 }
 
+export type QuizDraft = Omit<QuizQuestion, 'id'>;
+
+/** 一題 4 選項的看字選音／聽音選字（干擾項規則見 pickDistractors）。找不到字時回傳 undefined。 */
+export function makeChoiceQuestion(
+  kanaId: string,
+  type: 'see' | 'hear',
+  known: ReadonlySet<string>,
+  rng: Rng,
+): QuizDraft | undefined {
+  const target = byId(kanaId);
+  if (!target) return undefined;
+  const options = shuffle([kanaId, ...pickDistractors(target, known, rng)], rng);
+  return { kanaId, type, options, answerId: kanaId };
+}
+
 /**
  * 打散順序並避免同一個字相鄰：每一步從「不同於上一題」的題目裡隨機選；
  * 若某個字剩下的題數必須立刻交錯才排得完（2c-1 >= 剩餘題數），就強制先選它。
  */
-function arrange<T extends { kanaId: string }>(items: T[], rng: Rng): T[] {
+export function arrange<T extends { kanaId: string }>(items: T[], rng: Rng): T[] {
   const remaining = shuffle(items, rng);
   const out: T[] = [];
   while (remaining.length > 0) {

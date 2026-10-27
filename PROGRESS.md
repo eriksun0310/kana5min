@@ -7,7 +7,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 | 階段 | 檔案 | 狀態 | commit |
 |---|---|---|---|
 | 1 | goals/01-hiragana.md | 完成 | phase 1 complete |
-| 2 | goals/02-practice-special.md | 未開始 | |
+| 2 | goals/02-practice-special.md | 完成 | phase 2 complete |
 | 3 | goals/03-katakana.md | 未開始 | |
 | 4 | goals/04-graduate-release.md | 未開始 | |
 
@@ -33,6 +33,20 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
   - 設定頁的 header 用 minHeight 加 padding 會把內容擠成 0 高，已改成固定高度。
   - 歡迎頁的推入動畫會讓截圖偏移，已改成無動畫。
   - 開發版偶發「onAnimatedValueUpdate with no listeners」警告，來源是 expo-router 的 tab 動畫，已用 `LogBox.ignoreLogs` 忽略這一條。
+
+### 階段 2：練習、易混淆字、特殊音（2026-10-27）
+
+- 練習分頁（C2-13）：自動練習、最近常搞混（依答錯次數排序）、三個特殊音入口。
+- 易混淆字（`src/data/confusables.ts`、`src/logic/confusion.ts`）：
+  - 5 組，id 分別是 nume、ruro、wanere、shitsu、son。
+  - 答錯時立即寫入 sqlite 的 confusion 表。
+  - 自動練習出易混淆題時，依權重 1 + 答錯次數抽組。
+  - シツ、ソン 在片假名解鎖前不會出現。
+- 對比頁（C2-14）：可切換字組，「快速辨識 10 題」只出該組的題目。
+- 特殊音（C2-15～17）：`app/special/[kind].tsx` 與 `app/special-quiz.tsx`（每類 6 題，聽音二選一，不影響 SRS）；拍數方塊元件 `MoraBoxes`。新增 15 個對立詞並產生音檔。
+- 開發用進度預設：`kana5min://debug?preset=hiragana-done|all-done|reset`，只在 `__DEV__` 生效（`src/dev/`、`app/debug.tsx`）。
+- 測試：`npm test` 15 個 suite、171 個測試通過；`maestro test maestro/` 跑 7 個流程（phase1 四個、phase2 三個）全部通過。
+- 截圖：`screenshots/phase2/`，重跑指令 `maestro/screenshots/run-phase2.sh <UDID>`。
 
 ### 音檔清單（階段 1）
 
@@ -75,6 +89,21 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 - 片假名在解鎖前，五十音表的切換鈕點了只顯示「平假名學完後解鎖」。
 - 設定頁是分頁，所以不顯示設計檔的返回箭頭。
 - 部分拗音例字較罕見（例如 ひゅうが、みゅう），只是為了補齊，可以再替換。
+
+### 階段 2
+
+- 「最近常搞混」列出所有可用的組，沒答錯過的顯示「錯 0 次」。對比頁的切換膠囊固定預設順序，不依答錯次數重排。
+- 答錯紀錄：只要題目的正確答案屬於某組且答錯，該組就 +1，答對不會減少。
+- 快速辨識時，已學的字照常更新 SRS；未學的字只記答錯，不寫 SRS。
+- 自動練習：有可用字組時出 2～4 題易混淆題，其餘是看字選音、聽音選字。已學的字太少時，題數可能少於 10 題。
+- 易混淆題的選項就是該組成員（2～3 個），不補滿 4 個。
+- 特殊音練習的對立詞：
+  - 長音：おばさん／おばあさん、おじさん／おじいさん、ゆき／ゆうき
+  - 促音：きて／きって、おと／おっと、かこ／かっこ
+  - 拗音：びよういん／びょういん、じゆう／じゅう、りよう／りょう
+- 特殊音練習在作答前，選項的拍數方塊不標出特殊拍，避免直接透露答案。
+- 對比頁的大字卡、拗音表的格子都可以點擊播放（設計檔沒有這個互動）。
+- `src/logic/autoQuiz.ts` 已被 `buildAutoPractice10` 取代、不再使用。依規則未經同意不刪檔，所以先保留。
 
 ## 待確認事項
 

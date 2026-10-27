@@ -1,0 +1,263 @@
+import { confusableGroups, confusableGroupById } from '../../data/confusables';
+import { seionOrder } from '../../data';
+import {
+  AUTO_PRACTICE_SIZE,
+  availableGroups,
+  buildAutoPractice10,
+  buildConfuseQuestion,
+  buildQuickConfuse10,
+  confusionCounts,
+  groupsForWrongAnswer,
+  isConfuseEligible,
+  isKatakanaUnlocked,
+  pickConfuseGroup,
+  sortGroupsByMisses,
+} from '../confusion';
+import { prog, seededRng } from './testUtils';
+
+const group = (id: string) => confusableGroupById(id)!;
+const learnedOf = (...ids: string[]) => new Set(ids);
+const hiraganaAll = () => seionOrder('hiragana').map((k) => prog(k.id));
+
+describe('易混淆字組資料', () => {
+  it('5 組、id 為 ascii、label 與 members 對得上', () => {
+    expect(confusableGroups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere', 'shitsu', 'son']);
+    expect(group('wanere').members).toEqual(['h-wa', 'h-ne', 'h-re']);
+    expect(group('shitsu').members).toEqual(['k-shi', 'k-tsu']);
+    expect(group('son').members).toEqual(['k-so', 'k-n']);
+    for (const g of confusableGroups) expect(g.tip.length).toBeGreaterThan(10);
+  });
+});
+
+describe('isKatakanaUnlocked', () => {
+  it('清音 46 個全學過才解鎖', () => {
+    expect(isKatakanaUnlocked([])).toBe(false);
+    expect(isKatakanaUnlocked(hiraganaAll().slice(0, 45))).toBe(false);
+    expect(isKatakanaUnlocked(hiraganaAll())).toBe(true);
+  });
+
+  it('未學（沒有 learnedAt）的進度不算', () => {
+    const all = hiraganaAll();
+    all[10] = { ...all[10], learnedAt: undefined };
+    expect(isKatakanaUnlocked(all)).toBe(false);
+  });
+});
+
+describe('availableGroups', () => {
+  it('片假名組在解鎖前不出現，平假名組一律可用', () => {
+    expect(availableGroups([]).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+  });
+
+  it('片假名組：解鎖前不出現；解鎖後只有成員查得到資料（至少 2 個）的才出現', () => {
+    // 用平假名成員偽裝成片假名組，驗證「解鎖」這個條件
+    const fake = { ...group('nume'), id: 'fake-kata', script: 'katakana' as const };
+    expect(availableGroups(hiraganaAll().slice(0, 45), [fake])).toEqual([]);
+    expect(availableGroups(hiraganaAll(), [fake]).map((g) => g.id)).toEqual(['fake-kata']);
+    // 成員查不到資料（片假名資料尚未加入）→ 就算解鎖也不出現；資料加入後才會出現
+    const unresolved = { ...group('nume'), id: 'ghost', members: ['k-ghost-1', 'k-ghost-2'] };
+    expect(availableGroups(hiraganaAll(), [unresolved])).toEqual([]);
+    const ids = availableGroups(hiraganaAll()).map((g) => g.id);
+    expect(ids.slice(0, 3)).toEqual(['nume', 'ruro', 'wanere']);
+  });
+});
+
+describe('sortGroupsByMisses', () => {
+  it('答錯多的在前、同分維持預設順序、不改原陣列', () => {
+    const groups = availableGroups([]);
+    const sorted = sortGroupsByMisses(groups, { ruro: 4, nume: 2, wanere: 2 });
+    expect(sorted.map((g) => g.id)).toEqual(['ruro', 'nume', 'wanere']);
+    expect(groups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(sortGroupsByMisses(groups, {}).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+  });
+
+  it('confusionCounts 把紀錄轉成 groupId → 次數', () => {
+    expect(confusionCounts([{ groupId: 'nume', wrongCount: 3, updatedAt: 1 }])).toEqual({ nume: 3 });
+  });
+});
+
+describe('groupsForWrongAnswer', () => {
+  it('回傳該字所屬的組；不屬於任何組回傳空陣列', () => {
+    expect(groupsForWrongAnswer('h-nu').map((g) => g.id)).toEqual(['nume']);
+    expect(groupsForWrongAnswer('h-ne').map((g) => g.id)).toEqual(['wanere']);
+    expect(groupsForWrongAnswer('k-tsu').map((g) => g.id)).toEqual(['shitsu']);
+    expect(groupsForWrongAnswer('h-a')).toEqual([]);
+  });
+});
+
+describe('pickConfuseGroup', () => {
+  const groups = availableGroups([]);
+  const learnedAll = learnedOf('h-nu', 'h-me', 'h-ru', 'h-ro', 'h-wa', 'h-ne', 'h-re');
+
+  it('只有至少 2 個成員已學的組才會被考慮', () => {
+    expect(isConfuseEligible(group('nume'), learnedOf('h-nu'))).toBe(false);
+    expect(isConfuseEligible(group('nume'), learnedOf('h-nu', 'h-me'))).toBe(true);
+    // わねれ 只學了 1 個、るろ 學了 2 個 → 只會抽到るろ
+    const learned = learnedOf('h-wa', 'h-ru', 'h-ro', 'h-nu');
+    const rng = seededRng(7);
+    for (let i = 0; i < 200; i++) {
+      expect(pickConfuseGroup(groups, {}, learned, rng)?.id).toBe('ruro');
+    }
+  });
+
+  it('沒有符合的組：undefined', () => {
+    expect(pickConfuseGroup(groups, {}, learnedOf('h-nu', 'h-ru', 'h-wa'), seededRng(1))).toBeUndefined();
+    expect(pickConfuseGroup(groups, {}, learnedOf(), seededRng(1))).toBeUndefined();
+  });
+
+  it('成員查不到資料時（片假名資料第三階段才有），就算 id 在已學集合裡也不會被選到', () => {
+    const ghost = { ...group('shitsu'), id: 'ghost', members: ['k-ghost-1', 'k-ghost-2'] };
+    expect(pickConfuseGroup([ghost], {}, learnedOf('k-ghost-1', 'k-ghost-2'), seededRng(1))).toBeUndefined();
+  });
+
+  it('答錯多的組被抽到的頻率較高（固定 seed、大量抽樣）', () => {
+    const rng = seededRng(2026);
+    const counts = { nume: 9, ruro: 0, wanere: 0 }; // 權重 10 : 1 : 1
+    const hits: Record<string, number> = { nume: 0, ruro: 0, wanere: 0 };
+    const N = 6000;
+    for (let i = 0; i < N; i++) hits[pickConfuseGroup(groups, counts, learnedAll, rng)!.id] += 1;
+    expect(hits.nume).toBeGreaterThan(hits.ruro * 5);
+    expect(hits.nume).toBeGreaterThan(hits.wanere * 5);
+    // 期望比例 10/12 ≈ 0.83
+    expect(hits.nume / N).toBeGreaterThan(0.78);
+    expect(hits.nume / N).toBeLessThan(0.88);
+    // 答錯次數相同時三組機率相近
+    const even: Record<string, number> = { nume: 0, ruro: 0, wanere: 0 };
+    for (let i = 0; i < N; i++) even[pickConfuseGroup(groups, {}, learnedAll, rng)!.id] += 1;
+    for (const id of Object.keys(even)) expect(Math.abs(even[id] / N - 1 / 3)).toBeLessThan(0.04);
+  });
+});
+
+describe('buildConfuseQuestion', () => {
+  it('選項是該組成員（わねれ 3 個、ぬめ 2 個），不補到 4 個；答案在選項裡；目標優先取已學字', () => {
+    const learned = learnedOf('h-nu', 'h-wa', 'h-re');
+    const rng = seededRng(3);
+    for (let i = 0; i < 50; i++) {
+      const q3 = buildConfuseQuestion(group('wanere'), learned, rng);
+      expect([...q3.options].sort()).toEqual(['h-ne', 'h-re', 'h-wa']);
+      expect(['h-wa', 'h-re']).toContain(q3.answerId); // ね 沒學過，不會被當目標
+      expect(q3.kanaId).toBe(q3.answerId);
+      expect(q3.type).toBe('confuse');
+      expect(q3.groupId).toBe('wanere');
+      const q2 = buildConfuseQuestion(group('nume'), learnedOf('h-nu', 'h-me'), rng);
+      expect(q2.options).toHaveLength(2);
+    }
+  });
+
+  it('avoid 內的目標盡量避開，沒得避開時才重複', () => {
+    const learned = learnedOf('h-nu', 'h-me');
+    const rng = seededRng(4);
+    for (let i = 0; i < 20; i++) {
+      expect(buildConfuseQuestion(group('nume'), learned, rng, new Set(['h-nu'])).answerId).toBe('h-me');
+    }
+    expect(['h-nu', 'h-me']).toContain(buildConfuseQuestion(group('nume'), learned, rng, new Set(['h-nu', 'h-me'])).answerId);
+  });
+});
+
+describe('buildAutoPractice10', () => {
+  it('沒有已學字：null', () => {
+    expect(buildAutoPractice10([], {}, seededRng(1))).toBeNull();
+  });
+
+  it('沒有任何組有 2 個已學成員：不出 confuse 題，行為同簡版（5 個字 → 10 題 see／hear）', () => {
+    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-ru'].map((i) => prog(i));
+    const qs = buildAutoPractice10(progress, {}, seededRng(5))!;
+    expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
+    expect(qs.every((q) => q.type !== 'confuse')).toBe(true);
+    for (const q of qs) {
+      expect(q.options).toHaveLength(4);
+      expect(q.options).toContain(q.answerId);
+    }
+  });
+
+  it('已學字不足：同一個字最多 2 題（兩種題型），總題數 = 2×字數', () => {
+    const qs = buildAutoPractice10(['h-a', 'h-i', 'h-u'].map((i) => prog(i)), {}, seededRng(6))!;
+    expect(qs).toHaveLength(6);
+    for (const id of ['h-a', 'h-i', 'h-u']) {
+      const types = qs.filter((q) => q.kanaId === id).map((q) => q.type).sort();
+      expect(types).toEqual(['hear', 'see']);
+    }
+  });
+
+  it('有可用的組：混入 confuse 題，三種題型都可能出現，confuse 選項限該組成員', () => {
+    const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-ka', 'h-ki', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
+    const progress = ids.map((i) => prog(i));
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const qs = buildAutoPractice10(progress, {}, seededRng(seed))!;
+      expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
+      const confuse = qs.filter((q) => q.type === 'confuse');
+      expect(confuse.length).toBeGreaterThanOrEqual(2);
+      expect(confuse.length).toBeLessThanOrEqual(4);
+      for (const q of confuse) {
+        const g = group(q.groupId!);
+        expect([...q.options].sort()).toEqual([...g.members].sort());
+        expect(q.options).toContain(q.answerId);
+      }
+      qs.forEach((q) => seen.add(q.type));
+      // 同一個字不相鄰
+      for (let i = 1; i < qs.length; i++) expect(qs[i].kanaId).not.toBe(qs[i - 1].kanaId);
+    }
+    expect([...seen].sort()).toEqual(['confuse', 'hear', 'see']);
+  });
+
+  it('片假名組在解鎖前不會出現在任何題目（即使答錯紀錄很多）', () => {
+    const progress = ['h-a', 'h-i', 'h-nu', 'h-me', 'h-ru', 'h-ro', 'h-wa', 'h-ne', 'h-re'].map((i) => prog(i));
+    for (let seed = 1; seed <= 60; seed++) {
+      const qs = buildAutoPractice10(progress, { shitsu: 99, son: 99, nume: 1 }, seededRng(seed))!;
+      for (const q of qs) {
+        expect(q.groupId === 'shitsu' || q.groupId === 'son').toBe(false);
+        expect(q.options.some((o) => o.startsWith('k-'))).toBe(false);
+      }
+    }
+  });
+
+  it('答錯多的組在整輪題目中出現較多（固定 seed、多輪統計）', () => {
+    const ids = ['h-nu', 'h-me', 'h-ru', 'h-ro', 'h-wa', 'h-ne', 'h-re', 'h-a', 'h-i', 'h-u', 'h-e', 'h-o'];
+    const progress = ids.map((i) => prog(i));
+    const hits: Record<string, number> = { nume: 0, ruro: 0, wanere: 0 };
+    for (let seed = 1; seed <= 300; seed++) {
+      for (const q of buildAutoPractice10(progress, { nume: 12 }, seededRng(seed))!) {
+        if (q.type === 'confuse') hits[q.groupId!] += 1;
+      }
+    }
+    expect(hits.nume).toBeGreaterThan(hits.ruro * 2);
+    expect(hits.nume).toBeGreaterThan(hits.wanere * 2);
+  });
+});
+
+describe('buildQuickConfuse10', () => {
+  it('10 題，只有 confuse 與 see 兩種題型，選項限該組成員、答案在選項裡', () => {
+    for (const id of ['nume', 'wanere']) {
+      const g = group(id);
+      const qs = buildQuickConfuse10(g, seededRng(11));
+      expect(qs).toHaveLength(10);
+      expect(qs.map((q) => q.id)).toEqual(Array.from({ length: 10 }, (_, i) => `q-${i}`));
+      for (const q of qs) {
+        expect(['confuse', 'see']).toContain(q.type);
+        expect([...q.options].sort()).toEqual([...g.members].sort());
+        expect(q.options).toContain(q.answerId);
+        expect(q.groupId).toBe(id);
+      }
+      expect(qs.some((q) => q.type === 'confuse')).toBe(true);
+      expect(qs.some((q) => q.type === 'see')).toBe(true);
+    }
+  });
+
+  it('目標字在組內輪流（每個字都會被考到、次數相差最多 1）且同一個字不相鄰', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const qs = buildQuickConfuse10(group('wanere'), seededRng(seed));
+      const n: Record<string, number> = {};
+      qs.forEach((q) => (n[q.kanaId] = (n[q.kanaId] ?? 0) + 1));
+      const values = Object.values(n);
+      expect(Object.keys(n).sort()).toEqual(['h-ne', 'h-re', 'h-wa']);
+      expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(1);
+      for (let i = 1; i < qs.length; i++) expect(qs[i].kanaId).not.toBe(qs[i - 1].kanaId);
+    }
+  });
+
+  it('成員查不到資料時回傳空陣列，不丟錯', () => {
+    const ghost = { ...group('shitsu'), id: 'ghost', members: ['k-ghost-1', 'k-ghost-2'] };
+    expect(buildQuickConfuse10(ghost, seededRng(1))).toEqual([]);
+  });
+});

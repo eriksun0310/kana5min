@@ -1,0 +1,58 @@
+# 自動練習：套用 hiragana-done → 練習分頁 → 自動練習 → 完成 10 題 → 結果頁。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: start-auto-practice
+- assertNotVisible:
+    id: practice-empty-hint
+- tapOn:
+    id: start-auto-practice
+# 10 題，全部選正確答案（see 要按 quiz-confirm；hear／confuse 點了就確定）
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- assertVisible:
+    id: stat-correct
+- assertVisible: "10 / 10"
+- tapOn:
+    id: result-home
+# 結果頁的「回首頁」回到首頁分頁
+- assertVisible:
+    id: stat-learned

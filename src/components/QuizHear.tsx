@@ -18,7 +18,15 @@ export interface QuizHearProps {
   isLast: boolean;
 }
 
-/** 聽音選字（C2-09）：進題自動播放；點字卡就確定作答。 */
+/** 選項分成每列幾個：2 個一列兩欄、3 個一列三欄、其餘（4 個）兩列兩欄。 */
+export function optionColumns(count: number): number {
+  return count === 3 ? 3 : 2;
+}
+
+/**
+ * 聽音選字（C2-09）：進題自動播放；點字卡就確定作答。
+ * 易混淆字題（type = confuse）沿用同一版面，選項只有該組成員（2～3 個），字卡大小不變。
+ */
 export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps) {
   const t = useTheme();
   const defaultSlow = useSettingsStore((s) => s.audioSpeed) === 'slow';
@@ -63,7 +71,10 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
     return 'plain';
   };
 
-  const rows = [question.options.slice(0, 2), question.options.slice(2, 4)];
+  const cols = optionColumns(question.options.length);
+  const rows: string[][] = [];
+  for (let i = 0; i < question.options.length; i += cols) rows.push(question.options.slice(i, i + cols));
+  const title = question.type === 'confuse' ? '這幾個字很像，聽聲音選出正確的字' : '聽聲音，選出正確的字';
 
   return (
     <View style={styles.root}>
@@ -74,7 +85,7 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.prompt}>
-          <Text style={[styles.title, { color: t.text }]}>聽聲音，選出正確的字</Text>
+          <Text style={[styles.title, { color: t.text }]}>{title}</Text>
           <Pressable
             testID="replay-audio"
             accessibilityRole="button"
@@ -102,7 +113,7 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
           {rows.map((row, r) => (
             <View key={r} style={styles.gridRow}>
               {row.map((id, c) => {
-                const index = r * 2 + c;
+                const index = r * cols + c;
                 return (
                   <QuizKanaCard
                     key={`${question.id}-${index}`}

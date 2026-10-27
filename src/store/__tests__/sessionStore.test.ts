@@ -129,6 +129,56 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(result.summary.items.find((i) => i.kanaId === 'h-a')?.tone).toBe('wrong');
   });
 
+  it('自動練習含 confuse 題：答錯當下就寫入該組答錯次數，不等一輪結束', async () => {
+    const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
+    await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
+    expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(8))).toBe(true);
+    const s = useSessionStore.getState();
+    expect(s.questions).toHaveLength(10);
+    expect(s.questions.some((q) => q.type === 'confuse')).toBe(true);
+
+    useSessionStore.getState().recordAnswer('h-nu', false);
+    // 還沒 finish，confusion 已經寫進 store 與 repository
+    await Promise.resolve();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(useProgressStore.getState().confusions.find((c) => c.groupId === 'nume')?.wrongCount).toBe(1);
+    useSessionStore.getState().recordAnswer('h-nu', true); // 答對不扣
+    useSessionStore.getState().recordAnswer('h-a', false); // あ 不屬於任何組
+    await new Promise((r) => setTimeout(r, 0));
+    expect(useProgressStore.getState().confusions).toHaveLength(1);
+    expect(useProgressStore.getState().confusions[0].wrongCount).toBe(1);
+  });
+
+  it('快速辨識：已學的字照常更新 SRS 與 correctStreak；未學的字只記答錯、不寫 SRS', async () => {
+    // 只學過 ぬ；め 還沒學
+    await useProgressStore.getState().commitRound({ 'h-nu': [true] }, NOW - 2 * DAY_MS);
+    const before = useProgressStore.getState().progress['h-nu'];
+    expect(useSessionStore.getState().startConfuse('nume', currentProgressList(), NOW, seededRng(9))).toBe(true);
+    const s = useSessionStore.getState();
+    expect(s.mode).toBe('confuse');
+    expect(s.groupId).toBe('nume');
+    expect(s.questions).toHaveLength(10);
+    expect(s.questions.every((q) => q.type === 'confuse' || q.type === 'see')).toBe(true);
+
+    const result = await playQuiz(['h-me']); // め 全錯，ぬ 全對
+    const progress = useProgressStore.getState().progress;
+    expect(progress['h-me']).toBeUndefined(); // 未學的字不寫 SRS
+    expect(progress['h-nu'].level).toBe(before.level + 1);
+    expect(progress['h-nu'].correctStreak).toBeGreaterThan(before.correctStreak);
+    const meWrong = s.questions.filter((q) => q.kanaId === 'h-me').length;
+    await new Promise((r) => setTimeout(r, 0));
+    expect(useProgressStore.getState().confusions.find((c) => c.groupId === 'nume')?.wrongCount).toBe(meWrong);
+    expect(result.mode).toBe('confuse');
+    expect(result.groupId).toBe('nume');
+    expect(result.summary.total).toBe(10);
+    expect(result.summary.correct).toBe(10 - meWrong);
+    expect(result.summary.items.map((i) => i.kanaId)).toEqual(['h-nu']);
+  });
+
+  it('快速辨識：字組不存在回傳 false', () => {
+    expect(useSessionStore.getState().startConfuse('nope', currentProgressList(), NOW)).toBe(false);
+  });
+
   it('finish 只提交一次（重複呼叫回傳同一份結果）', async () => {
     useSessionStore.getState().startDaily(currentProgressList(), NOW, seededRng(1));
     for (let i = 0; i < 3; i++) useSessionStore.getState().advanceNew(seededRng(2));

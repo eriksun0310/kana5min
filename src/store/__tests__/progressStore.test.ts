@@ -51,15 +51,31 @@ describe('progressStore', () => {
     expect(a.learnedAt).toBe(NOW);
   });
 
-  it('易混淆字答錯時累計該字組的答錯次數', async () => {
+  it('易混淆字答錯時，作答當下就累計該字組的答錯次數（不必等一輪結束）', async () => {
     const repo = createMemoryRepository();
     const store = createProgressStore();
     await store.getState().load(repo);
-    await store.getState().commitRound({ 'h-nu': [false, true], 'h-a': [false] }, NOW);
+    await store.getState().recordWrongAnswer('h-nu', NOW);
+    await store.getState().recordWrongAnswer('h-me', NOW + 1); // 同一組
+    await store.getState().recordWrongAnswer('h-a', NOW); // あ 不屬於任何組
     const confusions = store.getState().confusions;
-    expect(confusions).toHaveLength(1); // あ 沒有易混淆字
-    expect(confusions[0].wrongCount).toBe(1);
-    expect(confusions[0].groupId).toBe('h-me|h-nu');
+    expect(confusions).toHaveLength(1);
+    expect(confusions[0]).toEqual({ groupId: 'nume', wrongCount: 2, updatedAt: NOW + 1 });
+    expect(await repo.getConfusions()).toEqual(confusions);
+
+    // 重新啟動後讀得回來；commitRound 不會重複累計
+    const second = createProgressStore();
+    await second.getState().load(repo);
+    expect(second.getState().confusions[0].wrongCount).toBe(2);
+    await second.getState().commitRound({ 'h-nu': [false, true] }, NOW);
+    expect(second.getState().confusions[0].wrongCount).toBe(2);
+  });
+
+  it('わ・ね・れ 三個字共用同一組的答錯次數', async () => {
+    const store = createProgressStore();
+    await store.getState().load(createMemoryRepository());
+    for (const id of ['h-wa', 'h-ne', 'h-re']) await store.getState().recordWrongAnswer(id, NOW);
+    expect(store.getState().confusions).toEqual([{ groupId: 'wanere', wrongCount: 3, updatedAt: NOW }]);
   });
 
   it('reset 清空記憶與 repository', async () => {
@@ -70,6 +86,22 @@ describe('progressStore', () => {
     await store.getState().reset();
     expect(store.getState().progress).toEqual({});
     expect(await repo.getAll()).toEqual([]);
+  });
+
+  it('replaceAll 取代全部進度、清空易混淆紀錄並寫入 repository', async () => {
+    const repo = createMemoryRepository();
+    const store = createProgressStore();
+    await store.getState().load(repo);
+    await store.getState().commitRound({ 'h-a': [true] }, NOW);
+    await store.getState().recordWrongAnswer('h-nu', NOW);
+    const next = [
+      { kanaId: 'h-i', level: 3, nextReviewAt: NOW, correctStreak: 3, wrongCount: 0, learnedAt: NOW },
+    ];
+    await store.getState().replaceAll(next);
+    expect(Object.keys(store.getState().progress)).toEqual(['h-i']);
+    expect(store.getState().confusions).toEqual([]);
+    expect(await repo.getAll()).toEqual(next);
+    expect(await repo.getConfusions()).toEqual([]);
   });
 
   it('沒 load 就提交會丟出明確的錯', async () => {

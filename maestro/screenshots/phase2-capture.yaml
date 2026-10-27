@@ -1,0 +1,184 @@
+# 階段 2 截圖：C2-13～C2-17。不屬於必須跑通的 phase 流程，請用 maestro/screenshots/run-phase2.sh 執行
+# （它會先切換模擬器的系統外觀，再以 THEME=light|dark 各跑一次）。
+# THEME 由 run-phase2.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值，檔頭的 env 會蓋掉命令列）。
+# App 的主題設定維持「跟隨系統」。takeScreenshot 的檔案寫在測試輸出目錄，由 run-phase2.sh 以
+# --debug-output 指定暫存目錄後複製到 screenshots/phase2/。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-done
+
+# 對比頁（三個字的組，還沒有答錯紀錄）
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: group-wanere
+- tapOn:
+    id: group-wanere
+- assertVisible:
+    id: confuse-card-h-wa
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-14-Confuse-3cards-${THEME}
+
+# 切到 ぬ・め，進快速辨識：前幾題故意答錯，累積答錯紀錄
+- tapOn:
+    id: pill-nume
+- assertVisible:
+    id: confuse-card-h-nu
+- tapOn:
+    id: quick-confuse
+- evalScript: ${output.wrongN = 0; output.hearN = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      # 看字選音：前 3 次答錯
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            # 先決定這題要答錯還是答對，再執行（同一題內不能邊改變數邊判斷）
+            - evalScript: "${output.seeWrong = output.wrongN < 3 ? 1 : 0}"
+            - runFlow:
+                when:
+                  true: ${output.seeWrong == 1}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - tapOn:
+                      id: quiz-confirm
+                  - evalScript: ${output.wrongN = output.wrongN + 1}
+            - runFlow:
+                when:
+                  true: ${output.seeWrong == 0}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+                  - tapOn:
+                      id: quiz-confirm
+      # 聽音選字（confuse 題）：第一次一定答錯並截圖，之後答對
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - evalScript: "${output.hearFirst = output.hearN == 0 ? 1 : 0}"
+            - runFlow:
+                when:
+                  true: ${output.hearFirst == 1}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase2/C2-14-ConfuseQuiz-wrong-${THEME}
+                  - evalScript: ${output.hearN = 1; output.wrongN = output.wrongN + 1}
+            - runFlow:
+                when:
+                  true: ${output.hearFirst == 0}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: stat-learned
+
+# C2-13 練習入口：有答錯紀錄，ぬ・め 排第一
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: group-nume
+- assertVisible:
+    id: group-nume
+    leftOf:
+      id: group-ruro
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-13-Practice-${THEME}
+
+# C2-14 對比頁（兩個字的組，有答錯次數）
+- tapOn:
+    id: group-nume
+- assertVisible:
+    id: confuse-card-h-nu
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-14-Confuse-${THEME}
+- tapOn:
+    id: back
+- assertVisible:
+    id: special-long
+
+# C2-15 長音、C2-16 促音、C2-17 拗音
+- tapOn:
+    id: special-long
+- assertVisible:
+    id: play-w-obaasan
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-15-Long-${THEME}
+- tapOn:
+    id: seg-sokuon
+- assertVisible:
+    id: play-w-kitte
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-16-Sokuon-${THEME}
+- tapOn:
+    id: seg-youon
+- assertVisible:
+    id: youon-kya
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-17-Youon-${THEME}
+
+# 特殊音練習：第一題答錯並截圖，其餘答對，最後截結果
+- tapOn:
+    id: special-practice
+- assertVisible:
+    id: replay-audio
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-17-YouonQuiz-idle-${THEME}
+- tapOn:
+    id: opt-wrong-0
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-17-YouonQuiz-wrong-${THEME}
+- tapOn:
+    id: quiz-next
+- repeat:
+    while:
+      notVisible:
+        id: special-score
+    times: 30
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: "答對 5 / 6"
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase2/C2-17-YouonQuiz-result-${THEME}
