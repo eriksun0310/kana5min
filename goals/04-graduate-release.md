@@ -22,14 +22,14 @@ spec.md 第 4 節（C2-21～C2-22）、第 5.8 節。設計檔為 `design/C2-21-
 
 ## 完成條件
 
-- [ ] 兩種假名都學完時顯示畢業畫面，數字來自真實資料，之後可從設定再次進入
-- [ ] 導流頁可開啟壽司日檢的 App Store 連結（使用設定常數），也可關閉回首頁
-- [ ] 開發版本有除錯選單可切換進度狀態；以 production 設定打包時不會包含除錯選單
-- [ ] `app.json` 與 `eas.json` 依上方「TestFlight 準備」設定完成
-- [ ] `npx expo-doctor` 沒有錯誤
-- [ ] 以 production 設定在本機完成一次 iOS 編譯（例如 `npx expo run:ios --configuration Release`），App 可在模擬器正常啟動
-- [ ] `maestro/phase4-*.yaml` 涵蓋：（以除錯選單設定全部完成）畢業畫面、導流頁開啟與關閉，全部跑通
-- [ ] `screenshots/phase4/` 有 C2-21～C2-22 的亮暗截圖，已對照設計檔確認
-- [ ] 第一到第三階段的 Maestro 流程仍然全部跑通
-- [ ] `npx tsc --noEmit` 沒有錯誤，`npm test` 全部通過
-- [ ] PROGRESS.md 有完整的待確認事項清單與上傳 TestFlight 的步驟說明，並 commit
+- [x] 兩種假名都學完時顯示畢業畫面，數字來自真實資料，之後可從設定再次進入
+- [x] 導流頁可開啟壽司日檢的 App Store 連結（使用設定常數），也可關閉回首頁
+- [x] 開發版本有除錯選單可切換進度狀態；以 production 設定打包時不會包含除錯選單
+- [x] `app.json` 與 `eas.json` 依上方「TestFlight 準備」設定完成
+- [x] `npx expo-doctor` 沒有錯誤
+- [x] 以 production 設定在本機完成一次 iOS 編譯（例如 `npx expo run:ios --configuration Release`），App 可在模擬器正常啟動
+- [x] `maestro/phase4-*.yaml` 涵蓋：（以除錯選單設定全部完成）畢業畫面、導流頁開啟與關閉，全部跑通
+- [x] `screenshots/phase4/` 有 C2-21～C2-22 的亮暗截圖，已對照設計檔確認
+- [x] 第一到第三階段的 Maestro 流程仍然全部跑通
+- [x] `npx tsc --noEmit` 沒有錯誤，`npm test` 全部通過
+- [x] PROGRESS.md 有完整的待確認事項清單與上傳 TestFlight 的步驟說明，並 commit

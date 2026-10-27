@@ -1,0 +1,77 @@
+# 導流頁：連結常數還是佔位字串時，按「到 App Store 看看」只出現「連結尚未設定」提示、不開啟；
+# 可由首頁文字連結與設定頁進入，用 next-close / next-later 回首頁。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: all-done
+# all-done 預設會讓首頁自動帶到畢業畫面
+- extendedWaitUntil:
+    visible:
+      id: graduate-next
+    timeout: 15000
+- tapOn:
+    id: graduate-next
+- extendedWaitUntil:
+    visible:
+      id: next-open-store
+    timeout: 10000
+- assertVisible: 到 App Store 看看
+
+# 佔位連結：出現「連結尚未設定」Alert，關閉後仍停在導流頁
+- tapOn:
+    id: next-open-store
+- assertVisible: 連結尚未設定
+- tapOn: "(好|OK)"
+- assertNotVisible: 連結尚未設定
+- assertVisible:
+    id: next-open-store
+
+# 右上關閉 → 首頁
+- tapOn:
+    id: next-close
+- extendedWaitUntil:
+    visible:
+      id: home-next-link
+    timeout: 10000
+
+# 首頁文字連結 → 導流頁 → 之後再說 → 首頁
+- tapOn:
+    id: home-next-link
+- extendedWaitUntil:
+    visible:
+      id: next-later
+    timeout: 10000
+- assertVisible: 開始累積日文單字
+- tapOn:
+    id: next-later
+- extendedWaitUntil:
+    visible:
+      id: home-next-link
+    timeout: 10000
+
+# 設定頁「下一步：壽司日檢」也能進來
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-next
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-next
+- extendedWaitUntil:
+    visible:
+      id: next-later
+    timeout: 10000
+- tapOn:
+    id: next-later
+- extendedWaitUntil:
+    visible:
+      id: home-next-link
+    timeout: 10000

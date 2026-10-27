@@ -78,3 +78,11 @@ export function presetProgress(preset: DebugPresetName, now: number): Progress[]
 export function presetKataIntroSeen(preset: DebugPresetName): boolean {
   return preset === 'katakana-started' || preset === 'all-done';
 }
+
+/**
+ * 預設要連帶設定的畢業畫面旗標：一律設為「沒看過」，
+ * 這樣 all-done 之後回首頁可以看到畢業畫面（Maestro 用），reset 之後也會回到初始狀態。
+ */
+export function presetGraduateSeen(_preset: DebugPresetName): boolean {
+  return false;
+}

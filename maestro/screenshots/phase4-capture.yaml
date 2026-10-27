@@ -1,0 +1,34 @@
+# 階段 4 截圖：C2-21 畢業、C2-22 導流。不屬於必須跑通的 phase 流程，
+# 請用 maestro/screenshots/run-phase4.sh 執行（它會先切換模擬器的系統外觀，再以 THEME=light|dark 各跑一次）。
+# THEME 由 run-phase4.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值，檔頭的 env 會蓋掉命令列）。
+# App 的主題設定維持「跟隨系統」。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: all-done
+
+# C2-21 畢業（all-done 後首頁自動帶到）
+- extendedWaitUntil:
+    visible:
+      id: graduate-next
+    timeout: 15000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase4/C2-21-Graduate-${THEME}
+
+# C2-22 導流
+- tapOn:
+    id: graduate-next
+- extendedWaitUntil:
+    visible:
+      id: next-open-store
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase4/C2-22-Next-${THEME}

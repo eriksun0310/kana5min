@@ -9,7 +9,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 | 1 | goals/01-hiragana.md | 完成 | phase 1 complete |
 | 2 | goals/02-practice-special.md | 完成 | phase 2 complete |
 | 3 | goals/03-katakana.md | 完成 | phase 3 complete |
-| 4 | goals/04-graduate-release.md | 未開始 | |
+| 4 | goals/04-graduate-release.md | 完成 | phase 4 complete |
 
 ## 每階段紀錄
 
@@ -63,6 +63,37 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
   - `maestro test maestro/` 跑 10 個流程（phase1 四個、phase2 三個、phase3 三個），全部通過。
 - 截圖：`screenshots/phase3/`，重跑指令 `maestro/screenshots/run-phase3.sh <UDID>`。
 - 記憶小提示已依 `kana-puns.md` 的最新狀態同步：あ行、か行用 ✅ 的句子；け 是 ❌，不顯示卡片；か 句子的 emoji 已去掉。
+
+### 階段 4：畢業、導流、TestFlight 準備（2026-10-27）
+
+- 畢業（C2-21，`app/graduate.tsx`）：
+  - 兩種假名的清音都學完後，回首頁會顯示一次。
+  - 數字來自真實資料，練習天數是有練習的不同日期數。
+  - 之後可從設定「畢業紀念」再次進入。
+- 導流（C2-22，`app/next.tsx`）：
+  - 連結常數放在 `src/config.ts`，目前是佔位字串，點按鈕會顯示「連結尚未設定」。
+  - 可以關閉回首頁。
+  - 之後可從首頁的「下一步：壽司日檢」連結或設定頁再次進入。
+- 除錯選單（`src/dev/DebugMenu.tsx`）：
+  - 只在開發版的設定頁最下方出現，有「平假名全部完成」「全部完成」「重設進度」三個按鈕。
+  - Release 版的 `main.jsbundle`（Hermes bytecode）經檢查，不含除錯選單的任何字串（UTF-8 與 UTF-16 都查過，並用對照字串確認檢查方式有效）。
+  - Release 版開啟除錯深連結也不會改變進度。
+- `app.json`：
+  - 名稱、bundle id、版本 1.0.0、buildNumber 1、`userInterfaceStyle: automatic`。
+  - 啟動畫面分亮暗背景，App 圖示用佔位圖。
+  - `ITSAppUsesNonExemptEncryption: false`、`supportsTablet: false`。
+  - `privacyManifests`：不追蹤、不收集資料，UserDefaults 的使用理由是 CA92.1。
+  - expo-notifications 設 `enableRemoteNotifications: false`，只用本機通知。
+- `eas.json`：
+  - development profile 是 internal、simulator 版。
+  - production profile 設 `autoIncrement`，`appVersionSource: local`。
+- `npx expo-doctor`：20/20 通過。為此補裝了 `expo-asset`，它是 expo-audio 需要的 peer dependency。
+- 以 `npx expo run:ios --configuration Release` 在模擬器完成編譯，App 可正常啟動。
+- 測試：
+  - `npm test` 19 個 suite、261 個測試通過。
+  - `maestro test maestro/` 跑 12 個流程（phase1～phase4），全部通過。
+- 截圖：`screenshots/phase4/`，重跑指令 `maestro/screenshots/run-phase4.sh <UDID>`。
+- 遇到的問題：`npx expo prebuild -p ios` 會重新產生 `ios/` 資料夾（已 gitignore），之後要再跑 `pod install`（需要 UTF-8 語系）。
 
 ### 音檔清單（階段 1）
 
@@ -141,20 +172,67 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 - C2-18 的範例卡固定是 あ→ア、か→カ、へ→ヘ。學完平假名的最後一輪，一行學完畫面的按鈕改成「回首頁」，回首頁後接 C2-18。
 - phase2 的兩個 Maestro 流程改用 `hiragana-almost`，因為 `hiragana-done` 現在會先跳出 C2-18。
 
+### 階段 4
+
+- 畢業畫面的觸發做法和 C2-18 一樣，由首頁取得焦點時檢查，條件是「已畢業、還沒看過、已看過片假名開始畫面」。
+  - 先設定「已看過」再顯示畫面，避免重複跳出。代價是在畢業畫面時強制關閉 App，就不會再自動顯示，但仍可從設定進入。
+- 畢業與導流頁沒有返回手勢，只能用畫面上的按鈕離開。這些按鈕都會回到「今天」分頁。
+- 設定頁「關於」區的「下一步：壽司日檢」一律顯示；「畢業紀念」只在畢業後顯示。
+- 所有開發預設都會把「已看過畢業畫面」設回否，方便測試。
+- eas.json 的 development profile 沒有開 `developmentClient`，因為專案沒有安裝 expo-dev-client。它是一般的 debug 版，會連到 Metro。
+
 ## 待確認事項
 
 - App 名稱（目前：Kana 5min - 五十音入門）
 - Bundle identifier（目前：com.ptalk.kana5min）
 - 壽司日檢 App Store 連結
 - 導流頁第三個賣點文案
-- 人工聽過所有單一假名音檔，特別是 は、へ、を、ん 與拗音（音檔清單由 Claude Code 列在下方）
+- 人工聽過所有單一假名音檔，特別是 は、へ、を、ん 與拗音（音檔清單由 Claude Code 列在上方「音檔清單」）
+- 人工聽過片假名相關的 overrides：k-wo（オ）、k-di（ジ）、k-du（ズ）、w-otaku（オタク）
+- App 圖示與啟動圖：`assets/images/` 仍是 Expo 範本圖。亮色啟動畫面的白色圖形幾乎看不見，上架前要換掉
+- 導流頁壽司日檢卡的 App 圖示佔位（虛線框）
+- 外來語詞庫與例字（見「假設」的階段 3），特別是 ニョッキ、ヒューズ、リャマ 等較冷門的詞是否保留
+- 部分拗音例字較罕見（ひゅうが、みゅう 等），是否替換
+- `src/logic/autoQuiz.ts` 已不再使用，是否刪除
+- Android：expo-audio 在 Android 會帶入 RECORD_AUDIO 權限（iOS 不受影響），上 Google Play 前需處理
+- eas.json 的 `cli.version` 下限（目前 `>= 16.0.0`），請依實際安裝的 eas-cli 版本確認
+- 好笑記憶包、內購、廣告（goals/05）不在這四個階段的範圍內，尚未實作
 - App 圖示
 - `kana-puns.md` 的 ❌ 句子（お、け 等）換新句後，同步更新 `src/data/hints.ts`
 - Maestro 官方安裝程式在 `~/.zshrc` 加了 `export PATH=$PATH:$HOME/.maestro/bin`，並新建 `~/.bash_profile`；是否保留由使用者決定
 
 ## 上傳 TestFlight 的步驟
 
-（第四階段完成時由 Claude Code 補上。）
+以下步驟都由開發者自己執行（需要 Apple 帳號登入）。Claude Code 沒有執行任何 eas 指令。
+
+1. 上傳前先補齊「待確認事項」：App 圖示與啟動圖、壽司日檢 App Store 連結（`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`），以及導流頁的第三個賣點（`app/next.tsx`）。
+2. 安裝並登入 EAS CLI：
+   ```bash
+   npm install -g eas-cli
+   ```
+   ```bash
+   eas login
+   ```
+3. 第一次使用時，連結 EAS 專案（會在 app.json 寫入 `extra.eas.projectId`）：
+   ```bash
+   eas init
+   ```
+4. 確認版本號：app.json 的 `version` 為 `1.0.0`、`ios.buildNumber` 為 `1`。`eas.json` 的 production profile 設了 `autoIncrement`，每次打包會自動遞增 buildNumber（`appVersionSource: local`，所以會寫回 app.json，記得 commit）。
+5. 打包 production（憑證與 provisioning profile 由 EAS 依提示自動建立）：
+   ```bash
+   eas build --platform ios --profile production
+   ```
+6. 上傳到 App Store Connect，處理完成後就會出現在 TestFlight：
+   ```bash
+   eas submit --platform ios --profile production --latest
+   ```
+   第一次上傳時會詢問 App Store Connect 的 App（Apple ID 6827398112）與 API key，依提示選擇即可。
+7. 在 App Store Connect 的 TestFlight 頁面填寫「測試內容」、加入內部測試人員。出口合規已用 `ITSAppUsesNonExemptEncryption: false` 宣告，不會再被詢問。
+
+在本機確認 Release 版能正常運作（不需要帳號）：
+```bash
+LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx expo run:ios --configuration Release
+```
 
 ## 商店後台設定進度（2026-10-27）
 

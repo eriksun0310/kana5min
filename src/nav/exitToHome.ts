@@ -20,3 +20,13 @@ export function confirmExitFlow(router: Router): void {
     { text: '結束', style: 'destructive', onPress: () => exitToHome(router) },
   ]);
 }
+
+/**
+ * 回到「今天」分頁（首頁）。
+ * 畢業畫面與導流頁可能從首頁（自動帶入）或設定頁（再次進入）開啟；
+ * exitToHome 只會把堆疊收回分頁，停在原本的分頁，所以這裡再切到首頁分頁。
+ */
+export function goHomeTab(router: Router): void {
+  exitToHome(router);
+  router.navigate('/');
+}

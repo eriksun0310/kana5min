@@ -1,7 +1,7 @@
 # 以開發用深連結套用進度預設（只在 __DEV__ 版本有效，見 docs/architecture.md 第 10 節）。
 # 用法：runFlow: { file: common/preset.yaml, env: { PRESET: hiragana-done } }
 # PRESET = hiragana-almost | hiragana-done | katakana-started | all-done | reset
-# hiragana-done 套用後首頁會推出 C2-18（kata-start）；其他預設回到首頁。
+# hiragana-done 套用後首頁會推出 C2-18（kata-start）、all-done 會推出 C2-21（graduate-next）；其他預設回到首頁。
 # 模擬器開 custom scheme 時可能跳出「要在「Kana 5min」中打開嗎？」系統確認框，出現就點「打開」。
 appId: com.ptalk.kana5min
 ---
@@ -11,8 +11,9 @@ appId: com.ptalk.kana5min
       visible: "(打開|Open)"
     commands:
       - tapOn: "(打開|Open)"
-# 回到首頁（有「練習」分頁標籤）；hiragana-done 會先跳出 C2-18，沒有分頁列，所以也接受「開始片假名」。
+# 回到首頁（有「練習」分頁標籤）；hiragana-done 會先跳出 C2-18、all-done 會先跳出 C2-21，
+# 兩者都沒有分頁列，所以也接受「開始片假名」「看看下一步」。
 - extendedWaitUntil:
-    visible: "(練習|開始片假名)"
+    visible: "(練習|開始片假名|看看下一步)"
     timeout: 15000
 - waitForAnimationToEnd

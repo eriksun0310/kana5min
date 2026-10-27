@@ -3,7 +3,14 @@ import { isKatakanaUnlocked } from '../../logic/confusion';
 import { readableLoanwords } from '../../logic/loanword';
 import { currentScript } from '../../logic/session';
 import { DAY_MS } from '../../logic/srs';
-import { DEBUG_PRESETS, isDebugPreset, presetKataIntroSeen, presetProgress } from '../presets';
+import { isGraduated } from '../../logic/graduate';
+import {
+  DEBUG_PRESETS,
+  isDebugPreset,
+  presetGraduateSeen,
+  presetKataIntroSeen,
+  presetProgress,
+} from '../presets';
 
 const NOW = 1_700_000_000_000;
 
@@ -75,6 +82,13 @@ describe('presetProgress', () => {
     expect(presetKataIntroSeen('reset')).toBe(false);
     expect(presetKataIntroSeen('katakana-started')).toBe(true);
     expect(presetKataIntroSeen('all-done')).toBe(true);
+  });
+
+  it('presetGraduateSeen：所有預設都是 false；只有 all-done 的進度算畢業', () => {
+    for (const n of DEBUG_PRESETS) {
+      expect(presetGraduateSeen(n)).toBe(false);
+      expect(isGraduated(presetProgress(n, NOW))).toBe(n === 'all-done');
+    }
   });
 
   it('isDebugPreset 只接受五個名稱', () => {

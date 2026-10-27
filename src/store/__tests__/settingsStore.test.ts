@@ -32,6 +32,15 @@ describe('settingsStore（設定保存）', () => {
     expect(useSettingsStore.getState().kataIntroSeen).toBe(false);
   });
 
+  it('graduateSeen 預設 false，設定後寫進 AsyncStorage，resetSettings 會設回 false', async () => {
+    expect(useSettingsStore.getState().graduateSeen).toBe(false);
+    useSettingsStore.getState().setGraduateSeen(true);
+    const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(JSON.parse(raw as string).state.graduateSeen).toBe(true);
+    useSettingsStore.getState().resetSettings();
+    expect(useSettingsStore.getState().graduateSeen).toBe(false);
+  });
+
   it('修改後寫進 AsyncStorage', async () => {
     const s = useSettingsStore.getState();
     s.setDailyGoalMinutes(10);

@@ -1,8 +1,9 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon, KanaText, PrimaryButton, Screen, StatCard } from '../../src/components';
 import { byId, scriptLabel } from '../../src/data';
+import { isGraduated } from '../../src/logic/graduate';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
 import { currentScript } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
@@ -12,7 +13,9 @@ import { useTheme } from '../../src/theme/useTheme';
 /**
  * C2-02 首頁：下一個新字、三個統計、46 格進度條、開始今天的練習。
  * 平假名清音學完後（片假名階段）標題與已學、進度條、下一個新字都改算片假名；
- * 解鎖後第一次回到首頁時先顯示片假名開始畫面（C2-18）。
+ * 解鎖後第一次回到首頁時先顯示片假名開始畫面（C2-18）；
+ * 平假名與片假名都學完後，第一次回到首頁時顯示畢業畫面（C2-21）。
+ * 已畢業後主按鈕下方多一個「下一步：壽司日檢」文字連結。
  */
 export default function HomeScreen() {
   const t = useTheme();
@@ -22,6 +25,7 @@ export default function HomeScreen() {
   const goal = useSettingsStore((s) => s.dailyGoalMinutes);
   const practiceDates = useSettingsStore((s) => s.practiceDates);
   const kataIntroSeen = useSettingsStore((s) => s.kataIntroSeen);
+  const graduateSeen = useSettingsStore((s) => s.graduateSeen);
 
   // 回到前景（切回分頁、練習結束返回）時重算「現在」，到期數與連續天數才會更新
   const [now, setNow] = useState(() => Date.now());
@@ -42,6 +46,20 @@ export default function HomeScreen() {
     useCallback(() => {
       if (showKataIntro) router.push('/kata-start');
     }, [showKataIntro, router]),
+  );
+
+  // 學完最後一個清音的那一輪結束、回到首頁時（一行學完畫面之後）顯示 C2-21，只自動顯示一次。
+  // 先等 C2-18 看過（kataIntroSeen）才檢查，兩個畫面的條件互斥，不會同時跳出來；
+  // 進度在練習中提交，首頁當時沒有焦點，回到首頁重新取得焦點時這裡才會執行。
+  const graduated = useMemo(() => isGraduated(list), [list]);
+  const showGraduate = graduated && !graduateSeen && kataIntroSeen;
+  useFocusEffect(
+    useCallback(() => {
+      if (showGraduate) {
+        useSettingsStore.getState().setGraduateSeen(true);
+        router.push('/graduate');
+      }
+    }, [showGraduate, router]),
   );
   const streak = useMemo(() => computeStreak(practiceDates, now), [practiceDates, now]);
 
@@ -118,6 +136,16 @@ export default function HomeScreen() {
           disabled={allDone}
           onPress={() => router.push('/learn')}
         />
+        {graduated ? (
+          <Pressable
+            testID="home-next-link"
+            accessibilityRole="button"
+            onPress={() => router.push('/next')}
+            style={styles.nextLink}
+          >
+            <Text style={{ fontSize: 14, color: t.muted }}>下一步：壽司日檢</Text>
+          </Pressable>
+        ) : null}
       </View>
     </Screen>
   );
@@ -146,4 +174,5 @@ const styles = StyleSheet.create({
   dots: { paddingHorizontal: 24, paddingTop: 14, flexDirection: 'row', gap: 4 },
   dot: { flex: 1, height: 6, borderRadius: 3 },
   cta: { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16 },
+  nextLink: { minHeight: 44, marginTop: 4, alignItems: 'center', justifyContent: 'center' },
 });

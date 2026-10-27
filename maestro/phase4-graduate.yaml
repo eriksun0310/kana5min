@@ -1,0 +1,96 @@
+# 畢業畫面：以設定頁的除錯選單（debug-all-done，非深連結）設成全部完成
+# → 首頁自動帶到 C2-21（平假名／片假名各 46）→ 看看下一步 → 導流頁 → 回首頁
+# → 設定頁「畢業紀念」可再次進入 → 回首頁繼續複習。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+# 還沒畢業：設定頁沒有「畢業紀念」，首頁也沒有導流連結
+- tapOn:
+    id: tab-settings
+- assertNotVisible:
+    id: row-graduate
+- scrollUntilVisible:
+    element:
+      id: debug-menu
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: tab-home
+- assertNotVisible:
+    id: home-next-link
+
+# 以除錯選單設成全部完成（在設定頁最下方，需要捲動）
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: debug-all-done
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: debug-all-done
+
+# 首頁自動帶到畢業畫面，數字來自真實資料
+- extendedWaitUntil:
+    visible:
+      id: graduate-next
+    timeout: 15000
+- assertVisible: 五十音全部學完了
+- assertVisible:
+    id: graduate-stat-hiragana
+    text: "46"
+- assertVisible:
+    id: graduate-stat-katakana
+    text: "46"
+- assertVisible:
+    id: graduate-stat-days
+- assertVisible:
+    id: graduate-home
+- tapOn:
+    id: graduate-next
+
+# 導流頁
+- extendedWaitUntil:
+    visible:
+      id: next-open-store
+    timeout: 10000
+- assertVisible: 開始累積日文單字
+- assertVisible: 壽司日檢
+- assertVisible: 從 N5 基礎單字開始
+- tapOn:
+    id: next-close
+- extendedWaitUntil:
+    visible:
+      id: home-next-link
+    timeout: 10000
+# 畢業畫面只自動出現一次：回首頁後不會再被帶回去
+- assertNotVisible:
+    id: graduate-next
+
+# 設定頁「畢業紀念」再次進入畢業畫面，再回首頁
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-graduate
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-graduate
+- extendedWaitUntil:
+    visible:
+      id: graduate-home
+    timeout: 10000
+- assertVisible: 五十音全部學完了
+- assertVisible:
+    id: graduate-stat-hiragana
+    text: "46"
+- tapOn:
+    id: graduate-home
+- extendedWaitUntil:
+    visible:
+      id: home-next-link
+    timeout: 10000

@@ -9,10 +9,26 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.ptalk.kana5min",
-      "supportsTablet": false
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": [],
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.ptalk.kana5min",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#15171B",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -27,13 +43,19 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#15171B",
+          "backgroundColor": "#F7F5F1",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "dark": {
+            "backgroundColor": "#15171B",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ],
       "expo-sqlite",
-      ["expo-audio", { "microphonePermission": false }]
+      "expo-asset",
+      ["expo-audio", { "microphonePermission": false }],
+      ["expo-notifications", { "enableRemoteNotifications": false }]
     ],
     "experiments": {
       "typedRoutes": false

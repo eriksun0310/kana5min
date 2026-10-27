@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
-import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Icon, Screen } from '../../src/components';
 import { OptionSheet, type SheetOption } from '../../src/components/OptionSheet';
@@ -11,7 +12,8 @@ import {
   REMINDER_TIME_OPTIONS,
   scheduleReminder,
 } from '../../src/notifications/reminder';
-import { useSettingsStore } from '../../src/store';
+import { isGraduated } from '../../src/logic/graduate';
+import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
@@ -36,10 +38,18 @@ const TIME_OPTIONS: SheetOption[] = REMINDER_TIME_OPTIONS.map((v) => ({ value: v
 
 type SheetKind = 'goal' | 'speed' | 'time' | null;
 
+// 開發者選單只在開發版本載入；正式包的 __DEV__ 為 false，Metro 會把這個 require 一併移除
+const DebugMenu: React.ComponentType | null = __DEV__
+  ? require('../../src/dev/DebugMenu').default
+  : null;
+
 /** C2-12 設定：外觀、學習、資料、關於。 */
 export default function SettingsScreen() {
   const t = useTheme();
+  const router = useRouter();
   const top = useTopPad(52);
+  const progress = useProgressStore((s) => s.progress);
+  const graduated = useMemo(() => isGraduated(Object.values(progress)), [progress]);
   const theme = useSettingsStore((s) => s.theme);
   const goal = useSettingsStore((s) => s.dailyGoalMinutes);
   const romajiAutoHide = useSettingsStore((s) => s.romajiAutoHide);
@@ -183,6 +193,26 @@ export default function SettingsScreen() {
                 版本 {version}
               </Text>
             </View>
+            <Pressable
+              testID="row-next"
+              accessibilityRole="button"
+              onPress={() => router.push('/next')}
+              style={rowStyle}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>下一步：壽司日檢</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            {graduated ? (
+              <Pressable
+                testID="row-graduate"
+                accessibilityRole="button"
+                onPress={() => router.push('/graduate')}
+                style={rowStyle}
+              >
+                <Text style={{ fontSize: 15, color: t.text }}>畢業紀念</Text>
+                <Icon name="chevronRight" size={16} color={t.muted} />
+              </Pressable>
+            ) : null}
             <View style={[styles.aboutRow, { borderBottomColor: t.line }]}>
               <Text style={{ fontSize: 15, color: t.text }}>筆順資料</Text>
               <Text style={{ fontSize: 13, lineHeight: 20, color: t.muted }}>
@@ -197,6 +227,8 @@ export default function SettingsScreen() {
             </View>
           </View>
         </Section>
+
+        {DebugMenu ? <DebugMenu /> : null}
       </ScrollView>
 
       <OptionSheet
