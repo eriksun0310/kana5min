@@ -1,0 +1,85 @@
+# 讀外來語：katakana-started（平假名全學、片假名已學 ア～コ）→ 練習分頁 → 自動練習 10 題
+# 自動練習在有可讀外來語時一定會抽 1～2 題讀外來語（pickLoanwordDrafts 保證至少 1 題），
+# 所以不需要重跑：流程記錄是否看過 loanword 題，沒看過就讓流程失敗。
+# 第一次看到讀外來語題時先故意答錯、確認回饋，之後的題目全部答對。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: katakana-started
+- assertVisible:
+    id: home-script
+    text: 片假名
+- assertVisible: "10 / 46"
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: start-auto-practice
+# loanSeen：0 = 還沒遇到讀外來語題，1 = 遇到了
+- evalScript: ${output.loanSeen = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
+          commands:
+            - assertVisible:
+                id: play-word
+            - evalScript: "${output.firstLoan = output.loanSeen == 0 ? 1 : 0; output.loanSeen = 1}"
+            # 第一題讀外來語：故意答錯，確認出現回饋與「下一題」
+            - runFlow:
+                when:
+                  true: ${output.firstLoan == 1}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - assertVisible:
+                      id: quiz-feedback
+                  - assertVisible: ".*讀作.*"
+            - runFlow:
+                when:
+                  true: ${output.firstLoan == 0}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- assertVisible:
+    id: stat-correct
+- assertTrue: ${output.loanSeen == 1}
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: stat-learned

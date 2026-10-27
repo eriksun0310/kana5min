@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { KanaText, Screen } from '../../src/components';
-import { byId, kanaOfKind, seionGrid, type KanaKind } from '../../src/data';
+import { byId, kanaOfKind, seionGrid, type KanaKind, type Script } from '../../src/data';
+import { isKatakanaUnlocked } from '../../src/logic/confusion';
 import { isLearned } from '../../src/logic/srs';
 import { useProgressStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
@@ -14,16 +15,24 @@ const KINDS: { kind: KanaKind; label: string }[] = [
   { kind: 'youon', label: '拗音' },
 ];
 
+const SCRIPTS: { script: Script; label: string }[] = [
+  { script: 'hiragana', label: '平假名' },
+  { script: 'katakana', label: '片假名' },
+];
+
 const GAP = 5;
 const SIDE = 24;
 
 /** 目前分頁要顯示的格子：Kana id 或 null（空格）。 */
-function cellsFor(kind: KanaKind): (string | null)[] {
-  if (kind === 'seion') return seionGrid('hiragana');
-  return kanaOfKind(kind, 'hiragana').map((k) => k.id);
+function cellsFor(kind: KanaKind, script: Script): (string | null)[] {
+  if (kind === 'seion') return seionGrid(script);
+  return kanaOfKind(kind, script).map((k) => k.id);
 }
 
-/** C2-03 五十音表：平假名／片假名切換、清音／濁音／拗音分頁、已學標記、點字進詳情。 */
+/**
+ * C2-03 五十音表：平假名／片假名切換、清音／濁音／拗音分頁、已學標記、點字進詳情。
+ * 片假名在平假名清音學完後才能切換；未解鎖時點片假名只顯示提示。
+ */
 export default function ChartScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -31,6 +40,10 @@ export default function ChartScreen() {
   const { width } = useWindowDimensions();
   const progress = useProgressStore((s) => s.progress);
   const [kind, setKind] = useState<KanaKind>('seion');
+  const [script, setScript] = useState<Script>('hiragana');
+  const unlocked = useMemo(() => isKatakanaUnlocked(Object.values(progress)), [progress]);
+  // 解鎖狀態以進度為準（例如重設進度後，不能停留在已經鎖住的片假名）
+  const shownScript: Script = unlocked ? script : 'hiragana';
   const [kataHint, setKataHint] = useState(false);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,7 +61,7 @@ export default function ChartScreen() {
   };
 
   const cols = kind === 'youon' ? 3 : 5;
-  const cells = useMemo(() => cellsFor(kind), [kind]);
+  const cells = useMemo(() => cellsFor(kind, shownScript), [kind, shownScript]);
   const rows = useMemo(() => {
     const out: (string | null)[][] = [];
     for (let i = 0; i < cells.length; i += cols) out.push(cells.slice(i, i + cols));
@@ -61,25 +74,33 @@ export default function ChartScreen() {
       <View style={[styles.header, { paddingTop: top }]}>
         <Text style={{ fontSize: 24, fontWeight: '700', color: t.text }}>五十音表</Text>
         <View style={[styles.segment, { backgroundColor: t.chip }]}>
-          <Pressable
-            testID="script-hiragana"
-            accessibilityRole="button"
-            accessibilityState={{ selected: true }}
-            hitSlop={{ top: 5, bottom: 5 }}
-            style={[styles.segBtn, { backgroundColor: t.surface }]}
-          >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: t.text }}>平假名</Text>
-          </Pressable>
-          <Pressable
-            testID="script-katakana"
-            accessibilityRole="button"
-            accessibilityState={{ selected: false }}
-            hitSlop={{ top: 5, bottom: 5 }}
-            onPress={showKataHint}
-            style={styles.segBtn}
-          >
-            <Text style={{ fontSize: 13, color: t.muted }}>片假名</Text>
-          </Pressable>
+          {SCRIPTS.map((s) => {
+            const on = s.script === shownScript;
+            return (
+              <Pressable
+                key={s.script}
+                testID={`script-${s.script}`}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                hitSlop={{ top: 5, bottom: 5 }}
+                onPress={() => {
+                  if (s.script === 'katakana' && !unlocked) showKataHint();
+                  else setScript(s.script);
+                }}
+                style={[styles.segBtn, on && { backgroundColor: t.surface }]}
+              >
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: on ? '700' : '400',
+                    color: on ? t.text : t.muted,
+                  }}
+                >
+                  {s.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       </View>
 

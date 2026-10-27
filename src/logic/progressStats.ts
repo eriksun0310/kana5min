@@ -150,6 +150,7 @@ export interface ResultSummary {
  * answers = 這輪每個字的所有題目對錯；before/after = 提交前後的進度。
  * 新字 = before 裡沒有 learnedAt、after 有 learnedAt。
  * items 順序：新字在前，再來是複習字，各自依 answers 的 key 順序。
+ * extraAnswers = 不屬於任何假名的題目（讀外來語）的對錯：只計入答對數與總題數，不產生 items。
  */
 export function buildResultSummary(args: {
   answers: Record<string, boolean[]>;
@@ -157,13 +158,14 @@ export function buildResultSummary(args: {
   after: Progress[];
   startedAt: number;
   finishedAt: number;
+  extraAnswers?: boolean[];
 }): ResultSummary {
-  const { answers, before, after, startedAt, finishedAt } = args;
+  const { answers, before, after, startedAt, finishedAt, extraAnswers = [] } = args;
   const beforeLearned = learnedIdSet(before);
   const afterMap = new Map(after.map((p) => [p.kanaId, p]));
 
-  let correct = 0;
-  let total = 0;
+  let correct = extraAnswers.filter(Boolean).length;
+  let total = extraAnswers.length;
   const newItems: ResultItem[] = [];
   const reviewItems: ResultItem[] = [];
   for (const [kanaId, list] of Object.entries(answers)) {

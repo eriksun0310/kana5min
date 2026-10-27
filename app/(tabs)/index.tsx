@@ -2,13 +2,18 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Icon, KanaText, PrimaryButton, Screen, StatCard } from '../../src/components';
-import { byId } from '../../src/data';
+import { byId, scriptLabel } from '../../src/data';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
+import { currentScript } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
-/** C2-02 首頁：下一個新字、三個統計、46 格進度條、開始今天的練習。 */
+/**
+ * C2-02 首頁：下一個新字、三個統計、46 格進度條、開始今天的練習。
+ * 平假名清音學完後（片假名階段）標題與已學、進度條、下一個新字都改算片假名；
+ * 解鎖後第一次回到首頁時先顯示片假名開始畫面（C2-18）。
+ */
 export default function HomeScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -16,6 +21,7 @@ export default function HomeScreen() {
   const progress = useProgressStore((s) => s.progress);
   const goal = useSettingsStore((s) => s.dailyGoalMinutes);
   const practiceDates = useSettingsStore((s) => s.practiceDates);
+  const kataIntroSeen = useSettingsStore((s) => s.kataIntroSeen);
 
   // 回到前景（切回分頁、練習結束返回）時重算「現在」，到期數與連續天數才會更新
   const [now, setNow] = useState(() => Date.now());
@@ -25,7 +31,18 @@ export default function HomeScreen() {
     }, []),
   );
 
-  const stats = useMemo(() => computeHomeStats(Object.values(progress), now), [progress, now]);
+  const list = useMemo(() => Object.values(progress), [progress]);
+  const script = useMemo(() => currentScript(list), [list]);
+  const stats = useMemo(() => computeHomeStats(list, now, script), [list, now, script]);
+  const label = scriptLabel(script);
+
+  // 平假名學完、片假名剛解鎖，而且還沒看過開始畫面：回到首頁時顯示 C2-18
+  const showKataIntro = script === 'katakana' && !kataIntroSeen;
+  useFocusEffect(
+    useCallback(() => {
+      if (showKataIntro) router.push('/kata-start');
+    }, [showKataIntro, router]),
+  );
   const streak = useMemo(() => computeStreak(practiceDates, now), [practiceDates, now]);
 
   const next = stats.nextKanaId ? byId(stats.nextKanaId) : undefined;
@@ -35,7 +52,9 @@ export default function HomeScreen() {
   return (
     <Screen>
       <View style={[styles.header, { paddingTop: top }]}>
-        <Text style={{ fontSize: 15, color: t.muted }}>平假名</Text>
+        <Text testID="home-script" style={{ fontSize: 15, color: t.muted }}>
+          {label}
+        </Text>
         <View style={styles.streak} testID="home-streak">
           <Icon name="flame" size={18} color={t.accentText} />
           <Text style={{ fontSize: 14, fontWeight: '700', color: t.accentText }}>{streak} 天</Text>
@@ -57,7 +76,7 @@ export default function HomeScreen() {
               <Icon name="check" size={56} color={t.accentText} strokeWidth={2.5} />
             </View>
             <Text style={{ fontSize: 24, fontWeight: '700', color: t.text }}>
-              {allDone ? '今天完成了' : '平假名都學完了'}
+              {allDone ? '今天完成了' : `${label}都學完了`}
             </Text>
             <Text style={{ fontSize: 14, color: t.muted, textAlign: 'center', lineHeight: 22 }}>
               {allDone

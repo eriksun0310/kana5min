@@ -5,39 +5,76 @@ import { seionOrder } from '../data';
 import type { Progress, Script } from '../data/types';
 import { DAY_MS } from '../logic/srs';
 
-export type DebugPresetName = 'hiragana-done' | 'all-done' | 'reset';
+export type DebugPresetName =
+  | 'hiragana-almost'
+  | 'hiragana-done'
+  | 'katakana-started'
+  | 'all-done'
+  | 'reset';
 
-export const DEBUG_PRESETS: readonly DebugPresetName[] = ['hiragana-done', 'all-done', 'reset'];
+export const DEBUG_PRESETS: readonly DebugPresetName[] = [
+  'hiragana-almost',
+  'hiragana-done',
+  'katakana-started',
+  'all-done',
+  'reset',
+];
 
 export function isDebugPreset(value: unknown): value is DebugPresetName {
   return typeof value === 'string' && (DEBUG_PRESETS as readonly string[]).includes(value);
 }
 
-/** 該文字的清音全部設為已學：level 3、一週後複習、連續答對 3 次。 */
-function learnedSeion(script: Script, now: number): Progress[] {
-  return seionOrder(script).map((k) => ({
-    kanaId: k.id,
-    level: 3,
-    nextReviewAt: now + 7 * DAY_MS,
-    correctStreak: 3,
-    wrongCount: 0,
-    learnedAt: now,
-  }));
+/** 片假名階段預設已學的字：ア～コ（あ行與か行，共 10 個）。 */
+const KATAKANA_STARTED_COUNT = 10;
+
+/** 該文字的清音（可指定只取前面的字或排除某些字）設為已學：level 3、一週後複習、連續答對 3 次。 */
+function learnedSeion(
+  script: Script,
+  now: number,
+  filter: (kanaId: string, index: number) => boolean = () => true,
+): Progress[] {
+  return seionOrder(script)
+    .filter((k, i) => filter(k.id, i))
+    .map((k) => ({
+      kanaId: k.id,
+      level: 3,
+      nextReviewAt: now + 7 * DAY_MS,
+      correctStreak: 3,
+      wrongCount: 0,
+      learnedAt: now,
+    }));
 }
 
 /**
  * 預設對應的完整進度（套用時會取代全部現有進度與易混淆紀錄）。
- * - hiragana-done：平假名清音全部已學，片假名全部未學
- * - all-done：平假名與片假名清音都已學（片假名資料尚未加入前只有平假名）
+ * - hiragana-almost：平假名清音除了 ん 以外全部已學（片假名尚未解鎖）
+ * - hiragana-done：平假名清音全部已學，片假名全部未學（片假名剛解鎖）
+ * - katakana-started：平假名全部已學，片假名已學 ア～コ 10 個
+ * - all-done：平假名與片假名清音都已學
  * - reset：清空
  */
 export function presetProgress(preset: DebugPresetName, now: number): Progress[] {
   switch (preset) {
+    case 'hiragana-almost':
+      return learnedSeion('hiragana', now, (id) => id !== 'h-n');
     case 'hiragana-done':
       return learnedSeion('hiragana', now);
+    case 'katakana-started':
+      return [
+        ...learnedSeion('hiragana', now),
+        ...learnedSeion('katakana', now, (_id, i) => i < KATAKANA_STARTED_COUNT),
+      ];
     case 'all-done':
       return [...learnedSeion('hiragana', now), ...learnedSeion('katakana', now)];
     case 'reset':
       return [];
   }
+}
+
+/**
+ * 預設要連帶設定的設定值：kataIntroSeen 在 settingsStore（不在進度裡）。
+ * 只有 hiragana-done 要讓 C2-18 重新出現；已經在片假名階段的預設一律視為看過。
+ */
+export function presetKataIntroSeen(preset: DebugPresetName): boolean {
+  return preset === 'katakana-started' || preset === 'all-done';
 }

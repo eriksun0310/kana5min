@@ -16,17 +16,18 @@ import {
 } from '..';
 
 describe('kana 資料', () => {
-  it('清音 46、濁音 25、拗音 33，全部平假名', () => {
+  it('平假名清音 46、濁音 25、拗音 33（片假名見 katakana.test.ts）', () => {
     expect(kanaOfKind('seion')).toHaveLength(46);
     expect(kanaOfKind('dakuon')).toHaveLength(25);
     expect(kanaOfKind('youon')).toHaveLength(33);
-    expect(allKana.every((k) => k.script === 'hiragana')).toBe(true);
+    expect(allKana.filter((k) => k.script === 'hiragana')).toHaveLength(104);
   });
 
-  it('id 不重複，且符合 h-<romaji> 規則（ぢ、づ 例外）', () => {
-    const ids = allKana.map((k) => k.id);
+  it('平假名 id 不重複，且符合 h-<romaji> 規則（ぢ、づ 例外）', () => {
+    const hira = allKana.filter((k) => k.script === 'hiragana');
+    const ids = hira.map((k) => k.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const k of allKana) {
+    for (const k of hira) {
       if (k.id === 'h-di') expect(k.romaji).toBe('ji');
       else if (k.id === 'h-du') expect(k.romaji).toBe('zu');
       else expect(k.id).toBe(`h-${k.romaji}`);
@@ -143,8 +144,8 @@ describe('單字與「一行學完」', () => {
 });
 
 describe('記憶小提示', () => {
-  it('あ行、か行有提示（kana-puns.md 標 ❌ 的お、け除外），其他行沒有', () => {
-    const rejected = new Set(['h-o', 'h-ke']);
+  it('あ行、か行有提示（kana-puns.md 標 ❌ 的け除外），其他行沒有', () => {
+    const rejected = new Set(['h-ke']);
     for (const r of ['a', 'ka'])
       for (const k of byRow(r)) {
         if (rejected.has(k.id)) expect(hintFor(k.id)).toBeUndefined();

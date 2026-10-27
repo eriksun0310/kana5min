@@ -14,7 +14,7 @@ tags:
 - runFlow:
     file: ../common/preset.yaml
     env:
-      PRESET: hiragana-done
+      PRESET: hiragana-almost
 
 # 對比頁（三個字的組，還沒有答錯紀錄）
 - tapOn:

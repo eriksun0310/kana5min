@@ -1,6 +1,15 @@
 import { byId, seionOrder } from '../../data';
 import type { Progress } from '../../data/types';
-import { buildDailySession, buildQuiz, completedRows, dueKanaIds, nextNewKanaIds, pickDistractors } from '../session';
+import {
+  buildDailySession,
+  buildQuiz,
+  completedRows,
+  currentScript,
+  dueKanaIds,
+  isSeionLearned,
+  nextNewKanaIds,
+  pickDistractors,
+} from '../session';
 import { DAY_MS, MINUTE_MS } from '../srs';
 import { prog, seededRng } from './testUtils';
 
@@ -49,13 +58,61 @@ describe('buildDailySession', () => {
     expect(dueKanaIds(all, NOW + 10 * MINUTE_MS)).toEqual(['h-a']);
   });
 
-  it('46 個都學完：沒有新字', () => {
-    expect(nextNewKanaIds(learnedFirst(46))).toEqual([]);
-    expect(buildDailySession(learnedFirst(46), NOW).newKanaIds).toEqual([]);
+  it('平假名 46 個都學完：新字改從片假名清音依序取（アイウ）', () => {
+    expect(nextNewKanaIds(learnedFirst(46))).toEqual(['k-a', 'k-i', 'k-u']);
+    expect(buildDailySession(learnedFirst(46), NOW).newKanaIds).toEqual(['k-a', 'k-i', 'k-u']);
+  });
+
+  it('片假名階段：已學 ア～エ 4 個 → 新字 オカキ；到期複習兩種假名都包含', () => {
+    const kataOrder = seionOrder('katakana').map((k) => k.id);
+    const hira = learnedFirst(46, { nextReviewAt: NOW + DAY_MS });
+    const kata = kataOrder.slice(0, 4).map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }));
+    const s = buildDailySession([...hira, ...kata], NOW);
+    expect(s.newKanaIds).toEqual(['k-o', 'k-ka', 'k-ki']);
+    expect(s.reviewKanaIds).toEqual([]);
+
+    // 一個平假名、一個片假名到期：兩種都出現在複習清單
+    const due = [
+      ...hira.filter((p) => p.kanaId !== 'h-a'),
+      prog('h-a', { nextReviewAt: NOW - 2 * DAY_MS }),
+      ...kata.filter((p) => p.kanaId !== 'k-a'),
+      prog('k-a', { nextReviewAt: NOW - 1 * DAY_MS }),
+    ];
+    expect(buildDailySession(due, NOW).reviewKanaIds).toEqual(['h-a', 'k-a']);
+  });
+
+  it('平假名與片假名 92 個都學完：沒有新字', () => {
+    const all = [...learnedFirst(46), ...seionOrder('katakana').map((k) => prog(k.id, { nextReviewAt: NOW + DAY_MS }))];
+    expect(nextNewKanaIds(all)).toEqual([]);
+    expect(buildDailySession(all, NOW).newKanaIds).toEqual([]);
+  });
+
+  it('平假名只差 ん：新字只有 ん 一個，還不會混入片假名', () => {
+    expect(nextNewKanaIds(learnedFirst(45))).toEqual(['h-n']);
   });
 
   it('剩 2 個新字時只給 2 個', () => {
     expect(nextNewKanaIds(learnedFirst(44))).toEqual(['h-wo', 'h-n']);
+  });
+});
+
+describe('currentScript／isSeionLearned', () => {
+  it('平假名清音沒學完：hiragana；學完：katakana（只看平假名清音，濁音不算）', () => {
+    expect(currentScript([])).toBe('hiragana');
+    expect(currentScript(learnedFirst(45))).toBe('hiragana');
+    expect(currentScript(learnedFirst(46))).toBe('katakana');
+    expect(isSeionLearned(learnedFirst(46), 'hiragana')).toBe(true);
+    expect(isSeionLearned(learnedFirst(46), 'katakana')).toBe(false);
+  });
+
+  it('沒有 learnedAt 的進度不算已學', () => {
+    const almost = [...learnedFirst(45), prog('h-n', { learnedAt: undefined })];
+    expect(currentScript(almost)).toBe('hiragana');
+  });
+
+  it('片假名學了不代表平假名學完', () => {
+    const kata = seionOrder('katakana').map((k) => prog(k.id));
+    expect(currentScript(kata)).toBe('hiragana');
   });
 });
 
@@ -199,5 +256,20 @@ describe('completedRows', () => {
 
   it('最後一行（わ・を・ん）', () => {
     expect(completedRows(learnedFirst(45), learnedFirst(46))).toEqual(['wa']);
+  });
+});
+
+describe('片假名階段的測驗', () => {
+  it('新字是片假名時，兩題的選項全是片假名（同種類干擾項），片假名答案在選項裡', () => {
+    const hira = learnedFirst(46, { nextReviewAt: NOW + DAY_MS });
+    const session = buildDailySession(hira, NOW);
+    expect(session.newKanaIds).toEqual(['k-a', 'k-i', 'k-u']);
+    const quiz = buildQuiz(session, seededRng(5));
+    expect(quiz).toHaveLength(6);
+    for (const q of quiz) {
+      expect(q.options).toHaveLength(4);
+      expect(q.options).toContain(q.answerId);
+      expect(q.options.every((id) => byId(id)!.script === 'katakana')).toBe(true);
+    }
   });
 });

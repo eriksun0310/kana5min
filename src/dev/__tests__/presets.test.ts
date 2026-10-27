@@ -1,7 +1,9 @@
 import { seionOrder } from '../../data';
 import { isKatakanaUnlocked } from '../../logic/confusion';
+import { readableLoanwords } from '../../logic/loanword';
+import { currentScript } from '../../logic/session';
 import { DAY_MS } from '../../logic/srs';
-import { DEBUG_PRESETS, isDebugPreset, presetProgress } from '../presets';
+import { DEBUG_PRESETS, isDebugPreset, presetKataIntroSeen, presetProgress } from '../presets';
 
 const NOW = 1_700_000_000_000;
 
@@ -39,7 +41,43 @@ describe('presetProgress', () => {
     expect(presetProgress('reset', NOW)).toEqual([]);
   });
 
-  it('isDebugPreset 只接受三個名稱', () => {
+  it('all-done：平假名 46 + 片假名清音 46 = 92 個，片假名清音全部在內', () => {
+    const ids = presetProgress('all-done', NOW).map((p) => p.kanaId);
+    expect(ids).toHaveLength(92);
+    expect(ids.filter((id) => id.startsWith('k-'))).toHaveLength(46);
+  });
+
+  it('hiragana-almost：平假名清音除了 ん 以外 45 個已學，片假名尚未解鎖', () => {
+    const list = presetProgress('hiragana-almost', NOW);
+    expect(list).toHaveLength(45);
+    expect(list.map((p) => p.kanaId)).not.toContain('h-n');
+    expect(list.every((p) => p.kanaId.startsWith('h-'))).toBe(true);
+    expect(isKatakanaUnlocked(list)).toBe(false);
+    expect(currentScript(list)).toBe('hiragana');
+  });
+
+  it('katakana-started：平假名全部 + 片假名 ア～コ 10 個，階段為片假名，且有可讀外來語', () => {
+    const list = presetProgress('katakana-started', NOW);
+    const kata = list.filter((p) => p.kanaId.startsWith('k-')).map((p) => p.kanaId);
+    expect(kata).toEqual(
+      ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko'].map((c) => `k-${c}`),
+    );
+    expect(list.filter((p) => p.kanaId.startsWith('h-'))).toHaveLength(46);
+    expect(isKatakanaUnlocked(list)).toBe(true);
+    expect(currentScript(list)).toBe('katakana');
+    expect(readableLoanwords(kata).length).toBeGreaterThan(0);
+    for (const p of list) expect(p.nextReviewAt).toBe(NOW + 7 * DAY_MS); // 不會有到期複習
+  });
+
+  it('presetKataIntroSeen：hiragana-done／almost／reset 為 false（讓 C2-18 重新出現），片假名階段為 true', () => {
+    expect(presetKataIntroSeen('hiragana-done')).toBe(false);
+    expect(presetKataIntroSeen('hiragana-almost')).toBe(false);
+    expect(presetKataIntroSeen('reset')).toBe(false);
+    expect(presetKataIntroSeen('katakana-started')).toBe(true);
+    expect(presetKataIntroSeen('all-done')).toBe(true);
+  });
+
+  it('isDebugPreset 只接受五個名稱', () => {
     for (const n of DEBUG_PRESETS) expect(isDebugPreset(n)).toBe(true);
     expect(isDebugPreset('nope')).toBe(false);
     expect(isDebugPreset(undefined)).toBe(false);

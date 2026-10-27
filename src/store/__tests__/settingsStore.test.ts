@@ -21,6 +21,15 @@ describe('settingsStore（設定保存）', () => {
     expect(s.audioSpeed).toBe('normal');
     expect(s.onboarded).toBe(false);
     expect(s.practiceDates).toEqual([]);
+    expect(s.kataIntroSeen).toBe(false);
+  });
+
+  it('kataIntroSeen 設定後寫進 AsyncStorage，resetSettings 會設回 false', async () => {
+    useSettingsStore.getState().setKataIntroSeen(true);
+    const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(JSON.parse(raw as string).state.kataIntroSeen).toBe(true);
+    useSettingsStore.getState().resetSettings();
+    expect(useSettingsStore.getState().kataIntroSeen).toBe(false);
   });
 
   it('修改後寫進 AsyncStorage', async () => {

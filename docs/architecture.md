@@ -136,3 +136,14 @@ screenshots/phaseN/      截圖
 - 讀外來語題型 `loanword`（C2-20）：顯示片假名詞＋播放鈕，4 個中文意思選項（干擾項取其他外來語的意思），作答回饋照設計檔（答對「答對了！コーヒー 讀作 kōhī，「ー」是長音。」—有 note 才接 note）。片假名階段的每日練習在有可讀詞時加 1～2 題讀外來語；自動練習在片假名解鎖後也可抽到此題型。讀外來語題不更新任何假名的 SRS。
 - 五十音表：片假名分頁解鎖後可切換，已學標記照片假名進度。
 - 開發用深連結（只在 `__DEV__`）：`kana5min://debug?preset=hiragana-done|all-done|reset`。hiragana-done＝平假名清音 46 個設為已學（level 3、nextReviewAt 為一週後、correctStreak 3），片假名全部未學；all-done＝平假名與片假名清音都已學；reset＝清空進度（不清設定的 onboarded）。實作放 `src/dev/`，用 `if (__DEV__)` 包住 require，第三階段 Maestro 用它，第四階段再加除錯選單 UI。
+
+## 11. 第四階段：畢業、導流、TestFlight 準備
+
+- 畢業條件：平假名與片假名清音（各 46）全部已學。達成後，在練習結果流程結束回首頁時（若有一行學完畫面，接在它之後）顯示一次 C2-21（`app/graduate.tsx`），settingsStore 的 `graduateSeen` 設為 true，之後不再自動顯示。數字：平假名 46、片假名 46（取真實已學數）、練習天數＝practiceDates 的不同日期數。「看看下一步」→ C2-22；「回首頁繼續複習」→ 首頁。
+- 導流頁 C2-22（`app/next.tsx`）：連結常數放 `src/config.ts`：`export const SUSHI_JP_APP_STORE_URL = '[壽司日檢 App Store 連結]'`。「到 App Store 看看」用 `Linking.openURL`；常數不是 http(s) 開頭時改顯示 Alert「連結尚未設定」，不嘗試開啟。賣點三點照設計檔，第三點保留佔位文字「[壽司日檢的其他賣點]」。右上關閉與「之後再說」回首頁（`exitToHome`）。testID：`next-open-store`、`next-close`、`next-later`。
+- 再次進入：設定頁「關於」區加兩列：「下一步：壽司日檢」（一律顯示，testID `row-next`）與「畢業紀念」（只在已畢業後顯示，testID `row-graduate`）。首頁在已畢業後於主按鈕下方加一個文字連結「下一步：壽司日檢」（testID `home-next-link`）。
+- 除錯選單：設定頁最下方「開發者」區，只在 `__DEV__` 顯示，三個按鈕：平假名全部完成（`debug-hiragana-done`）、全部完成（`debug-all-done`）、重設進度（`debug-reset`），套用後回首頁。元件放 `src/dev/DebugMenu.tsx`，設定頁用 `const DebugMenu = __DEV__ ? require('../../src/dev/DebugMenu').default : null` 引用。驗收方式：Release 打包後的 main.jsbundle 不得包含 DebugMenu 裡的唯一字串（例如 `開發者選單`、`debug-all-done`）。
+- app.json：name「Kana 5min - 五十音入門」、version `1.0.0`、ios.bundleIdentifier `com.ptalk.kana5min`、ios.buildNumber `1`、android.package `com.ptalk.kana5min`、android.versionCode 1、userInterfaceStyle `automatic`、splash（背景色用亮色 bg，另設 dark 背景）、icon 佔位圖（assets/images/icon.png 可沿用範本，記在待確認事項）、`ios.infoPlist.ITSAppUsesNonExemptEncryption: false`、`ios.supportsTablet: false`（只做 iPhone 版面）。plugins 加 expo-notifications（若需要）。
+- Privacy manifest：App 不收集資料。`ios.privacyManifests`：`NSPrivacyTracking: false`、`NSPrivacyTrackingDomains: []`、`NSPrivacyCollectedDataTypes: []`，`NSPrivacyAccessedAPITypes` 列 UserDefaults（`CA92.1`，AsyncStorage 使用）。
+- eas.json：`cli.version` 下限、`cli.appVersionSource: "local"`；`build.development`：`distribution: internal`、`ios.simulator: true`；`build.production`：`autoIncrement: true`（iOS buildNumber）；`submit.production` 留空物件（不填 Apple 帳號資訊）。不執行任何 eas 指令。
+- 驗證：`npx expo-doctor` 0 錯誤；`npx expo run:ios --configuration Release --no-bundler --device <UDID>` 成功並能啟動。

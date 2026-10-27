@@ -19,6 +19,10 @@ export interface Kana {
   exampleWordId?: string;
   /** 容易搞混的其他 Kana id（兩兩互指） */
   confusableWith?: string[];
+  /** 片假名專用：同讀音的平假名 id（例如 'k-ka' → 'h-ka'） */
+  hiraganaId?: string;
+  /** 片假名專用：跟對應平假名的差異或記法，一句話 */
+  diffNote?: string;
 }
 
 export interface Word {
@@ -29,6 +33,13 @@ export interface Word {
   /** 中文意思 */
   meaning: string;
   script: Script;
+  /** 讀外來語題答完後的補充說明，例如「「ー」是長音。」 */
+  note?: string;
+  /**
+   * 只當作某個假名的例字（例如 ヲ、ヂ、ヅ 在外來語幾乎不出現），
+   * 不是真正的外來語，不進「讀外來語」題。
+   */
+  exampleOnly?: boolean;
 }
 
 export interface Progress {

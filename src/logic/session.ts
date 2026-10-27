@@ -21,7 +21,7 @@ export interface DailySession {
 
 export interface DailySessionOptions {
   newPerSession?: number;
-  /** 學習順序（Kana id 陣列）；預設為平假名清音順序 */
+  /** 學習順序（Kana id 陣列）；預設為目前階段（currentScript）的清音順序 */
   learningOrder?: string[];
 }
 
@@ -29,16 +29,34 @@ export function defaultLearningOrder(script: Script = 'hiragana'): string[] {
   return seionOrder(script).map((k) => k.id);
 }
 
+/** 該文字的清音 46 個是否全部已學。 */
+export function isSeionLearned(allProgress: readonly Progress[], script: Script): boolean {
+  const learned = learnedIdSet([...allProgress]);
+  const order = seionOrder(script);
+  return order.length > 0 && order.every((k) => learned.has(k.id));
+}
+
+/**
+ * 目前的學習階段：平假名清音 46 個全部學完前是 'hiragana'，之後是 'katakana'
+ * （每日新字、首頁進度都跟著它；到期複習不受影響，兩種假名都會出現）。
+ */
+export function currentScript(allProgress: readonly Progress[]): Script {
+  return isSeionLearned(allProgress, 'hiragana') ? 'katakana' : 'hiragana';
+}
+
 /** 學習進度裡已學過（learnedAt 有值）的 Kana id 集合。 */
 export function learnedIdSet(allProgress: Progress[]): Set<string> {
   return new Set(allProgress.filter(isLearned).map((p) => p.kanaId));
 }
 
-/** 下一批尚未學過的新字（依學習順序）。 */
+/**
+ * 下一批尚未學過的新字（依學習順序）。
+ * 沒有指定 order 時用目前階段的順序：平假名學完後自動改從片假名清音取。
+ */
 export function nextNewKanaIds(
   allProgress: Progress[],
   limit: number = NEW_PER_SESSION,
-  order: string[] = defaultLearningOrder(),
+  order: string[] = defaultLearningOrder(currentScript(allProgress)),
 ): string[] {
   const learned = learnedIdSet(allProgress);
   return order.filter((id) => !learned.has(id)).slice(0, limit);
@@ -59,7 +77,7 @@ export function buildDailySession(
   options: DailySessionOptions = {},
 ): DailySession {
   const limit = options.newPerSession ?? NEW_PER_SESSION;
-  const order = options.learningOrder ?? defaultLearningOrder();
+  const order = options.learningOrder ?? defaultLearningOrder(currentScript(allProgress));
   return {
     newKanaIds: nextNewKanaIds(allProgress, limit, order),
     reviewKanaIds: dueKanaIds(allProgress, now),
@@ -71,21 +89,33 @@ export function buildDailySession(
 
 /**
  * see = 看字選音（C2-08）；hear = 聽音選字（C2-09）；
- * confuse = 易混淆字辨識：播放聲音，選項是該組成員（2～3 個，不補到 4 個）。
+ * confuse = 易混淆字辨識：播放聲音，選項是該組成員（2～3 個，不補到 4 個）；
+ * loanword = 讀外來語（C2-20）：看片假名詞，選中文意思，不屬於任何假名。
  */
-export type QuizType = 'see' | 'hear' | 'confuse';
+export type QuizType = 'see' | 'hear' | 'confuse' | 'loanword';
 
 export interface QuizQuestion {
   /** 題目序號 id，例如 'q-0' */
   id: string;
+  /** 題目對應的假名；loanword 題沒有對應假名，固定為空字串（不更新任何 SRS） */
   kanaId: string;
   type: QuizType;
-  /** 選項，皆為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現）。see／hear 為 4 個，confuse 為 2～3 個 */
+  /**
+   * 選項。see／hear 為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現），4 個；
+   * confuse 為 Kana id，2～3 個；loanword 為 4 個中文意思。
+   */
   options: string[];
-  /** 正確選項的 Kana id（= kanaId） */
+  /** 正確選項（Kana id；loanword 為正確的中文意思）。see／hear／confuse 時等於 kanaId */
   answerId: string;
   /** confuse 題（以及易混淆字組快速辨識的 see 題）所屬的字組 id */
   groupId?: string;
+  /** loanword 題的外來語 id（對應 words.json） */
+  wordId?: string;
+}
+
+/** 是否為讀外來語題（不屬於任何假名）。 */
+export function isLoanwordQuestion(q: Pick<QuizQuestion, 'type'>): boolean {
+  return q.type === 'loanword';
 }
 
 export const QUIZ_OPTION_COUNT = 4;

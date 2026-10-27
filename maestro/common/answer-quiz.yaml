@@ -1,5 +1,5 @@
 # 全部題目都選正確答案（__DEV__ 版本正確選項 testID 為 opt-correct），直到結果頁出現。
-# 看字選音要再按 quiz-confirm（選這個）；聽音選字點了就確定。
+# 看字選音要再按 quiz-confirm（選這個）；聽音選字、讀外來語點了就確定。
 appId: com.ptalk.kana5min
 ---
 - repeat:
@@ -21,6 +21,13 @@ appId: com.ptalk.kana5min
           when:
             visible:
               id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
           commands:
             - tapOn:
                 id: opt-correct

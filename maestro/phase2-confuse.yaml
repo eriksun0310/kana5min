@@ -9,7 +9,7 @@ appId: com.ptalk.kana5min
 - runFlow:
     file: common/preset.yaml
     env:
-      PRESET: hiragana-done
+      PRESET: hiragana-almost
 - tapOn:
     id: tab-practice
 - assertVisible:
@@ -19,7 +19,8 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: group-wanere
 - assertVisible: 最近常搞混
-# 片假名組在片假名資料加入前（第三階段）不會出現
+# 平假名還沒學完（hiragana-almost：只差 ん）時片假名組不會出現；
+# 平假名學完（hiragana-done）會解鎖片假名並先跳出 C2-18，所以這支流程不用它（見 phase3-unlock.yaml）
 - assertNotVisible: "(シツ|シ・ツ).*"
 - assertNotVisible: "(ソン|ソ・ン).*"
 - assertNotVisible:

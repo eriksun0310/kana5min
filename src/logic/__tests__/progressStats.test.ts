@@ -58,6 +58,37 @@ describe('computeHomeStats', () => {
   });
 });
 
+describe('computeHomeStats（片假名階段）', () => {
+  const kataOrder = seionOrder('katakana').map((k) => k.id);
+  const hira = order.map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }));
+
+  it('script = katakana：已學、進度條、下一個新字都改算片假名；待複習仍計兩種假名', () => {
+    const kata = kataOrder.slice(0, 4).map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }));
+    const dueHira = [prog('h-a', { nextReviewAt: NOW - 1 }), ...hira.slice(1)];
+    const s = computeHomeStats([...dueHira, ...kata], NOW, 'katakana');
+    expect(s.learnedCount).toBe(4);
+    expect(s.total).toBe(46);
+    expect(s.nextKanaId).toBe('k-o');
+    expect(s.newTodayCount).toBe(3);
+    expect(s.dueCount).toBe(1);
+    expect(s.dots).toHaveLength(46);
+    expect(s.dots.slice(0, 4).every((d) => d === 'learned')).toBe(true);
+    expect(s.dots[4]).toBe('next');
+    expect(s.dots[5]).toBe('rest');
+  });
+
+  it('剛解鎖：片假名已學 0、下一個新字 ア、今天新字 3；全部學完沒有 next', () => {
+    const fresh = computeHomeStats(hira, NOW, 'katakana');
+    expect(fresh.learnedCount).toBe(0);
+    expect(fresh.nextKanaId).toBe('k-a');
+    expect(fresh.newTodayCount).toBe(3);
+    const done = computeHomeStats([...hira, ...kataOrder.map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }))], NOW, 'katakana');
+    expect(done.learnedCount).toBe(46);
+    expect(done.nextKanaId).toBeUndefined();
+    expect(done.newTodayCount).toBe(0);
+  });
+});
+
 describe('連續練習天數', () => {
   const key = (d: number) => toDateKey(at(2026, 10, d));
 
@@ -171,5 +202,22 @@ describe('buildResultSummary', () => {
       ['h-ka', '記得很熟', 'normal', '7 天後'],
       ['h-ki', '答錯 1 次', 'wrong', '10 分鐘後'],
     ]);
+  });
+
+  it('extraAnswers（讀外來語）只計入答對數與總題數，不產生 items、不影響新字／複習字數', () => {
+    const after = [prog('k-a', { level: 1, nextReviewAt: NOW + DAY_MS })];
+    const summary = buildResultSummary({
+      answers: { 'k-a': [true, true] },
+      before: [],
+      after,
+      startedAt: NOW - MINUTE_MS,
+      finishedAt: NOW,
+      extraAnswers: [true, false],
+    });
+    expect(summary.correct).toBe(3);
+    expect(summary.total).toBe(4);
+    expect(summary.newCount).toBe(1);
+    expect(summary.reviewCount).toBe(0);
+    expect(summary.items.map((i) => i.kanaId)).toEqual(['k-a']);
   });
 });

@@ -27,6 +27,30 @@ export const ROW_LABEL: Record<string, string> = {
   wa: 'わ行',
 };
 
+/** 片假名的行標籤（ア行、カ行…） */
+export const ROW_LABEL_KATAKANA: Record<string, string> = {
+  a: 'ア行',
+  ka: 'カ行',
+  sa: 'サ行',
+  ta: 'タ行',
+  na: 'ナ行',
+  ha: 'ハ行',
+  ma: 'マ行',
+  ya: 'ヤ行',
+  ra: 'ラ行',
+  wa: 'ワ行',
+};
+
+/** 行標籤：平假名「あ行」、片假名「ア行」。 */
+export function rowLabel(row: string, script: Script = 'hiragana'): string {
+  return (script === 'katakana' ? ROW_LABEL_KATAKANA : ROW_LABEL)[row] ?? row;
+}
+
+/** 文字的中文名稱（介面文字用）：平假名／片假名 */
+export function scriptLabel(script: Script): string {
+  return script === 'katakana' ? '片假名' : '平假名';
+}
+
 /** 清音總數 */
 export const SEION_COUNT = 46;
 
@@ -73,6 +97,10 @@ export function rowOf(kanaId: string): string | undefined {
  * 照 design/C2-03：や行、わ行、ん 的空格保留。
  */
 export function seionGrid(script: Script = 'hiragana'): (string | null)[] {
+  if (script === 'katakana') {
+    // 片假名的排版與平假名完全相同（id 只差前綴）
+    return seionGrid('hiragana').map((id) => (id === null ? null : `k-${id.slice(2)}`));
+  }
   const chars =
     'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもや・ゆ・よらりるれろわ・・・をん・・・・';
   const byChar = new Map(seionOrder(script).map((k) => [k.char, k]));
@@ -106,4 +134,14 @@ export function confusionGroupId(kanaId: string): string | undefined {
   const k = kanaMap.get(kanaId);
   if (!k?.confusableWith?.length) return undefined;
   return [k.id, ...k.confusableWith].sort().join('|');
+}
+
+/** 片假名對應的平假名（同讀音）；平假名或沒有對應時回傳 undefined。 */
+export function hiraganaOf(kana: Kana): Kana | undefined {
+  return kana.hiraganaId ? kanaMap.get(kana.hiraganaId) : undefined;
+}
+
+/** 外來語詞庫：片假名詞，不含只當例字用的詞（exampleOnly）。 */
+export function loanwords(): Word[] {
+  return allWords.filter((w) => w.script === 'katakana' && !w.exampleOnly);
 }

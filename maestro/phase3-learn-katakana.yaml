@@ -1,0 +1,74 @@
+# 學一輪片假名新字：C2-18 → 3 個新字（看與聽 → 筆順 → 描寫）→ 測驗（含讀外來語題）→ 結果頁
+# → 首頁標題「片假名」、已學 3 / 46 → 五十音表片假名分頁 ア イ ウ 有已學標記。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+- tapOn:
+    id: kata-start
+# 3 個新字：ア イ ウ（每個都是 C2-19 版面）
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- runFlow: common/learn-one-kana.yaml
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- runFlow: common/learn-one-kana.yaml
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- runFlow: common/learn-one-kana.yaml
+# 測驗：3 個新字 × 2 題 + 1～2 題讀外來語
+- runFlow: common/answer-quiz.yaml
+- assertVisible: 今天完成了
+- assertVisible: 學了 3 個新字。
+- assertVisible:
+    id: result-item-k-a
+- assertVisible:
+    id: result-item-k-i
+- assertVisible:
+    id: result-item-k-u
+- tapOn:
+    id: result-home
+# 首頁：標題片假名、已學 3 / 46（進度分開計算）、下一個新字 エ
+- assertVisible:
+    id: home-script
+    text: 片假名
+- assertVisible:
+    id: stat-learned
+- assertVisible: "3 / 46"
+- assertVisible:
+    id: home-next-kana
+    text: エ
+# 五十音表片假名分頁：ア イ ウ 有已學標記，エ 沒有
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: script-katakana
+- assertVisible:
+    id: learned-k-a
+- assertVisible:
+    id: learned-k-i
+- assertVisible:
+    id: learned-k-u
+- assertNotVisible:
+    id: learned-k-e
+# 平假名分頁的已學標記不受影響
+- tapOn:
+    id: script-hiragana
+- assertVisible:
+    id: learned-h-a

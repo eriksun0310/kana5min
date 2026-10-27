@@ -1,0 +1,164 @@
+# 階段 3 截圖：C2-18～C2-20，加上片假名階段的首頁與五十音表。不屬於必須跑通的 phase 流程，
+# 請用 maestro/screenshots/run-phase3.sh 執行（它會先切換模擬器的系統外觀，再以 THEME=light|dark 各跑一次）。
+# THEME 由 run-phase3.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值，檔頭的 env 會蓋掉命令列）。
+# App 的主題設定維持「跟隨系統」。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-done
+
+# C2-18 片假名開始
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase3/C2-18-KataStart-${THEME}
+
+# C2-19 片假名學新字・看與聽（ア）
+- tapOn:
+    id: kata-start
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase3/C2-19-KataLearn-${THEME}
+
+# 切到片假名階段的預設（ア～コ 已學），之後的畫面用它（深連結會直接回首頁，不用按結束）
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: katakana-started
+- assertVisible:
+    id: stat-learned
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase3/C2-02-Home-katakana-${THEME}
+
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: script-katakana
+- assertVisible:
+    id: learned-k-a
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase3/C2-03-Chart-katakana-${THEME}
+
+# C2-20 讀外來語：自動練習每輪必有 1～2 題；第一輪第一題讀外來語作答前截圖後故意答錯再截圖，
+# 第二輪（再練一輪）第一題讀外來語答對後截圖，其餘題目全部答對。
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: start-auto-practice
+- evalScript: ${output.shotWrong = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
+          commands:
+            - evalScript: "${output.doShot = output.shotWrong == 0 ? 1 : 0; output.shotWrong = 1}"
+            - runFlow:
+                when:
+                  true: ${output.doShot == 1}
+                commands:
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase3/C2-20-KataWord-${THEME}
+                  - tapOn:
+                      id: opt-wrong-0
+                  - assertVisible:
+                      id: quiz-feedback
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase3/C2-20-KataWord-wrong-${THEME}
+            - runFlow:
+                when:
+                  true: ${output.doShot == 0}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- tapOn:
+    id: result-again
+- evalScript: ${output.shotCorrect = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
+          commands:
+            - tapOn:
+                id: opt-correct
+            - evalScript: "${output.doShot = output.shotCorrect == 0 ? 1 : 0; output.shotCorrect = 1}"
+            - runFlow:
+                when:
+                  true: ${output.doShot == 1}
+                commands:
+                  - assertVisible:
+                      id: quiz-feedback
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/phase3/C2-20-KataWord-correct-${THEME}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了

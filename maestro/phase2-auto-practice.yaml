@@ -1,4 +1,4 @@
-# 自動練習：套用 hiragana-done → 練習分頁 → 自動練習 → 完成 10 題 → 結果頁。
+# 自動練習：套用 hiragana-almost（平假名除 ん 外已學；hiragana-done 會先跳出片假名開始畫面）→ 練習分頁 → 自動練習 → 完成 10 題 → 結果頁。
 appId: com.ptalk.kana5min
 ---
 - runFlow:
@@ -8,7 +8,7 @@ appId: com.ptalk.kana5min
 - runFlow:
     file: common/preset.yaml
     env:
-      PRESET: hiragana-done
+      PRESET: hiragana-almost
 - tapOn:
     id: tab-practice
 - assertVisible:

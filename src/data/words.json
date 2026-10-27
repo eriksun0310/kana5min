@@ -1251,5 +1251,879 @@
     "romaji": "ryou",
     "meaning": "宿舍",
     "script": "hiragana"
+  },
+  {
+    "id": "w-aisu",
+    "text": "アイス",
+    "romaji": "aisu",
+    "meaning": "冰淇淋",
+    "script": "katakana"
+  },
+  {
+    "id": "w-iyahon",
+    "text": "イヤホン",
+    "romaji": "iyahon",
+    "meaning": "耳機",
+    "script": "katakana"
+  },
+  {
+    "id": "w-uisuki",
+    "text": "ウイスキー",
+    "romaji": "uisukī",
+    "meaning": "威士忌",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-eakon",
+    "text": "エアコン",
+    "romaji": "eakon",
+    "meaning": "冷氣",
+    "script": "katakana"
+  },
+  {
+    "id": "w-orenji",
+    "text": "オレンジ",
+    "romaji": "orenji",
+    "meaning": "柳橙",
+    "script": "katakana"
+  },
+  {
+    "id": "w-kamera",
+    "text": "カメラ",
+    "romaji": "kamera",
+    "meaning": "相機",
+    "script": "katakana"
+  },
+  {
+    "id": "w-kiui",
+    "text": "キウイ",
+    "romaji": "kiui",
+    "meaning": "奇異果",
+    "script": "katakana"
+  },
+  {
+    "id": "w-kurasu",
+    "text": "クラス",
+    "romaji": "kurasu",
+    "meaning": "班級",
+    "script": "katakana"
+  },
+  {
+    "id": "w-keki",
+    "text": "ケーキ",
+    "romaji": "kēki",
+    "meaning": "蛋糕",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-kohi",
+    "text": "コーヒー",
+    "romaji": "kōhī",
+    "meaning": "咖啡",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-kora",
+    "text": "コーラ",
+    "romaji": "kōra",
+    "meaning": "可樂",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-sarada",
+    "text": "サラダ",
+    "romaji": "sarada",
+    "meaning": "沙拉",
+    "script": "katakana"
+  },
+  {
+    "id": "w-shatsu",
+    "text": "シャツ",
+    "romaji": "shatsu",
+    "meaning": "襯衫",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-suki-k",
+    "text": "スキー",
+    "romaji": "sukī",
+    "meaning": "滑雪",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-supu",
+    "text": "スープ",
+    "romaji": "sūpu",
+    "meaning": "湯",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-seta",
+    "text": "セーター",
+    "romaji": "sētā",
+    "meaning": "毛衣",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-sosu",
+    "text": "ソース",
+    "romaji": "sōsu",
+    "meaning": "醬汁",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-sofa",
+    "text": "ソファ",
+    "romaji": "sofa",
+    "meaning": "沙發",
+    "script": "katakana",
+    "note": "小字「ァ」和前一個字合成一個音。"
+  },
+  {
+    "id": "w-takushi",
+    "text": "タクシー",
+    "romaji": "takushī",
+    "meaning": "計程車",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-chizu",
+    "text": "チーズ",
+    "romaji": "chīzu",
+    "meaning": "起司",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-tsua",
+    "text": "ツアー",
+    "romaji": "tsuā",
+    "meaning": "旅行團",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-terebi",
+    "text": "テレビ",
+    "romaji": "terebi",
+    "meaning": "電視",
+    "script": "katakana"
+  },
+  {
+    "id": "w-tenisu",
+    "text": "テニス",
+    "romaji": "tenisu",
+    "meaning": "網球",
+    "script": "katakana"
+  },
+  {
+    "id": "w-tomato",
+    "text": "トマト",
+    "romaji": "tomato",
+    "meaning": "番茄",
+    "script": "katakana"
+  },
+  {
+    "id": "w-naifu",
+    "text": "ナイフ",
+    "romaji": "naifu",
+    "meaning": "刀子",
+    "script": "katakana"
+  },
+  {
+    "id": "w-nyusu",
+    "text": "ニュース",
+    "romaji": "nyūsu",
+    "meaning": "新聞",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-nudoru",
+    "text": "ヌードル",
+    "romaji": "nūdoru",
+    "meaning": "麵條",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-nekutai",
+    "text": "ネクタイ",
+    "romaji": "nekutai",
+    "meaning": "領帶",
+    "script": "katakana"
+  },
+  {
+    "id": "w-noto",
+    "text": "ノート",
+    "romaji": "nōto",
+    "meaning": "筆記本",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-hamu",
+    "text": "ハム",
+    "romaji": "hamu",
+    "meaning": "火腿",
+    "script": "katakana"
+  },
+  {
+    "id": "w-hanbaga",
+    "text": "ハンバーガー",
+    "romaji": "hanbāgā",
+    "meaning": "漢堡",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-hita",
+    "text": "ヒーター",
+    "romaji": "hītā",
+    "meaning": "暖氣機",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-furutsu",
+    "text": "フルーツ",
+    "romaji": "furūtsu",
+    "meaning": "水果",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-foku",
+    "text": "フォーク",
+    "romaji": "fōku",
+    "meaning": "叉子",
+    "script": "katakana",
+    "note": "「ー」是長音，小字「ォ」和前一個字合成一個音。"
+  },
+  {
+    "id": "w-herumetto",
+    "text": "ヘルメット",
+    "romaji": "herumetto",
+    "meaning": "安全帽",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍。"
+  },
+  {
+    "id": "w-hoteru",
+    "text": "ホテル",
+    "romaji": "hoteru",
+    "meaning": "飯店",
+    "script": "katakana"
+  },
+  {
+    "id": "w-masuku",
+    "text": "マスク",
+    "romaji": "masuku",
+    "meaning": "口罩",
+    "script": "katakana"
+  },
+  {
+    "id": "w-miruku",
+    "text": "ミルク",
+    "romaji": "miruku",
+    "meaning": "牛奶",
+    "script": "katakana"
+  },
+  {
+    "id": "w-mubi",
+    "text": "ムービー",
+    "romaji": "mūbī",
+    "meaning": "電影",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-menyu",
+    "text": "メニュー",
+    "romaji": "menyū",
+    "meaning": "菜單",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-moderu",
+    "text": "モデル",
+    "romaji": "moderu",
+    "meaning": "模特兒",
+    "script": "katakana"
+  },
+  {
+    "id": "w-yumoa",
+    "text": "ユーモア",
+    "romaji": "yūmoa",
+    "meaning": "幽默",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-yoguruto",
+    "text": "ヨーグルト",
+    "romaji": "yōguruto",
+    "meaning": "優格",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-rajio",
+    "text": "ラジオ",
+    "romaji": "rajio",
+    "meaning": "收音機",
+    "script": "katakana"
+  },
+  {
+    "id": "w-ramen",
+    "text": "ラーメン",
+    "romaji": "rāmen",
+    "meaning": "拉麵",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-rimokon",
+    "text": "リモコン",
+    "romaji": "rimokon",
+    "meaning": "遙控器",
+    "script": "katakana"
+  },
+  {
+    "id": "w-ruru",
+    "text": "ルール",
+    "romaji": "rūru",
+    "meaning": "規則",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-remon",
+    "text": "レモン",
+    "romaji": "remon",
+    "meaning": "檸檬",
+    "script": "katakana"
+  },
+  {
+    "id": "w-robotto",
+    "text": "ロボット",
+    "romaji": "robotto",
+    "meaning": "機器人",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍。"
+  },
+  {
+    "id": "w-wain",
+    "text": "ワイン",
+    "romaji": "wain",
+    "meaning": "葡萄酒",
+    "script": "katakana"
+  },
+  {
+    "id": "w-pan-k",
+    "text": "パン",
+    "romaji": "pan",
+    "meaning": "麵包",
+    "script": "katakana"
+  },
+  {
+    "id": "w-banana",
+    "text": "バナナ",
+    "romaji": "banana",
+    "meaning": "香蕉",
+    "script": "katakana"
+  },
+  {
+    "id": "w-kare",
+    "text": "カレー",
+    "romaji": "karē",
+    "meaning": "咖哩",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-toire",
+    "text": "トイレ",
+    "romaji": "toire",
+    "meaning": "廁所",
+    "script": "katakana"
+  },
+  {
+    "id": "w-pati",
+    "text": "パーティー",
+    "romaji": "pātī",
+    "meaning": "派對",
+    "script": "katakana",
+    "note": "「ー」是長音，小字「ィ」和前一個字合成一個音。"
+  },
+  {
+    "id": "w-gasu",
+    "text": "ガス",
+    "romaji": "gasu",
+    "meaning": "瓦斯",
+    "script": "katakana"
+  },
+  {
+    "id": "w-gita",
+    "text": "ギター",
+    "romaji": "gitā",
+    "meaning": "吉他",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-gurasu",
+    "text": "グラス",
+    "romaji": "gurasu",
+    "meaning": "玻璃杯",
+    "script": "katakana"
+  },
+  {
+    "id": "w-gemu",
+    "text": "ゲーム",
+    "romaji": "gēmu",
+    "meaning": "遊戲",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-gorufu",
+    "text": "ゴルフ",
+    "romaji": "gorufu",
+    "meaning": "高爾夫球",
+    "script": "katakana"
+  },
+  {
+    "id": "w-piza",
+    "text": "ピザ",
+    "romaji": "piza",
+    "meaning": "披薩",
+    "script": "katakana"
+  },
+  {
+    "id": "w-jinzu",
+    "text": "ジーンズ",
+    "romaji": "jīnzu",
+    "meaning": "牛仔褲",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-zubon-k",
+    "text": "ズボン",
+    "romaji": "zubon",
+    "meaning": "褲子",
+    "script": "katakana"
+  },
+  {
+    "id": "w-zeri",
+    "text": "ゼリー",
+    "romaji": "zerī",
+    "meaning": "果凍",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-zonbi",
+    "text": "ゾンビ",
+    "romaji": "zonbi",
+    "meaning": "殭屍",
+    "script": "katakana"
+  },
+  {
+    "id": "w-dansu",
+    "text": "ダンス",
+    "romaji": "dansu",
+    "meaning": "舞蹈",
+    "script": "katakana"
+  },
+  {
+    "id": "w-depato",
+    "text": "デパート",
+    "romaji": "depāto",
+    "meaning": "百貨公司",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-doa",
+    "text": "ドア",
+    "romaji": "doa",
+    "meaning": "門",
+    "script": "katakana"
+  },
+  {
+    "id": "w-basu",
+    "text": "バス",
+    "romaji": "basu",
+    "meaning": "巴士",
+    "script": "katakana"
+  },
+  {
+    "id": "w-biru",
+    "text": "ビール",
+    "romaji": "bīru",
+    "meaning": "啤酒",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-butsu",
+    "text": "ブーツ",
+    "romaji": "būtsu",
+    "meaning": "靴子",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-beddo",
+    "text": "ベッド",
+    "romaji": "beddo",
+    "meaning": "床",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍。"
+  },
+  {
+    "id": "w-boru",
+    "text": "ボール",
+    "romaji": "bōru",
+    "meaning": "球",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-piano",
+    "text": "ピアノ",
+    "romaji": "piano",
+    "meaning": "鋼琴",
+    "script": "katakana"
+  },
+  {
+    "id": "w-puru",
+    "text": "プール",
+    "romaji": "pūru",
+    "meaning": "游泳池",
+    "script": "katakana",
+    "note": "「ー」是長音。"
+  },
+  {
+    "id": "w-petto",
+    "text": "ペット",
+    "romaji": "petto",
+    "meaning": "寵物",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍。"
+  },
+  {
+    "id": "w-posuto",
+    "text": "ポスト",
+    "romaji": "posuto",
+    "meaning": "郵筒",
+    "script": "katakana"
+  },
+  {
+    "id": "w-kyanpu",
+    "text": "キャンプ",
+    "romaji": "kyanpu",
+    "meaning": "露營",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-kyuto",
+    "text": "キュート",
+    "romaji": "kyūto",
+    "meaning": "可愛",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-shukurimu",
+    "text": "シュークリーム",
+    "romaji": "shūkurīmu",
+    "meaning": "泡芙",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-shoppingu",
+    "text": "ショッピング",
+    "romaji": "shoppingu",
+    "meaning": "購物",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍，「ョ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-chahan",
+    "text": "チャーハン",
+    "romaji": "chāhan",
+    "meaning": "炒飯",
+    "script": "katakana",
+    "note": "「ー」是長音，「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-churippu",
+    "text": "チューリップ",
+    "romaji": "chūrippu",
+    "meaning": "鬱金香",
+    "script": "katakana",
+    "note": "「ー」是長音，「ッ」是促音，要停頓一拍，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-chokoreto",
+    "text": "チョコレート",
+    "romaji": "chokorēto",
+    "meaning": "巧克力",
+    "script": "katakana",
+    "note": "「ー」是長音，「ョ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-nyokki",
+    "text": "ニョッキ",
+    "romaji": "nyokki",
+    "meaning": "義式麵疙瘩",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍，「ョ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-hyuzu",
+    "text": "ヒューズ",
+    "romaji": "hyūzu",
+    "meaning": "保險絲",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-myanma",
+    "text": "ミャンマー",
+    "romaji": "myanmā",
+    "meaning": "緬甸",
+    "script": "katakana",
+    "note": "「ー」是長音，「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-myujikku",
+    "text": "ミュージック",
+    "romaji": "myūjikku",
+    "meaning": "音樂",
+    "script": "katakana",
+    "note": "「ー」是長音，「ッ」是促音，要停頓一拍，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-ryama",
+    "text": "リャマ",
+    "romaji": "ryama",
+    "meaning": "羊駝",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-ryukku",
+    "text": "リュック",
+    "romaji": "ryukku",
+    "meaning": "背包",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-gyagu",
+    "text": "ギャグ",
+    "romaji": "gyagu",
+    "meaning": "搞笑哏",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-gyoza",
+    "text": "ギョウザ",
+    "romaji": "gyōza",
+    "meaning": "餃子",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-jamu",
+    "text": "ジャム",
+    "romaji": "jamu",
+    "meaning": "果醬",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-jusu",
+    "text": "ジュース",
+    "romaji": "jūsu",
+    "meaning": "果汁",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-jogingu",
+    "text": "ジョギング",
+    "romaji": "jogingu",
+    "meaning": "慢跑",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-byuffe",
+    "text": "ビュッフェ",
+    "romaji": "byuffe",
+    "meaning": "自助餐",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍，「ュ」是拗音，和前一個字合成一個音，小字「ェ」和前一個字合成一個音。"
+  },
+  {
+    "id": "w-konpyuta",
+    "text": "コンピューター",
+    "romaji": "konpyūtā",
+    "meaning": "電腦",
+    "script": "katakana",
+    "note": "「ー」是長音，「ュ」是拗音，和前一個字合成一個音。"
+  },
+  {
+    "id": "w-yagi",
+    "text": "ヤギ",
+    "romaji": "yagi",
+    "meaning": "山羊",
+    "script": "katakana",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-otaku",
+    "text": "ヲタク",
+    "romaji": "otaku",
+    "meaning": "御宅族",
+    "script": "katakana",
+    "note": "「ヲ」念 o，和「オ」一樣；ヲ 現代只出現在這種特殊拼法。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-hanaji-k",
+    "text": "ハナヂ",
+    "romaji": "hanaji",
+    "meaning": "鼻血",
+    "script": "katakana",
+    "note": "「ヂ」念 ji，和「ジ」一樣；ヂ 現代很少用。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-tsuzuku-k",
+    "text": "ツヅク",
+    "romaji": "tsuzuku",
+    "meaning": "繼續",
+    "script": "katakana",
+    "note": "「ヅ」念 zu，和「ズ」一樣；ヅ 現代很少用。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-kyoryu",
+    "text": "キョウリュウ",
+    "romaji": "kyōryū",
+    "meaning": "恐龍",
+    "script": "katakana",
+    "note": "「ュ」是拗音，和前一個字合成一個音，「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-konnyaku-k",
+    "text": "コンニャク",
+    "romaji": "konnyaku",
+    "meaning": "蒟蒻",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-hyaku-k",
+    "text": "ヒャク",
+    "romaji": "hyaku",
+    "meaning": "百",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-hyo",
+    "text": "ヒョウ",
+    "romaji": "hyō",
+    "meaning": "豹",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-myoga",
+    "text": "ミョウガ",
+    "romaji": "myōga",
+    "meaning": "茗荷",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-ryoko",
+    "text": "リョコウ",
+    "romaji": "ryokō",
+    "meaning": "旅行",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-gyunyu",
+    "text": "ギュウニュウ",
+    "romaji": "gyūnyū",
+    "meaning": "牛奶",
+    "script": "katakana",
+    "note": "「ュ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-sanbyaku-k",
+    "text": "サンビャク",
+    "romaji": "sanbyaku",
+    "meaning": "三百",
+    "script": "katakana",
+    "note": "「ャ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-byoin",
+    "text": "ビョウイン",
+    "romaji": "byōin",
+    "meaning": "醫院",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-roppyaku-k",
+    "text": "ロッピャク",
+    "romaji": "roppyaku",
+    "meaning": "六百",
+    "script": "katakana",
+    "note": "「ッ」是促音，要停頓一拍，「ャ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
+  },
+  {
+    "id": "w-pyonpyon-k",
+    "text": "ピョンピョン",
+    "romaji": "pyonpyon",
+    "meaning": "蹦蹦跳跳",
+    "script": "katakana",
+    "note": "「ョ」是拗音，和前一個字合成一個音。",
+    "exampleOnly": true
   }
 ]

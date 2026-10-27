@@ -11,6 +11,8 @@ export interface SettingsState extends Settings {
   practiceDates: string[];
   /** 畢業畫面是否看過（階段 4 使用） */
   graduateSeen: boolean;
+  /** 片假名開始畫面（C2-18）是否看過；看過就不再自動顯示 */
+  kataIntroSeen: boolean;
 
   setTheme: (theme: Settings['theme']) => void;
   setDailyGoalMinutes: (m: Settings['dailyGoalMinutes']) => void;
@@ -19,6 +21,7 @@ export interface SettingsState extends Settings {
   setAudioSpeed: (speed: Settings['audioSpeed']) => void;
   setOnboarded: (done: boolean) => void;
   setGraduateSeen: (seen: boolean) => void;
+  setKataIntroSeen: (seen: boolean) => void;
   /** 記錄今天有練習 */
   markPracticed: (now: number) => void;
   /** 回到預設值（除錯用） */
@@ -29,6 +32,7 @@ export const defaultSettings: Settings & {
   onboarded: boolean;
   practiceDates: string[];
   graduateSeen: boolean;
+  kataIntroSeen: boolean;
 } = {
   theme: 'system',
   dailyGoalMinutes: 5,
@@ -39,6 +43,7 @@ export const defaultSettings: Settings & {
   onboarded: false,
   practiceDates: [],
   graduateSeen: false,
+  kataIntroSeen: false,
 };
 
 export const SETTINGS_STORAGE_KEY = 'kana5min-settings';
@@ -54,6 +59,7 @@ export const useSettingsStore = create<SettingsState>()(
       setAudioSpeed: (audioSpeed) => set({ audioSpeed }),
       setOnboarded: (onboarded) => set({ onboarded }),
       setGraduateSeen: (graduateSeen) => set({ graduateSeen }),
+      setKataIntroSeen: (kataIntroSeen) => set({ kataIntroSeen }),
       markPracticed: (now) => set((s) => ({ practiceDates: addPracticeDate(s.practiceDates, now) })),
       resetSettings: () => set({ ...defaultSettings }),
     }),

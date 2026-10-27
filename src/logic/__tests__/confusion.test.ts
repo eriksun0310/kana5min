@@ -1,5 +1,6 @@
 import { confusableGroups, confusableGroupById } from '../../data/confusables';
-import { seionOrder } from '../../data';
+import { byId, seionOrder } from '../../data';
+import { readableLoanwords } from '../loanword';
 import {
   AUTO_PRACTICE_SIZE,
   availableGroups,
@@ -259,5 +260,82 @@ describe('buildQuickConfuse10', () => {
   it('成員查不到資料時回傳空陣列，不丟錯', () => {
     const ghost = { ...group('shitsu'), id: 'ghost', members: ['k-ghost-1', 'k-ghost-2'] };
     expect(buildQuickConfuse10(ghost, seededRng(1))).toEqual([]);
+  });
+});
+
+describe('片假名階段的易混淆字（資料加入後）', () => {
+  const kataIds = (...c: string[]) => c.map((x) => `k-${x}`);
+
+  it('シ・ツ、ソ・ン 的 4 個字都查得到資料，resolvedMembers 完整', () => {
+    for (const id of ['shitsu', 'son']) expect(group(id).members.every((m) => byId(m))).toBe(true);
+  });
+
+  it('平假名清音學完前不出現；學完後兩個片假名組都出現（預設順序：平假名 3 組之後）', () => {
+    expect(availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(availableGroups(hiraganaAll()).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere', 'shitsu', 'son']);
+  });
+
+  it('片假名字答錯會累計到所屬的組', () => {
+    expect(groupsForWrongAnswer('k-shi').map((g) => g.id)).toEqual(['shitsu']);
+    expect(groupsForWrongAnswer('k-tsu').map((g) => g.id)).toEqual(['shitsu']);
+    expect(groupsForWrongAnswer('k-so').map((g) => g.id)).toEqual(['son']);
+    expect(groupsForWrongAnswer('k-n').map((g) => g.id)).toEqual(['son']);
+    expect(groupsForWrongAnswer('k-a')).toEqual([]);
+  });
+
+  it('組內至少 2 個已學才會出 confuse 題：只學 シ → 不可；學 シ ツ → 可', () => {
+    expect(isConfuseEligible(group('shitsu'), learnedOf('k-shi'))).toBe(false);
+    expect(isConfuseEligible(group('shitsu'), learnedOf('k-shi', 'k-tsu'))).toBe(true);
+    expect(pickConfuseGroup([group('shitsu'), group('son')], {}, learnedOf('k-so', 'k-n'), seededRng(1))?.id).toBe('son');
+  });
+
+  it('自動練習：學了 シ ツ ソ ン 後，片假名組的 confuse 題會出現，選項限該組成員', () => {
+    const progress = [...hiraganaAll(), ...kataIds('shi', 'tsu', 'so', 'n', 'a', 'i').map((i) => prog(i))];
+    const groupsSeen = new Set<string>();
+    for (let seed = 1; seed <= 80; seed++) {
+      for (const q of buildAutoPractice10(progress, { shitsu: 5, son: 5 }, seededRng(seed))!) {
+        if (q.type !== 'confuse') continue;
+        const g = group(q.groupId!);
+        groupsSeen.add(g.id);
+        expect([...q.options].sort()).toEqual([...g.members].sort());
+        expect(g.members).toContain(q.answerId);
+      }
+    }
+    expect(groupsSeen.has('shitsu')).toBe(true);
+    expect(groupsSeen.has('son')).toBe(true);
+  });
+
+  it('自動練習：片假名已學 シ ツ 但平假名還沒學完，片假名組仍不出現（需要先解鎖）', () => {
+    const progress = [...hiraganaAll().slice(0, 40), ...kataIds('shi', 'tsu').map((i) => prog(i))];
+    for (let seed = 1; seed <= 30; seed++) {
+      for (const q of buildAutoPractice10(progress, { shitsu: 99 }, seededRng(seed))!) {
+        expect(q.groupId === 'shitsu').toBe(false);
+      }
+    }
+  });
+
+  it('快速辨識 シ・ツ：10 題，選項只有 シ ツ', () => {
+    const qs = buildQuickConfuse10(group('shitsu'), seededRng(3));
+    expect(qs).toHaveLength(10);
+    for (const q of qs) expect([...q.options].sort()).toEqual(['k-shi', 'k-tsu']);
+  });
+
+  it('自動練習含讀外來語題：只抽可讀詞；沒有可讀詞時行為與之前完全相同', () => {
+    const base = hiraganaAll();
+    const kata10 = kataIds('a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko').map((i) => prog(i));
+    const readable = new Set(readableLoanwords(kata10.map((p) => p.kanaId)).map((w) => w.id));
+    for (let seed = 1; seed <= 40; seed++) {
+      const qs = buildAutoPractice10([...base, ...kata10], {}, seededRng(seed))!;
+      expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
+      const lw = qs.filter((q) => q.type === 'loanword');
+      expect(lw.length).toBeGreaterThanOrEqual(1);
+      expect(lw.length).toBeLessThanOrEqual(2);
+      for (const q of lw) expect(readable.has(q.wordId!)).toBe(true);
+      expect(qs.map((q) => q.id)).toEqual(qs.map((_, i) => `q-${i}`));
+    }
+    // 只學平假名：沒有 loanword 題
+    for (let seed = 1; seed <= 20; seed++) {
+      expect(buildAutoPractice10(base, {}, seededRng(seed))!.some((q) => q.type === 'loanword')).toBe(false);
+    }
   });
 });

@@ -1,0 +1,136 @@
+# 片假名解鎖：平假名學完前（hiragana-almost）首頁、五十音表、練習分頁都沒有片假名
+# → 平假名學完（hiragana-done）→ C2-18 開始畫面 → 開始片假名 → C2-19 → 結束回首頁
+# → 練習分頁出現 シ・ツ、ソ・ン → 五十音表片假名分頁可切換清音／濁音／拗音。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+# 平假名階段：首頁標題是平假名，不會跳出片假名開始畫面
+- assertVisible:
+    id: home-script
+    text: 平假名
+- assertNotVisible:
+    id: kata-start
+# 五十音表：點片假名只出現提示，仍停在平假名
+- tapOn:
+    id: tab-chart
+- assertVisible:
+    id: script-katakana
+- tapOn:
+    id: script-katakana
+- assertVisible: 平假名學完後解鎖
+- assertVisible:
+    id: cell-h-a
+- assertNotVisible:
+    id: cell-k-a
+# 練習分頁沒有片假名組
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: group-nume
+- assertNotVisible:
+    id: group-shitsu
+- assertNotVisible:
+    id: group-son
+- assertNotVisible: "(シツ|シ・ツ).*"
+- assertNotVisible: "(ソン|ソ・ン).*"
+
+# 平假名學完：回首頁後出現 C2-18
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+- assertVisible:
+    id: kata-start-chip
+- assertVisible: 接下來學片假名
+- assertVisible:
+    id: kata-sample-k-a
+- assertVisible:
+    id: kata-sample-k-ka
+- assertVisible:
+    id: kata-sample-k-he
+- tapOn:
+    id: kata-start
+# C2-19：第一個片假名新字 ア，對照平假名 あ、外來語例字
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- assertVisible: 片假名新字
+- assertVisible:
+    id: learn-kana
+    text: ア
+- assertVisible:
+    id: kata-hira
+    text: あ
+- assertVisible:
+    id: kata-diff
+- assertVisible:
+    id: kata-word
+- assertVisible:
+    id: kata-word-text
+- assertVisible:
+    id: play-word
+- waitForAnimationToEnd
+- tapOn:
+    id: play-word
+# 結束：左上關閉 → 確認「結束」
+# 關閉鈕的 accessibilityLabel 也是「結束」，文字會點到它；改點對話框右側按鈕（座標百分比）
+- tapOn:
+    id: flow-close
+- assertVisible: 要結束這一輪嗎？
+- tapOn:
+    point: 67%,56%
+- assertVisible:
+    id: home-script
+    text: 片假名
+- assertVisible:
+    id: stat-learned
+- assertVisible: "0 / 46"
+- assertNotVisible:
+    id: kata-start
+# 練習分頁出現片假名的易混淆字組
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: group-shitsu
+- assertVisible:
+    id: group-son
+- assertVisible: "シ・ツ，錯 0 次"
+- assertVisible: "ソ・ン，錯 0 次"
+# 五十音表片假名分頁：清音／濁音／拗音
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: script-katakana
+- assertNotVisible: 平假名學完後解鎖
+- assertVisible:
+    id: cell-k-a
+- assertNotVisible:
+    id: cell-h-a
+- tapOn:
+    id: kind-dakuon
+- assertVisible:
+    id: cell-k-ga
+- assertNotVisible:
+    id: cell-k-a
+- tapOn:
+    id: kind-youon
+- assertVisible:
+    id: cell-k-kya
+- tapOn:
+    id: kind-seion
+- assertVisible:
+    id: cell-k-a
+- assertVisible:
+    id: cell-k-n

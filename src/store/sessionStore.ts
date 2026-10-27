@@ -3,7 +3,7 @@
 // 流程見 docs/architecture.md 第 5 節。
 
 import { create } from 'zustand';
-import type { Progress } from '../data/types';
+import type { Progress, Script } from '../data/types';
 import {
   buildAutoPractice10,
   buildQuickConfuse10,
@@ -15,6 +15,7 @@ import {
   buildResultSummary,
   type ResultSummary,
 } from '../logic/progressStats';
+import { mixLoanwordDrafts, pickLoanwordDrafts } from '../logic/loanword';
 import {
   buildDailySession,
   buildQuiz,
@@ -43,6 +44,8 @@ export interface SessionResultData {
   summary: ResultSummary;
   /** 這輪才湊滿的行（row key，依五十音順序） */
   completedRows: string[];
+  /** completedRows 屬於哪種假名（一輪的新字只會來自同一種假名） */
+  completedScript: Script;
   before: Progress[];
   after: Progress[];
 }
@@ -66,6 +69,8 @@ export interface SessionState {
   qIndex: number;
   /** kanaId → 這輪每一題的對錯 */
   answers: Record<string, boolean[]>;
+  /** 讀外來語題的對錯（不屬於任何假名，只計入結果頁的答對數，不更新 SRS） */
+  loanwordAnswers: boolean[];
   startedAt: number;
   result: SessionResultData | null;
   /** 提交中，避免重複提交 */
@@ -87,11 +92,27 @@ export interface SessionState {
   advanceNew: (rng?: Rng) => 'next' | 'quiz';
   /** 記錄一題的對錯；答錯時同時把所屬易混淆字組的答錯次數即時寫入 */
   recordAnswer: (kanaId: string, correct: boolean) => void;
+  /** 記錄一題讀外來語的對錯：不更新任何假名的 SRS 與易混淆紀錄 */
+  recordLoanwordAnswer: (correct: boolean) => void;
   /** 前進到下一題；已經是最後一題時回傳 false（不動） */
   nextQuestion: () => boolean;
   /** 一輪結束：依 SRS 提交進度、記錄今天為練習日、組出結果頁資料 */
   finish: (now: number) => Promise<SessionResultData>;
   clear: () => void;
+}
+
+/**
+ * 片假名階段的每日練習：有可讀外來語時加 1～2 題讀外來語（插在隨機位置）。
+ * 還沒學任何片假名（平假名階段）時沒有可讀詞，原樣回傳，也不消耗 rng。
+ */
+function withLoanwords(
+  questions: QuizQuestion[],
+  learnedIds: readonly string[],
+  preferKanaIds: readonly string[],
+  rng: Rng,
+): QuizQuestion[] {
+  const drafts = pickLoanwordDrafts(learnedIds, rng, preferKanaIds);
+  return drafts.length === 0 ? questions : mixLoanwordDrafts(questions, drafts, rng);
 }
 
 const empty = {
@@ -106,6 +127,7 @@ const empty = {
   questions: [] as QuizQuestion[],
   qIndex: 0,
   answers: {} as Record<string, boolean[]>,
+  loanwordAnswers: [] as boolean[],
   startedAt: 0,
   result: null as SessionResultData | null,
   finishing: false,
@@ -122,7 +144,12 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     const hasNew = daily.newKanaIds.length > 0;
     const questions = hasNew
       ? []
-      : buildQuiz({ newKanaIds: [], reviewKanaIds, learnedIds: daily.learnedIds }, rng);
+      : withLoanwords(
+          buildQuiz({ newKanaIds: [], reviewKanaIds, learnedIds: daily.learnedIds }, rng),
+          daily.learnedIds,
+          [],
+          rng,
+        );
     set((s) => ({
       ...empty,
       sid: s.sid + 1,
@@ -148,8 +175,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       active: true,
       mode: 'auto',
       phase: 'quiz',
-      // newKanaIds 在自動練習中不代表新字，不放進狀態
-      reviewKanaIds: [...new Set(questions.map((q) => q.kanaId))],
+      // newKanaIds 在自動練習中不代表新字，不放進狀態；讀外來語題沒有對應假名，不列入
+      reviewKanaIds: [...new Set(questions.filter((q) => q.kanaId !== '').map((q) => q.kanaId))],
       learnedIds: [...learnedIdSet(allProgress)],
       questions,
       startedAt: now,
@@ -185,8 +212,14 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       set({ newIndex: s.newIndex + 1 });
       return 'next';
     }
-    const questions = buildQuiz(
-      { newKanaIds: s.newKanaIds, reviewKanaIds: s.reviewKanaIds, learnedIds: s.learnedIds },
+    const questions = withLoanwords(
+      buildQuiz(
+        { newKanaIds: s.newKanaIds, reviewKanaIds: s.reviewKanaIds, learnedIds: s.learnedIds },
+        rng,
+      ),
+      // 新字已經在學習流程裡學過，測驗時就算已學：含今天新字的外來語也可以出題
+      [...s.learnedIds, ...s.newKanaIds],
+      s.newKanaIds,
       rng,
     );
     set({ phase: 'quiz', questions, qIndex: 0 });
@@ -202,6 +235,10 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         .recordWrongAnswer(kanaId, Date.now())
         .catch(() => {});
     }
+  },
+
+  recordLoanwordAnswer(correct) {
+    set((s) => ({ loanwordAnswers: [...s.loanwordAnswers, correct] }));
   },
 
   nextQuestion() {
@@ -240,12 +277,16 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         after,
         startedAt: s.startedAt,
         finishedAt: now,
+        extraAnswers: s.loanwordAnswers,
       });
+      const hiraganaRows = completedRows(before, after, 'hiragana');
+      const rowsScript: Script = hiraganaRows.length > 0 ? 'hiragana' : 'katakana';
       const result: SessionResultData = {
         mode: s.mode,
         groupId: s.groupId,
         summary,
-        completedRows: completedRows(before, after),
+        completedRows: hiraganaRows.length > 0 ? hiraganaRows : completedRows(before, after, 'katakana'),
+        completedScript: rowsScript,
         before,
         after,
       };

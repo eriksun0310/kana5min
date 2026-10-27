@@ -1,12 +1,14 @@
 // 易混淆字：字組可用性、依答錯次數排序、加權抽組、confuse 題與自動練習／快速辨識的出題
 // （spec 5.3、5.6，docs/architecture.md 第 9 節）。純函式；隨機一律透過注入的 rng。
 
-import { byId, seionOrder } from '../data';
+import { byId } from '../data';
 import { confusableGroups, type ConfusableGroup } from '../data/confusables';
 import type { Progress } from '../data/types';
 import type { ConfusionRecord } from '../db/types';
+import { mixLoanwordDrafts, pickLoanwordDrafts } from './loanword';
 import {
   arrange,
+  isSeionLearned,
   learnedIdSet,
   makeChoiceQuestion,
   shuffle,
@@ -29,9 +31,7 @@ export function confusionCounts(records: readonly ConfusionRecord[]): ConfusionC
 
 /** 平假名清音 46 個全部學過 → 片假名解鎖（第三階段共用）。 */
 export function isKatakanaUnlocked(progress: readonly Progress[]): boolean {
-  const learned = learnedIdSet([...progress]);
-  const order = seionOrder('hiragana');
-  return order.length > 0 && order.every((k) => learned.has(k.id));
+  return isSeionLearned(progress, 'hiragana');
 }
 
 /** 組內「查得到資料」的成員（片假名資料第三階段才有，查不到的略過）。 */
@@ -145,6 +145,8 @@ export function buildConfuseQuestion(
  * - 其餘為看字選音／聽音選字：從已學字各出 1 題；已學字不足時同一個字最多 2 題（兩種題型），
  *   此時不足的題數由 confuse 補滿（可補時），否則總題數少於 10。
  * - 打散順序，同一個字不相鄰（可行時）。
+ * - 片假名已學到有「可讀外來語」時，另外抽 1～2 題讀外來語（loanword，不屬於任何假名），
+ *   這時其餘題數相應減少，總題數仍為 size；沒有可讀詞時行為與之前完全相同。
  * 沒有任何已學字時回傳 null。
  */
 export function buildAutoPractice10(
@@ -156,6 +158,10 @@ export function buildAutoPractice10(
   const learned = learnedIdSet([...allProgress]);
   const learnedIds = [...learned].filter((id) => byId(id) !== undefined);
   if (learnedIds.length === 0) return null;
+
+  // 讀外來語題先抽（沒有可讀詞時不消耗 rng），其餘題數 = size - 外來語題數
+  const loanwordDrafts = pickLoanwordDrafts(learned, rng).slice(0, Math.max(0, size - 1));
+  size -= loanwordDrafts.length;
 
   const groups = availableGroups(allProgress).filter((g) => isConfuseEligible(g, learned));
   const hasConfuse = groups.length > 0;
@@ -186,7 +192,9 @@ export function buildAutoPractice10(
     drafts.push(d);
   }
 
-  return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
+  const arranged = arrange(drafts, rng);
+  if (loanwordDrafts.length === 0) return arranged.map((d, i) => ({ id: `q-${i}`, ...d }));
+  return mixLoanwordDrafts(arranged, loanwordDrafts, rng);
 }
 
 /**
