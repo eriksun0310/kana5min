@@ -15,7 +15,12 @@ jest.mock('react-native-google-mobile-ads', () => {
     RewardedAd,
     RewardedAdEventType: { LOADED: 'loaded', EARNED_REWARD: 'earned_reward' },
     AdEventType: { CLOSED: 'closed', ERROR: 'error' },
-    AdsConsent: { gatherConsent: jest.fn(() => Promise.resolve({})) },
+    AdsConsent: {
+      gatherConsent: jest.fn(() => Promise.resolve({})),
+      getConsentInfo: jest.fn(() => Promise.resolve({ privacyOptionsRequirementStatus: 'NOT_REQUIRED' })),
+      requestInfoUpdate: jest.fn(() => Promise.resolve({ privacyOptionsRequirementStatus: 'NOT_REQUIRED' })),
+      showPrivacyOptionsForm: jest.fn(() => Promise.resolve({})),
+    },
     TestIds: { REWARDED: 'test-rewarded' },
   };
 });
