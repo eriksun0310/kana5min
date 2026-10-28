@@ -223,23 +223,23 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 1. 上傳前先補齊「待確認事項」：App 圖示與啟動圖、壽司日檢 App Store 連結（`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`），以及導流頁的第三個賣點（`app/next.tsx`）。
 2. 安裝並登入 EAS CLI：
    ```bash
-   pnpm add -g eas-cli
+   pnpm install
    ```
    ```bash
-   eas login
+   pnpm exec eas login
    ```
 3. 第一次使用時，連結 EAS 專案（會在 app.json 寫入 `extra.eas.projectId`）：
    ```bash
-   eas init
+   pnpm exec eas init
    ```
 4. 確認版本號：app.json 的 `version` 為 `1.0.0`、`ios.buildNumber` 為 `1`。`eas.json` 的 production profile 設了 `autoIncrement`，每次打包會自動遞增 buildNumber（`appVersionSource: local`，所以會寫回 app.json，記得 commit）。
 5. 打包 production（憑證與 provisioning profile 由 EAS 依提示自動建立）：
    ```bash
-   eas build --platform ios --profile production
+   pnpm exec eas build --platform ios --profile production
    ```
 6. 上傳到 App Store Connect，處理完成後就會出現在 TestFlight：
    ```bash
-   eas submit --platform ios --profile production --latest
+   pnpm exec eas submit --platform ios --profile production --latest
    ```
    第一次上傳時會詢問 App Store Connect 的 App（Apple ID 6827398112）與 API key，依提示選擇即可。
 7. 在 App Store Connect 的 TestFlight 頁面填寫「測試內容」、加入內部測試人員。出口合規已用 `ITSAppUsesNonExemptEncryption: false` 宣告，不會再被詢問。

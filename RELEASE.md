@@ -6,7 +6,7 @@
 >
 > 套件管理器：pnpm（`pnpm <script>`）。裝套件用 `pnpm install`；Expo 相關套件用 `pnpm exec expo install <套件>`，讓版本對齊 SDK。
 > 前置：本機已裝 Xcode、CocoaPods、Android SDK（`ANDROID_HOME`）、JDK 17 以上。
-> EAS CLI 不用全域安裝，下面的 script 會透過 `pnpm dlx` 執行（或自行 `pnpm add -g eas-cli`）。
+> EAS CLI 已裝成專案的開發相依套件（`eas-cli`），不用全域安裝；下面的 script 與指令用 `pnpm exec eas`（package.json 裡直接寫 `eas`）。
 >
 > 本專案沒有裝 `expo-updates`（沒有 OTA 熱更），也沒有 dev client；所有變更都要重新 build 上架。
 
@@ -15,11 +15,11 @@
 ## 🆕 第一次 build 前（只做一次）
 
 ```bash
-pnpm dlx eas-cli login
+pnpm exec eas login
 ```
 
 ```bash
-pnpm dlx eas-cli init
+pnpm exec eas init
 ```
 
 > `eas init` 會建立 EAS 專案，並把 `extra.eas.projectId` 寫進 `app.json`，記得 commit。
@@ -28,7 +28,7 @@ pnpm dlx eas-cli init
 設定正式版用的公開 ID（只做一次；值不要寫進任何檔案或 commit）。`--local` build 不會讀專案的 `.env`，要放在 EAS 環境變數：
 
 ```bash
-pnpm dlx eas-cli env:create --environment production --visibility plaintext --name EXPO_PUBLIC_RC_IOS_KEY --value <RevenueCat iOS 公開 key>
+pnpm exec eas env:create --environment production --visibility plaintext --name EXPO_PUBLIC_RC_IOS_KEY --value <RevenueCat iOS 公開 key>
 ```
 
 同樣方式再建 `EXPO_PUBLIC_RC_ANDROID_KEY`、`EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`。
@@ -64,7 +64,7 @@ pnpm build:ios
 
 打開 **Transporter** App，拖入 `.ipa`，點「傳送」。
 
-> 或用指令：`pnpm dlx eas-cli submit --platform ios --path ./build-*.ipa`
+> 或用指令：`pnpm exec eas submit --platform ios --path ./build-*.ipa`
 
 ### 步驟 4：TestFlight 測試／送審
 
@@ -100,7 +100,7 @@ pnpm build:android:aab
 5. **「儲存」→「審查版本」→「開始推出」**
 
 > ⚠️ Play 的**第一個版本必須在 Play Console 網頁手動上傳**，之後才能用指令：
-> `pnpm dlx eas-cli submit --platform android --path ./build-*.aab`
+> `pnpm exec eas submit --platform android --path ./build-*.aab`
 > （用指令上傳需要 Google Service Account 金鑰，依 EAS CLI 提示設定；金鑰不要放進 repo。）
 
 ---
@@ -189,7 +189,7 @@ rm -f build-*.ipa build-*.aab build-*.apk
 | iOS 上架（IPA） | `pnpm build:ios` |
 | Android 上架（AAB） | `pnpm build:android:aab` |
 | Android 實機測試（APK） | `pnpm build:android:apk` |
-| iOS 上傳（指令版） | `pnpm dlx eas-cli submit --platform ios --path ./build-*.ipa` |
+| iOS 上傳（指令版） | `pnpm exec eas submit --platform ios --path ./build-*.ipa` |
 | 重新產生原生專案（改了 icon／splash／名稱／權限） | `pnpm prebuild` |
 | 啟動開發 Metro | `pnpm start` |
 | 型別檢查／單元測試 | `pnpm typecheck`／`pnpm test` |

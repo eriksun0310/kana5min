@@ -11,3 +11,6 @@ allowBuilds:
   "@parcel/watcher": true
   msedge-tts: true
   unrs-resolver: true
+  # eas-cli 的相依套件：dtrace-provider 是選用的效能追蹤原生模組，protobufjs 只是版本檢查，build 都不需要。
+  dtrace-provider: false
+  protobufjs: false

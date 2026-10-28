@@ -10,9 +10,9 @@
     "android": "expo run:android",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "build:ios": "pnpm dlx eas-cli build --platform ios --profile production --local",
-    "build:android:aab": "pnpm dlx eas-cli build --platform android --profile production --local",
-    "build:android:apk": "pnpm dlx eas-cli build --platform android --profile production-apk --local",
+    "build:ios": "eas build --platform ios --profile production --local",
+    "build:android:aab": "eas build --platform android --profile production --local",
+    "build:android:apk": "eas build --platform android --profile production-apk --local",
     "prebuild": "expo prebuild"
   },
   "dependencies": {
@@ -47,6 +47,7 @@
   "devDependencies": {
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
+    "eas-cli": "^26.0.0",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.12",
     "msedge-tts": "^2.1.1",
