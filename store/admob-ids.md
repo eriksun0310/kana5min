@@ -7,8 +7,10 @@
 | Android App ID | ca-app-pub-7018554061213551~6244207587 |
 | Android Banner | ca-app-pub-7018554061213551/8421060190 |
 | Android Interstitial | ca-app-pub-7018554061213551/6392169362 |
+| Android Rewarded（`android-rewarded`，2026-10-28 建立）→ `EXPO_PUBLIC_ADMOB_REWARDED_ANDROID` | ca-app-pub-7018554061213551/7201923818 |
 | iOS App ID | ca-app-pub-7018554061213551~5849243880 |
 | iOS Banner | ca-app-pub-7018554061213551/6180628406 |
 | iOS Interstitial | ca-app-pub-7018554061213551/2452924358 |
+| iOS Rewarded（`ios-rewarded`，2026-10-28 建立）→ `EXPO_PUBLIC_ADMOB_REWARDED_IOS` | ca-app-pub-7018554061213551/2001568022 |
 
 `.env` 變數名稱以 `.env.example` 為準。
