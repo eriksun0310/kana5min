@@ -1,0 +1,40 @@
+# 首頁各行進度條、詳情頁（拼音在田字格＋正常／慢速並排按鈕）、片假名分頁未解鎖說明列。
+# 完整的 phase1-capture.yaml 要走完整輪學習（描寫手勢偶爾不穩），這支只用預設資料直接截這幾張，
+# 輸出覆蓋 screenshots/phase1/ 同名檔。請用 maestro/screenshots/run-phase1-ui.sh 執行。
+# THEME 由 run-phase1-ui.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- assertVisible:
+    id: start-today
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-02-Home-${THEME}
+- tapOn:
+    id: tab-chart
+- assertVisible:
+    id: cell-h-a
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-03-Chart-${THEME}
+- tapOn:
+    id: script-katakana
+- assertVisible:
+    id: katakana-locked-hint
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-03-Chart-katakana-locked-${THEME}
+- tapOn:
+    id: script-hiragana
+- tapOn:
+    id: cell-h-ka
+- assertVisible:
+    id: detail-char
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase1/C2-04-Detail-${THEME}
