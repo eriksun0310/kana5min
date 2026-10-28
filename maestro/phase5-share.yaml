@@ -27,9 +27,16 @@ appId: com.ptalk.kana5min
     visible: "(拷貝|Copy|儲存到「檔案」|Save to Files)"
     timeout: 15000
 - takeScreenshot: F5-share-sheet
-# 點分享面板右上角的關閉鈕
+# 關掉分享面板：點面板外面（上方）；iOS 26 的面板是浮動式、沒有關閉鈕，仍在就往下滑
 - tapOn:
-    point: 93%,76%
+    point: 50%,8%
+- runFlow:
+    when:
+      visible: "(拷貝|Copy|儲存到「檔案」|Save to Files)"
+    commands:
+      - swipe:
+          start: 50%,62%
+          end: 50%,96%
 - assertVisible:
     id: detail-char
 - tapOn:
