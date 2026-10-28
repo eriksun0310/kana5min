@@ -90,16 +90,14 @@ export default function KanaDetailScreen() {
               {kana.strokes} 畫
             </Text>
           </Card>
-          <Card style={styles.pairCard} testID="detail-confusable">
-            <Text style={{ fontSize: 12, color: t.muted }}>容易搞混</Text>
-            {confusable ? (
+          {confusable ? (
+            <Card style={styles.pairCard} testID="detail-confusable">
+              <Text style={{ fontSize: 12, color: t.muted }}>容易搞混</Text>
               <KanaText size={24} lineHeightRatio={1.3} style={{ marginTop: 2 }}>
                 {confusable.char}
               </KanaText>
-            ) : (
-              <Text style={{ fontSize: 20, color: t.muted, marginTop: 4 }}>—</Text>
-            )}
-          </Card>
+            </Card>
+          ) : null}
         </View>
 
         {word ? (

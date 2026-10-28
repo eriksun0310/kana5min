@@ -25,7 +25,8 @@ appId: com.ptalk.kana5min
     id: cell-h-ka
 - assertVisible:
     id: detail-char
-- assertVisible:
+# か 沒有容易搞混的字，不顯示該卡片
+- assertNotVisible:
     id: detail-confusable
 - tapOn:
     id: play-audio
