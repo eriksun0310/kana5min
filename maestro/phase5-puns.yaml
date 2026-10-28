@@ -46,7 +46,7 @@ appId: com.ptalk.kana5min
       id: punpack-buy
     timeout: 10000
 - assertVisible: 好笑記憶包
-- assertVisible: 解鎖全部 42 句諧音梗（平假名＋片假名）
+- assertVisible: 解鎖全部 42 句諧音梗
 - assertVisible: 永久免廣告
 - assertVisible: 之後新增的諧音梗自動取得
 - assertVisible:

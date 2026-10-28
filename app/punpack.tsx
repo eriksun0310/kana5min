@@ -59,7 +59,7 @@ export default function PunPackScreen() {
   };
 
   const points = [
-    `解鎖全部 ${PUN_COUNT} 句諧音梗（平假名＋片假名）`,
+    `解鎖全部 ${PUN_COUNT} 句諧音梗`,
     '永久免廣告',
     '之後新增的諧音梗自動取得',
   ];
