@@ -59,7 +59,7 @@ appId: com.ptalk.kana5min
     timeout: 10000
 - assertVisible: 開始累積日文單字
 - assertVisible: 壽司日檢
-- assertVisible: 從 N5 基礎單字開始
+- assertVisible: N5 到 N1 全等級單字，從 N5 基礎開始
 - tapOn:
     id: next-close
 - extendedWaitUntil:
