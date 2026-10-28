@@ -8,7 +8,7 @@
 - [x] App 已建立（Apple ID 6827398112，SKU `kana5min`），主要語言繁體中文
 - [x] 非消耗型內購 `com.ptalk.kana5min.punpack`，NT$90（文字見 app-store.md），已建立
 - [x] App 隱私已發佈（見 privacy-labels.md）
-- [ ] 後台的名稱、副標、描述改成最新文字（見 app-store.md；上架名稱「日文五十音｜白爛諧音記憶法」）
+- [x] 後台的名稱、副標、描述已改成最新文字（見 app-store.md；上架名稱「日文五十音｜白爛諧音記憶法」；草稿狀態，尚未送審）
 - [ ] 內購審查截圖換成目前紅色版買斷頁（目前上傳的是舊琥珀色），送審時對內購按「新增以供審查」
 - [ ] App 審查聯絡人資料、iOS 截圖（6.9 吋，見 screenshots.md）、build
 - [ ] 確認付費 App 協議（Paid Apps Agreement）與稅務／銀行資料
