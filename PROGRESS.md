@@ -112,12 +112,13 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
   - 聲音 `ja-JP-NanamiNeural`，24kHz 48kbps mono mp3；慢速 rate -40%。
   - 產生後用 ffmpeg 裁掉頭尾的靜音。
 - 用法：`node scripts/gen-audio.mjs`，可加 `--force`、`--only id,id`、`--list`、`--no-trim`。
-- `scripts/tts-overrides.json`（39 筆）：
+- `scripts/tts-overrides.json`（46 筆）：
   - h-ha → ハ、h-he → ヘ：避免念成助詞的 wa、e。
   - h-wo → オ：を 統一念 o。
   - h-di → ジ、h-du → ズ。
   - w-hono → ほんお：例字「ほんを」的 を 念 o。
   - 拗音 33 個改用片假名（キャ、シュ…）。
+  - 2026-10-28 人工聽過後，依聽感從候選中改選：h-he → ヘ。、h-shu → シュー、h-hyu → ヒュー、h-rya → リャ。、w-heya → 部屋（只影響送給 TTS 的文字，App 顯示的字不變）。
 - **請人工聽**（ASR 辨識結果可疑）：
   - 假名：ぬ、ら、り、れ、ぶ、ぷ、び、りゃ、りゅ、ぎゃ、ぎょ、ちゃ。
   - 單字：あう（w-au）、りゅう（w-ryuu）、へや（w-heya）、みゃく（w-myaku）、いう。
@@ -198,9 +199,9 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 - Bundle identifier（目前：com.ptalk.kana5min）
 - 壽司日檢 App Store 連結（`src/config.ts`）
 - 導流頁第三個賣點文案
-- 人工聽過所有單一假名音檔，特別是 は、へ、を、ん 與拗音（音檔清單由 Claude Code 列在上方「音檔清單」）
-- 人工聽過片假名相關的 overrides：k-wo（オ）、k-di（ジ）、k-du（ズ）、w-otaku（オタク）
-- 人工聽過 h-i／k-i（含慢速）：單獨念「い」「イ」時 TTS 尾端會多出一段雜音（聽起來像斷掉、多念一個音），已用 overrides「いー」「イー」重產，波形確認為單一段平滑發音
+- ✅ 已完成（2026-10-28）：開發者用試聽頁人工聽過 62 個重點音檔（override 過的假名與單字、拗音 33 個、ASR 可疑的假名與單字）。有問題的 5 個（へ、しゅ、ひゅ、りゃ、へや）已依候選聽感換版，其餘 OK。其他一般假名音檔未逐一聽（原清單：は、へ、を、ん 與拗音）
+- ✅ 已完成（2026-10-28）：片假名相關 overrides k-wo、k-di、k-du、w-otaku 已聽過，OK
+- ✅ 已完成（h-i 於 2026-10-28 之前確認，k-i 於 2026-10-28 試聽頁聽過 OK）h-i／k-i（含慢速）：單獨念「い」「イ」時 TTS 尾端會多出一段雜音（聽起來像斷掉、多念一個音），已用 overrides「いー」「イー」重產，波形確認為單一段平滑發音
 - App 圖示與啟動圖：`assets/images/` 仍是 Expo 範本圖。亮色啟動畫面的白色圖形幾乎看不見，上架前要換掉
 - 導流頁壽司日檢卡的 App 圖示佔位（虛線框）
 - 外來語詞庫與例字（見「假設」的階段 3），特別是 ニョッキ、ヒューズ、リャマ 等較冷門的詞是否保留
@@ -333,7 +334,7 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
    - `EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`：ID 見 `store/admob-ids.md`
 2. **App 圖示與啟動圖**：`assets/images/` 仍是 Expo 範本圖，亮色啟動畫面的圖形幾乎看不見。
 3. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
-4. **人工聽音檔**：特別是 は、へ、を、ん、拗音，以及 k-wo、k-di、k-du、w-otaku、h-i／k-i（清單見「音檔清單」）。
+4. **人工聽音檔**：重點 62 個已於 2026-10-28 聽完並修正；其餘一般假名音檔有空可再抽聽（在 App 五十音表點字即可）。
 5. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
 6. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
 7. **Apple**：內購審查截圖換成目前紅色版買斷頁（現在上傳的是舊琥珀色，可用 `screenshots/phase5/F3-PunPack-light.png`），送審時對內購按「新增以供審查」；App 審查聯絡人資料；6.9 吋截圖；付費 App 合約與稅務／銀行資料。
