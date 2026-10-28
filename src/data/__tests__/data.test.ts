@@ -159,6 +159,11 @@ describe('好笑記憶包諧音梗（puns）', () => {
     expect(PUNS.fu).toBeTruthy();
   });
 
+  it('保留 kana-puns.md 的 emoji', () => {
+    expect(PUNS.ku).toBe('你是在く（哭）喔？ 🥹');
+    expect(PUNS.a).toContain('🕺');
+  });
+
   it('puns.ts 與 kana-puns.md 同步（不一致時請執行 pnpm gen:puns）', () => {
     const { spawnSync } = jest.requireActual('child_process');
     const r = spawnSync(process.execPath, ['scripts/gen-puns.mjs', '--check'], { encoding: 'utf8' });
@@ -172,10 +177,8 @@ describe('好笑記憶包諧音梗（puns）', () => {
     }
   });
 
-  it('沒有 emoji、沒有半形括號、沒有頭尾與連續空白', () => {
-    const emoji = /\p{Extended_Pictographic}/u;
+  it('沒有半形括號、沒有頭尾與連續空白（emoji 保留）', () => {
     for (const [s, text] of Object.entries(PUNS)) {
-      expect({ s, emoji: emoji.test(text) }).toEqual({ s, emoji: false });
       expect({ s, half: /[()]/.test(text) }).toEqual({ s, half: false });
       expect({ s, trim: text === text.trim() }).toEqual({ s, trim: true });
       expect({ s, multi: /\s{2,}/.test(text) }).toEqual({ s, multi: false });
@@ -209,9 +212,9 @@ describe('好笑記憶包諧音梗（puns）', () => {
   });
 
   it('punFor：平假名回傳原句，片假名把第一個對應字元換成片假名', () => {
-    expect(punFor('h-ku')).toBe('你是在く（哭）喔？');
-    expect(punFor('k-ku')).toBe('你是在ク（哭）喔？');
-    expect(punFor('k-mo')).toBe('上班不要再 モ（摸）魚了！');
+    expect(punFor('h-ku')).toBe('你是在く（哭）喔？ 🥹');
+    expect(punFor('k-ku')).toBe('你是在ク（哭）喔？ 🥹');
+    expect(punFor('k-mo')).toBe('上班不要再 モ（摸）魚了！ 🫳 🐟');
     expect(punFor('k-yu')).toBe('愛老虎ユ！');
     expect(punFor('h-ga')).toBeUndefined();
     expect(punFor('h-ke')).toBeUndefined();
@@ -229,8 +232,8 @@ describe('好笑記憶包諧音梗（puns）', () => {
   });
 
   it('hintFor 改由 puns 供應：あ行、か行（除了け）有，さ行起也有（解鎖與否由 PunCard 決定）', () => {
-    expect(hintFor('h-ku')).toBe('你是在く（哭）喔？');
+    expect(hintFor('h-ku')).toBe('你是在く（哭）喔？ 🥹');
     expect(hintFor('h-ke')).toBeUndefined();
-    expect(hintFor('h-sa')).toBe('さ（殺）小？');
+    expect(hintFor('h-sa')).toBe('さ（殺）小？ 🤨');
   });
 });

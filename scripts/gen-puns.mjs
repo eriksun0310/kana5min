@@ -10,7 +10,7 @@
 // 規則：
 //   - 只收「狀態」欄含 ✅ 的列；❌ 與空白（未審）都不收，也就不會在 App 顯示。
 //   - 以「讀音」欄為 key，必須是 kana.json 裡清音的 romaji；片假名與平假名共用同一句。
-//   - 整理：移除 emoji、半形括號改全形「（）」、連續空白合併、去頭尾空白；文字其餘照原句。
+//   - 整理：半形括號改全形「（）」、連續空白合併、去頭尾空白；emoji 與文字其餘照原句保留。
 
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -27,13 +27,8 @@ const args = process.argv.slice(2);
 const check = args.includes('--check');
 const listOnly = args.includes('--list');
 
-/** 移除 emoji 與其修飾符號（變體選擇符、零寬連接符、膚色）。 */
-function stripEmoji(s) {
-  return s.replace(/[\p{Extended_Pictographic}\p{Emoji_Modifier}‍️⃣]/gu, '');
-}
-
 function normalize(raw) {
-  return stripEmoji(raw)
+  return raw
     .replace(/\(/g, '（')
     .replace(/\)/g, '）')
     .replace(/\s+/g, ' ')
