@@ -215,7 +215,7 @@ describe('好笑記憶包諧音梗（puns）', () => {
     expect(punFor('h-ku')).toBe('你是在く（哭）喔？ 🥹');
     expect(punFor('k-ku')).toBe('你是在ク（哭）喔？ 🥹');
     expect(punFor('k-mo')).toBe('上班不要再 モ（摸）魚了！ 🫳 🐟');
-    expect(punFor('k-yu')).toBe('愛老虎ユ！');
+    expect(punFor('k-yu')).toBe('愛老虎ユ！ 🐯');
     expect(punFor('h-ga')).toBeUndefined();
     expect(punFor('h-ke')).toBeUndefined();
     expect(punFor('h-tsu')).toBeUndefined();
