@@ -327,18 +327,20 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **假設**：`privacy-labels.md` 中 Apple 各類型的用途與「連結到使用者」細項是依 SDK 行為整理的建議，後台實際值以後台為準；Google「4 種資料」我解讀為 4 大類（財務資訊、應用程式活動、應用程式資訊與成效、裝置或其他 ID）。`screenshots/` 現有截圖是 1206×2622（6.3 吋），不是 App Store 6.9 吋尺寸，Google Play 也會因長寬比超過 2:1 被退，需在 6.9 吋模擬器重截，記在 `store/screenshots.md`。
 - **測試指令備註**：在這個 `.claude/worktrees/` 下的 worktree 執行 jest 時，`--testPathIgnorePatterns '.claude/worktrees'` 會把自己也忽略（找不到任何測試）；在 worktree 內直接 `pnpm exec jest` 即可（336→341 個測試通過）。
 
-## 開發者待辦清單（只列還沒做的，依優先順序）
+## 開發者待辦清單（只列還沒做的，依優先順序；2026-10-28 更新）
 
 1. **設定 EAS 環境變數**（`eas env:create`，visibility 選 sensitive 或 plaintext 皆可，這些是公開 ID／key）：
    - `EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`：RevenueCat 專案 `81be02cb` → API keys 的公開 SDK key
    - `EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`：ID 見 `store/admob-ids.md`
-2. **App 圖示與啟動圖**：`assets/images/` 仍是 Expo 範本圖，亮色啟動畫面的圖形幾乎看不見。
-3. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
-4. **人工聽音檔**：重點 62 個已於 2026-10-28 聽完並修正；其餘一般假名音檔有空可再抽聽（在 App 五十音表點字即可）。
-5. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
-6. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
-7. **Apple**：內購審查截圖換成目前紅色版買斷頁（現在上傳的是舊琥珀色，可用 `screenshots/phase5/F3-PunPack-light.png`），送審時對內購按「新增以供審查」；App 審查聯絡人資料；6.9 吋截圖；付費 App 合約與稅務／銀行資料。
-8. **Google Play**：付款資料；商店圖片素材（512 圖示、1024×500 主題圖、手機截圖）；上傳含 Billing 權限的 AAB 到內部測試。
-9. **兩平台沙盒購買與恢復購買實測**（iOS Sandbox 帳號、Google Play 授權測試人員）。
-10. **Android 實機編譯與測試**：確認能編譯、兩平台都看到測試獎勵廣告，隱私權選項（歐盟地區）可開啟表單。
-11. **重跑 Maestro 全套**：本次收尾改了 App 名稱字串與設定頁，合併後確認第一到第六階段流程仍通過。
+2. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
+3. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
+4. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
+5. **商店手機截圖**：現有 `screenshots/` 尺寸不合（6.3 吋）。App Store 要 6.9 吋（至少 1 張；iPhone），Google Play 手機截圖至少 2 張（9:16、長寬比不超過 2:1），用 6.9 吋模擬器重截（見 `store/screenshots.md`）。
+6. **Apple**：App 審查聯絡人資料、付費 App 合約與稅務／銀行資料；上傳 build 後，送審時對內購按「新增以供審查」（內購審查截圖已於 2026-10-28 換成紅色版）。
+7. **Google Play**：付款資料；商店資訊的手機截圖（見第 5 項）；AAB 已上傳內部測試，內購商品已建立並啟用。
+8. **兩平台沙盒購買與恢復購買實測**（iOS Sandbox 帳號、Google Play 授權測試人員）。
+9. **Android 實機測試**：確認兩平台都看到測試獎勵廣告，隱私權選項（歐盟地區）可開啟表單。
+10. **人工聽音檔（選做）**：重點 62 個已於 2026-10-28 聽完並修正；其餘一般假名音檔有空可再抽聽。
+
+已完成（2026-10-28）：App 圖示與啟動圖（`assets/images/`，紅底「あ」加「啊」對話框）、Google Play 512 圖示與 1024×500 主題圖（`store/graphics/`，已上傳並存草稿）、Apple 內購審查截圖換新、合併後全套 Maestro（15 個流程）通過。
+
