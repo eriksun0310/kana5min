@@ -336,3 +336,10 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 
 已完成（2026-10-28）：App 圖示與啟動圖（`assets/images/`，紅底「あ」加「啊」對話框）、Google Play 512 圖示與 1024×500 主題圖（`store/graphics/`，已上傳並存草稿）、Apple 內購審查截圖換新、合併後全套 Maestro（15 個流程）通過。
 
+## 描寫判定改版（2026-10-28，分支 claude/jovial-haibt-7071a7）
+
+- **問題**：舊版 `evaluateTrace` 只檢查筆畫數達一半與第一筆方向，亂畫、寫成別的字都會通過，也沒有回饋。
+- **做了什麼**：新增 `src/logic/traceShape.ts`（逐筆重取樣比對、位元遮罩 DP 配對、不強制筆順、允許漏 1 筆（≥ 5 筆字）與多畫 2 筆）；`TraceCanvas` 新增 `highlight`（漏掉的筆用 `t.accent` 閃爍後持續亮著）；`app/learn/trace.tsx` 改為失敗時亮起漏筆＋提示、通過時 0.8 秒「描得很好」、失敗 3 次出現「先跳過」（`src/logic/traceAttempts.ts`）。舊 `evaluateTrace`／`MAX_FIRST_STROKE_ANGLE` 從 `trace.ts` 移除，新版從 `traceShape.ts` 匯出同名函式。
+- **測試**：`traceShape.test.ts` 用真實 KanjiVG 資料做屬性測試（146 個假名 × 20 種子正例 100% 通過；反例 21170 組失敗率 98.03%；亂塗、漏筆、反向、多畫皆符合），閾值與理由寫在 docs/architecture.md 第 8 節。新增 `maestro/phase9-trace.yaml`。
+- **假設**：(1) 平均距離閾值定 18（建議值 16 在 ±8 平移加 ±5 雜訊的極端組合下偶爾失敗）；(2) 長度比例上限加固定寬容量 20，且標準只有 1～2 筆的字多畫上限為 1 筆（否則 く 之類會被多筆字蓋過）；(3) 誤通過的不逐對列白名單（形近字 115 組、多畫容許 280 組），改在測試印出並檢查易混淆組；(4) 失敗後補畫時即時重新比對、亮起的線只剩還沒描到的；(5) 開發版長按通過也會顯示「描得很好」0.8 秒。
+- **尚未完成**：Maestro 流程（含既有 trace 相關流程）與亮暗兩種主題的截圖（`screenshots/phase9/`）尚未跑，等 8081 可用。

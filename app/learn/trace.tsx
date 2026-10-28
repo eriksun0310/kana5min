@@ -1,5 +1,5 @@
 import { Redirect, Stack, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   BackHeader,
@@ -12,13 +12,17 @@ import { TraceCanvas } from '../../src/components/TraceCanvas';
 import { byId } from '../../src/data';
 import { strokesOf } from '../../src/data/strokes';
 import { useLearnSnapshot } from '../../src/hooks/useLearnSnapshot';
-import { evaluateTrace, type Stroke } from '../../src/logic/trace';
+import type { Stroke } from '../../src/logic/trace';
+import { canSkipTrace, nextFailCount } from '../../src/logic/traceAttempts';
+import { evaluateTrace } from '../../src/logic/traceShape';
 import { confirmExitFlow } from '../../src/nav/exitToHome';
 import { useSessionStore } from '../../src/store/sessionStore';
 import { useTheme } from '../../src/theme/useTheme';
 
 /** 每個新字要描幾次 */
 const TRACE_ROUNDS = 2;
+/** 通過後「描得很好」顯示多久再進下一步 */
+const PRAISE_MS = 800;
 
 /** C2-07 學新字・描寫（standalone=1 時只描一次，完成後返回） */
 export default function LearnTrace() {
@@ -30,7 +34,18 @@ export default function LearnTrace() {
 
   const [attempt, setAttempt] = useState(1);
   const [canvasKey, setCanvasKey] = useState(0);
-  const [hint, setHint] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
+  const [missing, setMissing] = useState<number[]>([]);
+  const [failCount, setFailCount] = useState(0);
+  const [praise, setPraise] = useState(false);
+  const advancing = useRef(false);
+  const praiseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (praiseTimer.current) clearTimeout(praiseTimer.current);
+    },
+    [],
+  );
   const strokesRef = useRef<Stroke[]>([]);
   const devPassRef = useRef(false);
 
@@ -42,17 +57,15 @@ export default function LearnTrace() {
   const clearCanvas = () => {
     strokesRef.current = [];
     devPassRef.current = false;
-    setHint(false);
+    setHint(null);
+    setMissing([]);
     setCanvasKey((k) => k + 1);
   };
 
-  const onDone = () => {
-    const reference = strokesOf(kana.char)?.strokes ?? [];
-    const passed = devPassRef.current || evaluateTrace(strokesRef.current, reference).passed;
-    if (!passed) {
-      setHint(true);
-      return;
-    }
+  const advance = () => {
+    advancing.current = false;
+    setPraise(false);
+    setFailCount(0);
     if (attempt < rounds) {
       setAttempt(attempt + 1);
       clearCanvas();
@@ -64,6 +77,39 @@ export default function LearnTrace() {
     }
     const next = useSessionStore.getState().advanceNew();
     router.replace(next === 'next' ? '/learn/intro' : '/quiz');
+  };
+
+  // 通過：短暫顯示「描得很好」再進下一步（不擋住畫面）
+  const pass = () => {
+    if (advancing.current) return;
+    advancing.current = true;
+    setHint(null);
+    setMissing([]);
+    setPraise(true);
+    praiseTimer.current = setTimeout(advance, PRAISE_MS);
+  };
+
+  const onDone = () => {
+    if (advancing.current) return;
+    const reference = strokesOf(kana.char)?.strokes ?? [];
+    const result = evaluateTrace(strokesRef.current, reference);
+    if (devPassRef.current || result.passed) {
+      pass();
+      return;
+    }
+    setFailCount((n) => nextFailCount(n, false));
+    showFailure(result);
+  };
+
+  // 失敗：亮起漏掉的筆，已畫的筆保留，讓使用者直接補畫
+  const showFailure = (result: ReturnType<typeof evaluateTrace>) => {
+    if (result.reason === 'too-many') {
+      setMissing([]);
+      setHint('畫得太多了，按「重寫」重新描一次');
+    } else {
+      setMissing(result.missing);
+      setHint('這一筆還沒描到，跟著亮起來的線再描一次');
+    }
   };
 
   return (
@@ -91,8 +137,19 @@ export default function LearnTrace() {
           size={size}
           onStrokesChange={(s) => {
             strokesRef.current = s;
-            if (hint) setHint(false);
+            if (hint) {
+              // 失敗後繼續補畫：重新比對，亮起的線只剩還沒描到的
+              const reference = strokesOf(kana.char)?.strokes ?? [];
+              const r = evaluateTrace(s, reference);
+              if (r.passed) {
+                setHint(null);
+                setMissing([]);
+              } else {
+                showFailure(r);
+              }
+            }
           }}
+          highlight={missing}
           onDevPass={
             __DEV__
               ? () => {
@@ -103,10 +160,17 @@ export default function LearnTrace() {
         />
       </View>
       <View style={styles.hintBox}>
-        {hint ? (
-          <Text testID="trace-hint" style={[styles.hint, { color: t.accentText }]}>
-            再照著淡色的字描描看
+        {praise ? (
+          <Text testID="trace-praise" style={[styles.hint, { color: t.accentText }]}>
+            描得很好
           </Text>
+        ) : hint ? (
+          <Text testID="trace-hint" style={[styles.hint, { color: t.accentText }]}>
+            {hint}
+          </Text>
+        ) : null}
+        {canSkipTrace(failCount) && !praise ? (
+          <SecondaryButton testID="trace-skip" label="先跳過" onPress={pass} style={styles.skip} />
         ) : null}
       </View>
       <View style={styles.bottom}>
@@ -124,6 +188,7 @@ const styles = StyleSheet.create({
   canvasWrap: { paddingTop: 18, paddingHorizontal: 24, alignItems: 'center' },
   hintBox: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   hint: { fontSize: 15, textAlign: 'center' },
+  skip: { marginTop: 12, alignSelf: 'center', paddingHorizontal: 24 },
   bottom: { paddingHorizontal: 24, paddingBottom: 44, flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
 });

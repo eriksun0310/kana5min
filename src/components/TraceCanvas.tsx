@@ -22,8 +22,14 @@ export interface TraceCanvasProps {
   onStrokesChange?: (strokes: Stroke[]) => void;
   /** 只在 __DEV__ 有效：長按畫布 1 秒呼叫一次，視為通過 */
   onDevPass?: () => void;
+  /** 要用強調色亮起來的標準筆畫索引（漏掉的筆），亮起時閃爍約 2 秒後持續亮著 */
+  highlight?: number[];
   testID?: string;
 }
+
+/** 漏掉的筆閃爍：週期與總時間 */
+const BLINK_MS = 350;
+const BLINK_TOTAL_MS = 2000;
 
 function toPathD(points: Point[]): string {
   if (points.length === 0) return '';
@@ -38,7 +44,7 @@ function toPathD(points: Point[]): string {
  * 手指軌跡（PanResponder）畫成 text 色 16px 圓頭線。
  * 重寫＝父層換 key 重新掛載。內部座標是畫布像素，回報時轉成 viewBox 座標。
  */
-export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, testID = 'trace-canvas' }: TraceCanvasProps) {
+export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, highlight, testID = 'trace-canvas' }: TraceCanvasProps) {
   const t = useTheme();
   const data = strokesOf(char);
   const inner = size - 2; // TianGrid 的 1px 邊框
@@ -61,6 +67,24 @@ export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, test
     }
   };
   useEffect(() => clearTimer, []);
+
+  // 漏掉的筆：每次有新的 highlight 就閃爍約 2 秒，之後持續亮著
+  const [blinkDim, setBlinkDim] = useState(false);
+  const highlightKey = highlight && highlight.length > 0 ? highlight.join(',') : '';
+  useEffect(() => {
+    if (!highlightKey) return;
+    setBlinkDim(false);
+    const started = Date.now();
+    const id = setInterval(() => {
+      if (Date.now() - started >= BLINK_TOTAL_MS) {
+        setBlinkDim(false);
+        clearInterval(id);
+      } else {
+        setBlinkDim((d) => !d);
+      }
+    }, BLINK_MS);
+    return () => clearInterval(id);
+  }, [highlightKey]);
 
   const pan = useRef(
     PanResponder.create({
@@ -131,6 +155,24 @@ export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, test
                   strokeLinejoin="round"
                 />
               ))}
+            </G>
+          ) : null}
+          {data && highlight && highlight.length > 0 ? (
+            <G transform={`translate(${tf.offset} ${tf.offset}) scale(${tf.scale})`} opacity={blinkDim ? 0.3 : 1}>
+              {highlight.map((i) =>
+                data.strokes[i] ? (
+                  <Path
+                    key={`h-${i}`}
+                    testID={`trace-missing-${i}`}
+                    d={data.strokes[i]}
+                    fill="none"
+                    stroke={t.accent}
+                    strokeWidth={STROKE_WIDTH + 2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ) : null,
+              )}
             </G>
           ) : null}
           {[...strokes, ...(live ? [live] : [])].map((s, i) => (
