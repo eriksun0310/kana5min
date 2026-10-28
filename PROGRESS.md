@@ -280,3 +280,9 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 ### 決定記錄（2026-10-27，使用者）
 - 諧音梗可能含台語粗俗用語：Google Play 內容分級「粗俗語言」題答「是」，接受分級約 12+。Apple 年齡分級目前答「無」，兩邊要保持一致，下次調整 Apple 時改成對應等級。
 - Apple 年齡分級已同步改為「粗俗或粗魯幽默＝偶爾／輕微」，計算結果 9+（原 4+）。Google Play IARC 待使用者勾條款後填問卷，粗俗語言答「是」。
+
+## 諧音梗資料同步（2026-10-28）
+
+- 新增 `scripts/gen-puns.mjs`：從 `kana-puns.md`（只收「狀態」含 ✅、且句子含該假名的列）產生 `src/data/puns.ts` 的 PUNS 區塊（`pnpm gen:puns`／`pnpm check:puns`）。整理規則：去 emoji、半形括號改全形、合併空白。
+- 第一次同步後，`puns.ts` 有 10 句變更、新增 ふ（共 42 句）；`と` 的句子原本沒有「と」，已在 md 補成「と（偷）偷喜歡我就直說！」。
+- 單元測試加入「puns.ts 與 kana-puns.md 同步」檢查。

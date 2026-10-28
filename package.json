@@ -13,7 +13,9 @@
     "build:ios": "eas build --platform ios --profile production --local",
     "build:android:aab": "eas build --platform android --profile production --local",
     "build:android:apk": "eas build --platform android --profile production-apk --local",
-    "prebuild": "expo prebuild"
+    "prebuild": "expo prebuild",
+    "gen:puns": "node scripts/gen-puns.mjs",
+    "check:puns": "node scripts/gen-puns.mjs --check"
   },
   "dependencies": {
     "@expo-google-fonts/klee-one": "^0.4.2",

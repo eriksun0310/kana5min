@@ -152,10 +152,17 @@ describe('單字與「一行學完」', () => {
 describe('好笑記憶包諧音梗（puns）', () => {
   const sounds = Object.keys(PUNS);
 
-  it('共 41 句：只收 kana-puns.md 標 ✅ 的讀音，け、つ、ひ、ふ、へ 不收', () => {
-    expect(PUN_COUNT).toBe(41);
-    expect(sounds).toHaveLength(41);
-    for (const s of ['ke', 'tsu', 'hi', 'fu', 'he']) expect(PUNS[s]).toBeUndefined();
+  it('共 42 句：只收 kana-puns.md 標 ✅ 的讀音，け、つ、ひ、へ 不收', () => {
+    expect(PUN_COUNT).toBe(42);
+    expect(sounds).toHaveLength(42);
+    for (const s of ['ke', 'tsu', 'hi', 'he']) expect(PUNS[s]).toBeUndefined();
+    expect(PUNS.fu).toBeTruthy();
+  });
+
+  it('puns.ts 與 kana-puns.md 同步（不一致時請執行 pnpm gen:puns）', () => {
+    const { spawnSync } = jest.requireActual('child_process');
+    const r = spawnSync(process.execPath, ['scripts/gen-puns.mjs', '--check'], { encoding: 'utf8' });
+    expect({ status: r.status, out: r.stdout + r.stderr }).toEqual({ status: 0, out: expect.any(String) });
   });
 
   it('每個 key 都是清音讀音，且對應存在的平假名與片假名', () => {

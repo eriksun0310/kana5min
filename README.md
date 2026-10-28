@@ -18,7 +18,7 @@
 |---|---|
 | CLAUDE.md | Claude Code 的工作規則與技術決定 |
 | spec.md | 產品規格 |
-| kana-puns.md | 諧音梗清單（あ行、か行用於免費的記憶小提示） |
+| kana-puns.md | 諧音梗清單（唯一的內容來源；改完執行 `pnpm gen:puns` 產生 `src/data/puns.ts`） |
 | goals/01～04 | 四個開發階段的目標與完成條件 |
 | PROGRESS.md | 進度、假設與待確認事項 |
 | design/ | 44 個設計畫面原始檔（無 -L 為暗色，-L 為亮色） |
