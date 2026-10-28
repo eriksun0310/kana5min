@@ -17,18 +17,21 @@ appId: com.ptalk.kana5min
     text: 平假名
 - assertNotVisible:
     id: kata-start
-# 五十音表：點片假名只出現提示，仍停在平假名
+# 五十音表：片假名可以先瀏覽，只多一行「平假名學完後開始學片假名」說明
 - tapOn:
     id: tab-chart
 - assertVisible:
     id: script-katakana
 - tapOn:
     id: script-katakana
-- assertVisible: 平假名學完後解鎖
+- assertVisible: 可以先瀏覽，平假名學完後開始學片假名
 - assertVisible:
-    id: cell-h-a
-- assertNotVisible:
     id: cell-k-a
+- assertNotVisible:
+    id: cell-h-a
+- tapOn:
+    id: script-hiragana
+- assertNotVisible: 可以先瀏覽，平假名學完後開始學片假名
 # 練習分頁沒有片假名組
 - tapOn:
     id: tab-practice
@@ -113,7 +116,7 @@ appId: com.ptalk.kana5min
     id: tab-chart
 - tapOn:
     id: script-katakana
-- assertNotVisible: 平假名學完後解鎖
+- assertNotVisible: 可以先瀏覽，平假名學完後開始學片假名
 - assertVisible:
     id: cell-k-a
 - assertNotVisible:

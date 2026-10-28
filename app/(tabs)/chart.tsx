@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { KanaText, Screen } from '../../src/components';
 import { byId, kanaOfKind, seionGrid, type KanaKind, type Script } from '../../src/data';
@@ -31,7 +31,7 @@ function cellsFor(kind: KanaKind, script: Script): (string | null)[] {
 
 /**
  * C2-03 五十音表：平假名／片假名切換、清音／濁音／拗音分頁、已學標記、點字進詳情。
- * 片假名在平假名清音學完後才能切換；未解鎖時點片假名只顯示提示。
+ * 片假名隨時可以切換瀏覽；平假名清音學完前只是多一行說明，學習流程仍在平假名學完後才開始。
  */
 export default function ChartScreen() {
   const t = useTheme();
@@ -42,23 +42,7 @@ export default function ChartScreen() {
   const [kind, setKind] = useState<KanaKind>('seion');
   const [script, setScript] = useState<Script>('hiragana');
   const unlocked = useMemo(() => isKatakanaUnlocked(Object.values(progress)), [progress]);
-  // 解鎖狀態以進度為準（例如重設進度後，不能停留在已經鎖住的片假名）
-  const shownScript: Script = unlocked ? script : 'hiragana';
-  const [kataHint, setKataHint] = useState(false);
-  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (hintTimer.current) clearTimeout(hintTimer.current);
-    },
-    [],
-  );
-
-  const showKataHint = () => {
-    setKataHint(true);
-    if (hintTimer.current) clearTimeout(hintTimer.current);
-    hintTimer.current = setTimeout(() => setKataHint(false), 3000);
-  };
+  const shownScript = script;
 
   const cols = kind === 'youon' ? 3 : 5;
   const cells = useMemo(() => cellsFor(kind, shownScript), [kind, shownScript]);
@@ -83,10 +67,7 @@ export default function ChartScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ selected: on }}
                 hitSlop={{ top: 5, bottom: 5 }}
-                onPress={() => {
-                  if (s.script === 'katakana' && !unlocked) showKataHint();
-                  else setScript(s.script);
-                }}
+                onPress={() => setScript(s.script)}
                 style={[styles.segBtn, on && { backgroundColor: t.surface }]}
               >
                 <Text
@@ -104,10 +85,10 @@ export default function ChartScreen() {
         </View>
       </View>
 
-      {kataHint ? (
+      {shownScript === 'katakana' && !unlocked ? (
         <View style={styles.hintWrap}>
           <View style={[styles.hint, { backgroundColor: t.accentSoft }]} testID="katakana-locked-hint">
-            <Text style={{ fontSize: 13, color: t.accentText }}>平假名學完後解鎖</Text>
+            <Text style={{ fontSize: 13, color: t.accentText }}>可以先瀏覽，平假名學完後開始學片假名</Text>
           </View>
         </View>
       ) : null}
