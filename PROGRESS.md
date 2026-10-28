@@ -289,3 +289,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 
 ## 首頁進度條改為各行進度（2026-10-28）
 - 原本 46 格點點沒有說明、看不懂 → 改成 10 段「各行進度條」：每段依該行已學字數填滿，目前行外加框，標題寫「各行進度／學到○行」。`HomeStats.rows`、`currentRowLabel` 為新增欄位，`dots` 保留（測試仍用）。
+
+## 2026-10-28 UI 調整收尾
+
+- **詳情頁**：拼音（如 ka）移進田字格內、位於字下方；播放改為等寬的「正常／慢速」兩顆並排按鈕（testID `play-audio`、`play-slow`）。
+- **五十音表片假名分頁隨時可瀏覽**：未解鎖時分頁可切換，頂端顯示說明列「可以先瀏覽，平假名學完後開始學片假名」（`katakana-locked-hint`）；學習仍在平假名學完後才開始。假設：未解鎖時詳情頁的「描寫練習」不擋（只是瀏覽與練習描寫，不影響 SRS 進度）。
+- **首頁各行進度條**：見上一段「首頁進度條改為各行進度」，已用截圖確認（亮色與暗色、平假名與片假名階段）。
+- **按開始練習不再閃白畫面**：新增 `src/nav/startDaily.ts` 的 `startDailyAndGo`，先建立 session 再直接導到第一個畫面（`/learn/intro`、`/quiz` 或自動練習）；`/learn` 入口路由保留，供舊深連結使用。
+- **Maestro 全套重跑**：`maestro/` 下 13 個流程全數通過（phase1-chart-detail、daily-practice、onboarding、theme；phase2-auto-practice、confuse、special；phase3-learn-katakana、loanword、unlock；phase4-graduate、next；phase5-puns），iPhone 17（iOS 26.5）。
+- **截圖更新**：`screenshots/phase1/` 的 C2-02 首頁、C2-03 五十音表、C2-04 詳情頁，新增 `C2-03-Chart-katakana-locked-*`（片假名未解鎖）；`screenshots/phase3/` 全部重截。亮色與暗色皆已看過，顏色有跟著切換。完整的 `phase1-capture.yaml` 在重截時因描寫手勢（長按 trace-canvas）偶爾不穩而失敗兩次（失敗點不同，判斷為模擬器手勢時序），所以新增較精簡的 `phase1-ui-capture.yaml`／`run-phase1-ui.sh` 只截今天改過的畫面；phase1 其餘截圖（C2-05～C2-12）未重截。
