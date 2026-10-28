@@ -1,32 +1,39 @@
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon, PrimaryButton, Screen } from '../src/components';
-import { SUSHI_JP_APP_STORE_URL } from '../src/config';
-import { isHttpUrl } from '../src/logic/links';
+import { SUSHI_JP_APP_STORE_URL, SUSHI_JP_PLAY_STORE_URL } from '../src/config';
+import { isHttpUrl, sushiStoreLink } from '../src/logic/links';
 import { goHomeTab } from '../src/nav/exitToHome';
 import { useTopPad } from '../src/theme/layout';
 import { useTheme } from '../src/theme/useTheme';
 
-/** 賣點文案沿用設計檔；第三點是佔位文字，等壽司日檢的實際賣點確認後再換（見 PROGRESS.md 待確認事項）。 */
-const POINTS = ['從 N5 基礎單字開始', '單字都用你已經會讀的假名標音', '[壽司日檢的其他賣點]'];
+/** 賣點文案：前兩點沿用設計檔；第三點取自壽司日檢的商店標題「5 分鐘 N5 N4 N3 N2 N1 單字」。 */
+const POINTS = ['從 N5 基礎單字開始', '單字都用你已經會讀的假名標音', '涵蓋 N5 到 N1，每天只要 5 分鐘'];
 
-/** C2-22 導流到壽司日檢：介紹卡與前往 App Store 的按鈕。 */
+const SUSHI_ICON = require('../assets/images/sushi-jp-icon.png');
+
+/** 依平台：iOS 開 App Store、Android 開 Google Play。 */
+const STORE = sushiStoreLink(Platform.OS, {
+  appStore: SUSHI_JP_APP_STORE_URL,
+  playStore: SUSHI_JP_PLAY_STORE_URL,
+});
+
+/** C2-22 導流到壽司日檢：介紹卡與前往商店的按鈕（iOS＝App Store、Android＝Google Play）。 */
 export default function NextScreen() {
   const t = useTheme();
   const router = useRouter();
   const top = useTopPad(52);
 
   const openStore = async () => {
-    // 連結還是佔位字串時不嘗試開啟
-    if (!isHttpUrl(SUSHI_JP_APP_STORE_URL)) {
-      Alert.alert('連結尚未設定', '壽司日檢的 App Store 連結還沒有設定。');
+    if (!isHttpUrl(STORE.url)) {
+      Alert.alert('連結尚未設定', `壽司日檢的 ${STORE.storeName} 連結還沒有設定。`);
       return;
     }
     try {
-      await Linking.openURL(SUSHI_JP_APP_STORE_URL.trim());
+      await Linking.openURL(STORE.url.trim());
     } catch {
-      Alert.alert('無法開啟連結', '請稍後再試，或直接到 App Store 搜尋「壽司日檢」。');
+      Alert.alert('無法開啟連結', `請稍後再試，或直接到 ${STORE.storeName} 搜尋「壽司日檢」。`);
     }
   };
 
@@ -54,9 +61,12 @@ export default function NextScreen() {
       <View style={styles.cardWrap}>
         <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.line }]}>
           <View style={styles.appRow}>
-            <View style={[styles.appIcon, { borderColor: t.muted }]}>
-              <Text style={[styles.appIconText, { color: t.muted }]}>{'App\n圖示'}</Text>
-            </View>
+            <Image
+              testID="next-sushi-icon"
+              source={SUSHI_ICON}
+              accessibilityLabel="壽司日檢圖示"
+              style={[styles.appIcon, { borderColor: t.line }]}
+            />
             <View style={styles.appText}>
               <Text style={[styles.appName, { color: t.text }]}>壽司日檢</Text>
               <Text style={[styles.appSub, { color: t.muted }]}>日檢單字練習</Text>
@@ -76,7 +86,7 @@ export default function NextScreen() {
       </View>
       <View style={styles.spacer} />
       <View style={styles.primary}>
-        <PrimaryButton testID="next-open-store" label="到 App Store 看看" onPress={openStore} />
+        <PrimaryButton testID="next-open-store" label={`到 ${STORE.storeName} 看看`} onPress={openStore} />
       </View>
       <View style={styles.secondary}>
         <Pressable
@@ -102,16 +112,7 @@ const styles = StyleSheet.create({
   cardWrap: { paddingTop: 22, paddingHorizontal: 24 },
   card: { borderWidth: 1, borderRadius: 20, padding: 18 },
   appRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  appIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  appIconText: { fontSize: 11, textAlign: 'center' },
+  appIcon: { width: 64, height: 64, borderRadius: 16, borderWidth: 1 },
   appText: { gap: 2, flexShrink: 1 },
   appName: { fontSize: 18, fontWeight: '700' },
   appSub: { fontSize: 13 },

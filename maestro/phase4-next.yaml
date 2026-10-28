@@ -1,4 +1,5 @@
-# 導流頁：連結常數還是佔位字串時，按「到 App Store 看看」只出現「連結尚未設定」提示、不開啟；
+# 導流頁：顯示壽司日檢的真實圖示與賣點、依平台的商店按鈕（iOS＝到 App Store 看看；連結是正式連結，
+# 按了會離開 App，所以流程只檢查按鈕存在、不點）；
 # 可由首頁文字連結與設定頁進入，用 next-close / next-later 回首頁。
 appId: com.ptalk.kana5min
 ---
@@ -23,12 +24,10 @@ appId: com.ptalk.kana5min
     timeout: 10000
 - assertVisible: 到 App Store 看看
 
-# 佔位連結：出現「連結尚未設定」Alert，關閉後仍停在導流頁
-- tapOn:
-    id: next-open-store
-- assertVisible: 連結尚未設定
-- tapOn: "(好|OK)"
-- assertNotVisible: 連結尚未設定
+# 壽司日檢圖示與第三個賣點（按鈕連到商店會離開 App，不點）
+- assertVisible:
+    id: next-sushi-icon
+- assertVisible: 涵蓋 N5 到 N1，每天只要 5 分鐘
 - assertVisible:
     id: next-open-store
 

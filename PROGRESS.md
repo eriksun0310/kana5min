@@ -71,7 +71,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
   - 數字來自真實資料，練習天數是有練習的不同日期數。
   - 之後可從設定「畢業紀念」再次進入。
 - 導流（C2-22，`app/next.tsx`）：
-  - 連結常數放在 `src/config.ts`，目前是佔位字串，點按鈕會顯示「連結尚未設定」。
+  - 連結常數放在 `src/config.ts`（2026-10-28 已換成正式連結：App Store `id6774095306`、Google Play `com.ptalk.sushijp`），依平台開對應商店。
   - 可以關閉回首頁。
   - 之後可從首頁的「下一步：壽司日檢」連結或設定頁再次進入。
 - 除錯選單（`src/dev/DebugMenu.tsx`）：
@@ -197,13 +197,10 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 - App 名稱：手機上顯示「諧音五十音」（app.json `name`），商店上架名稱「日文五十音｜白爛諧音記憶法」，副標「台灣人專屬｜平假名片假名 5 分鐘學會」。後台名稱與文字見 `store/app-store.md`、`store/google-play.md`（尚缺的後台項目見最後面「開發者待辦清單」）
 - Bundle identifier（目前：com.ptalk.kana5min）
-- 壽司日檢 App Store 連結（`src/config.ts`）
-- 導流頁第三個賣點文案
 - ✅ 已完成（2026-10-28）：開發者用試聽頁人工聽過 62 個重點音檔（override 過的假名與單字、拗音 33 個、ASR 可疑的假名與單字）。有問題的 5 個（へ、しゅ、ひゅ、りゃ、へや）已依候選聽感換版，其餘 OK。其他一般假名音檔未逐一聽（原清單：は、へ、を、ん 與拗音）
 - ✅ 已完成（2026-10-28）：片假名相關 overrides k-wo、k-di、k-du、w-otaku 已聽過，OK
 - ✅ 已完成（h-i 於 2026-10-28 之前確認，k-i 於 2026-10-28 試聽頁聽過 OK）h-i／k-i（含慢速）：單獨念「い」「イ」時 TTS 尾端會多出一段雜音（聽起來像斷掉、多念一個音），已用 overrides「いー」「イー」重產，波形確認為單一段平滑發音
 - App 圖示與啟動圖：`assets/images/` 仍是 Expo 範本圖。亮色啟動畫面的白色圖形幾乎看不見，上架前要換掉
-- 導流頁壽司日檢卡的 App 圖示佔位（虛線框）
 - 外來語詞庫與例字（見「假設」的階段 3），特別是 ニョッキ、ヒューズ、リャマ 等較冷門的詞是否保留（建議保留；待開發者決定）
 - 部分拗音例字較罕見（ひゅうが、みゅう 等），是否替換（建議保留；待開發者決定）
 - Maestro 官方安裝程式在 `~/.zshrc` 加了 `export PATH=$PATH:$HOME/.maestro/bin`，並新建 `~/.bash_profile`；是否保留由使用者決定
@@ -212,7 +209,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 以下步驟都由開發者自己執行（需要 Apple 帳號登入）。Claude Code 沒有執行任何 eas 指令。
 
-1. 上傳前先補齊「待確認事項」：App 圖示與啟動圖、壽司日檢 App Store 連結（`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`），以及導流頁的第三個賣點（`app/next.tsx`）。
+1. 上傳前確認「待確認事項」都已處理（App 圖示、壽司日檢連結與導流頁賣點已於 2026-10-28 完成）。
 2. 安裝並登入 EAS CLI：
    ```bash
    pnpm install
@@ -327,7 +324,7 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 ## 開發者待辦清單（只列還沒做的，依優先順序；2026-10-28 更新）
 
 1. ✅ EAS 環境變數已於 2026-10-28 全部設好（production 環境）：`EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`（開發者自己貼入真的 key）、`EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`。
-2. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
+2. ✅ 導流頁已於 2026-10-28 補齊：壽司日檢真實圖示（`assets/images/sushi-jp-icon.png`，取自 `jlpt5minapp`）、正式商店連結（iOS 開 App Store、Android 開 Google Play）、第三個賣點「涵蓋 N5 到 N1，每天只要 5 分鐘」（取自壽司日檢的商店標題）。
 3. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
 4. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
 5. ✅ 商店截圖 8 張已於 2026-10-28 上傳（Google Play 草稿、App Store 1.0 版本頁；檔案在 `store/screenshots/`）。App Store 的欄位接受的是 6.1／6.3 吋尺寸（1206×2622），不是 6.9 吋。
