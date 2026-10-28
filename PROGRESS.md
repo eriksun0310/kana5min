@@ -324,7 +324,7 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 ## 開發者待辦清單（只列還沒做的，依優先順序；2026-10-28 更新）
 
 1. ✅ EAS 環境變數已於 2026-10-28 全部設好（production 環境）：`EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`（開發者自己貼入真的 key）、`EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`。
-2. ✅ 導流頁已於 2026-10-28 補齊：壽司日檢真實圖示（`assets/images/sushi-jp-icon.png`，取自 `jlpt5minapp`）、正式商店連結（iOS 開 App Store、Android 開 Google Play）、第三個賣點「涵蓋 N5 到 N1，每天只要 5 分鐘」（取自壽司日檢的商店標題）。
+2. ✅ 導流頁已於 2026-10-28 補齊：壽司日檢真實圖示（`assets/images/sushi-jp-icon.png`，取自 `jlpt5minapp`）、正式商店連結（iOS 開 App Store、Android 開 Google Play）、三個賣點（取自壽司日檢 App Store 商店說明：N5 到 N1 全等級單字、假名標音、每天 5 分鐘＋收集 26 種可愛壽司）。
 3. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
 4. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
 5. ✅ 商店截圖 8 張已於 2026-10-28 上傳（Google Play 草稿、App Store 1.0 版本頁；檔案在 `store/screenshots/`）。App Store 的欄位接受的是 6.1／6.3 吋尺寸（1206×2622），不是 6.9 吋。

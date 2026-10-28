@@ -24,10 +24,10 @@ appId: com.ptalk.kana5min
     timeout: 10000
 - assertVisible: 到 App Store 看看
 
-# 壽司日檢圖示與第三個賣點（按鈕連到商店會離開 App，不點）
+# 壽司日檢圖示與賣點（按鈕連到商店會離開 App，不點）
 - assertVisible:
     id: next-sushi-icon
-- assertVisible: 涵蓋 N5 到 N1，每天只要 5 分鐘
+- assertVisible: 每天 5 分鐘，還能收集 26 種可愛壽司
 - assertVisible:
     id: next-open-store
 

@@ -8,8 +8,12 @@ import { goHomeTab } from '../src/nav/exitToHome';
 import { useTopPad } from '../src/theme/layout';
 import { useTheme } from '../src/theme/useTheme';
 
-/** 賣點文案：前兩點沿用設計檔；第三點取自壽司日檢的商店標題「5 分鐘 N5 N4 N3 N2 N1 單字」。 */
-const POINTS = ['從 N5 基礎單字開始', '單字都用你已經會讀的假名標音', '涵蓋 N5 到 N1，每天只要 5 分鐘'];
+/** 賣點文案：第二點沿用設計檔；其餘取自壽司日檢 App Store 商店說明（N5～N1 全等級、收集 26 種壽司、每天 5 分鐘）。 */
+const POINTS = [
+  'N5 到 N1 全等級單字，從 N5 基礎開始',
+  '單字都用你已經會讀的假名標音',
+  '每天 5 分鐘，還能收集 26 種可愛壽司',
+];
 
 const SUSHI_ICON = require('../assets/images/sushi-jp-icon.png');
 
