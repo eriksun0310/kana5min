@@ -330,9 +330,9 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 2. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
 3. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
 4. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
-5. **商店手機截圖**：現有 `screenshots/` 尺寸不合（6.3 吋）。App Store 要 6.9 吋（至少 1 張；iPhone），Google Play 手機截圖至少 2 張（9:16、長寬比不超過 2:1），用 6.9 吋模擬器重截（見 `store/screenshots.md`）。
-6. **Apple**：App 審查聯絡人資料、付費 App 合約與稅務／銀行資料；上傳 build 後，送審時對內購按「新增以供審查」（內購審查截圖已於 2026-10-28 換成紅色版）。
-7. **Google Play**：付款資料；商店資訊的手機截圖（見第 5 項）；AAB 已上傳內部測試，內購商品已建立並啟用。
+5. ✅ 商店截圖 8 張已於 2026-10-28 上傳（Google Play 草稿、App Store 1.0 版本頁；檔案在 `store/screenshots/`）。App Store 的欄位接受的是 6.1／6.3 吋尺寸（1206×2622），不是 6.9 吋。
+6. **Apple**：App 審查聯絡人資料、付費 App 合約與稅務／銀行資料；上傳 build 後，送審時對內購按「新增以供審查」（內購審查截圖已於 2026-10-28 換成紅色版；App Store 截圖也已上傳）。
+7. **Google Play**：付款資料；AAB 已上傳內部測試，內購商品已建立並啟用，商店資訊（圖示、主題圖、手機截圖）已存為草稿。
 8. **兩平台沙盒購買與恢復購買實測**（iOS Sandbox 帳號、Google Play 授權測試人員）。
 9. **Android 實機測試**：確認兩平台都看到測試獎勵廣告，隱私權選項（歐盟地區）可開啟表單。
 10. **人工聽音檔（選做）**：重點 62 個已於 2026-10-28 聽完並修正；其餘一般假名音檔有空可再抽聽。

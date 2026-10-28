@@ -6,7 +6,7 @@
 
 | 平台 | 必要尺寸 | 說明 |
 |---|---|---|
-| App Store（iPhone 6.9 吋） | 1320×2868、1290×2796 或 1260×2736（直式，2～10 張） | 必填；其他 iPhone 尺寸 Apple 會自動縮放 |
+| App Store（iPhone，配備動態島的中型顯示器） | 後台目前接受 1206×2622、2622×1206、1179×2556、2556×1179（6.1／6.3 吋；直式 1～10 張） | 必填；其他 iPhone 尺寸 Apple 會自動縮放。**後台不接受 1320×2868（6.9 吋）** |
 | Google Play 手機 | 長邊不超過短邊 2 倍、每邊 320～3840 px，至少 2 張（建議 1080×1920，最多 8 張） | 另需 512×512 圖示與 1024×500 主題圖（已完成：`store/graphics/play-icon-512.png`、`store/graphics/play-feature-1024x500.png`） |
 
 `screenshots/phase1`～`phase4` 的圖是 1206×2622（iPhone 6.3 吋模擬器），`phase5` 是 1178×2556，**都不是 6.9 吋尺寸**，Google Play 也會因長寬比超過 2:1 被退。所以這些圖只作為「選哪些畫面」的依據；實際上傳前要在 iPhone 6.9 吋模擬器（例如 iPhone 17 Pro Max）用同一組 Maestro 流程重新截圖，Google Play 版另外裁成 9:16 或 1080×1920。本次沒有產生新截圖。
@@ -50,6 +50,8 @@ Apple 取 1～8 即可（至少 3 張，建議 6～8 張）；Google Play 取 1�
 | 7 | `07-katakana-word.png` | 片假名測驗「ケーキ」 | 用外來語學片假名 |
 | 8 | `08-pun-overview.png` | 好笑記法總覽 | 全部諧音梗一次看 |
 
-- `store/screenshots/ios-6.9/`：原圖 1320×2868，直接上傳 App Store（6.9 吋）。
+- `store/screenshots/ios-6.9/`：原圖 1320×2868（6.9 吋模擬器直出，作為來源）。
+- `store/screenshots/ios-6.3/`：由 6.9 吋原圖縮成 1206×2622，**上傳 App Store 用這組**（2026-10-28 已上傳到 1.0 版本的「配備動態島的 iPhone（中型顯示器）」）。
 - `store/screenshots/google-play/`：同一組裁掉頂部 180 px（狀態列）與底部 48 px，成 1320×2640（長寬比剛好 2:1），符合 Google Play「長邊不超過短邊 2 倍」。
+- 上傳備註：App Store Connect 有一次把 `07-katakana-word.png` 卡在「處理中」（雲朵圖示），重新編碼（PNG optimize）後重傳就正常；Google Play 一次傳多張時順序會亂，要一張一張依序傳或傳完檢查順序。
 - 重截方式：6.9 吋模擬器跑 `maestro/screenshots/phase{1,2,3,5}-capture.yaml`（THEME=light）。注意：清除狀態後開發版 App 第一次啟動偶爾停在「No script URL」紅畫面，需點 Reload 才會連上 Metro。

@@ -17,7 +17,7 @@
 
 - [x] 應用程式已建立（免費、`com.ptalk.kana5min`），應用程式內容 10 項已完成（隱私權政策、廣告＝是、目標對象 13 歲以上、資料安全性、內容分級等）
 - [x] 商店資訊：512 圖示與 1024×500 主題圖已於 2026-10-28 上傳並存為草稿（檔案在 `store/graphics/`）
-- [x] 商店截圖已重截（8 張，`store/screenshots/ios-6.9/` 與 `google-play/`）；尚待上傳
+- [x] 商店截圖 8 張已於 2026-10-28 上傳：Google Play 手機截圖（`store/screenshots/google-play/`，草稿）；App Store 1.0 版本頁（`store/screenshots/ios-6.3/`）
 - [x] 應用程式內產品 `com.ptalk.kana5min.punpack`（NT$90）已於 2026-10-28 在後台建立（需要先有含 Billing 權限的版本才能建立；PROGRESS.md 的 10-27 紀錄尚未更新這點）
 - [ ] 付款資料（Google 付款資料）
 
