@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
-import { pressSeeOption } from '../logic/quizSee';
+import { pressSeeOption, revealTag } from '../logic/quizSee';
 import { shouldShowRomaji } from '../logic/romaji';
 import type { QuizQuestion } from '../logic/session';
 import { useProgressStore } from '../store/progressStore';
@@ -57,19 +57,25 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
   const optionView = (id: string, index: number) => {
     let status: OptionStatus = 'idle';
     let tag = '';
+    let tagKana: string | undefined;
     if (answered) {
       const isAnswer = id === question.answerId;
       const isWrongPick = index === picked && !isAnswer;
       const k = mustById(id);
+      const reveal = (kind: 'answer' | 'wrong' | 'plain') => {
+        const r = revealTag(kind, k.char, k.romaji, kind === 'wrong' || show(id));
+        tagKana = r.kana;
+        tag = r.text;
+      };
       if (isAnswer) {
         status = 'correct';
-        tag = show(id) ? `${k.romaji}・正確` : '正確';
+        reveal('answer');
       } else if (isWrongPick) {
         status = 'wrong';
-        tag = k.romaji; // 選錯時一律顯示，幫助對照
+        reveal('wrong'); // 選錯時一律顯示拼音，幫助對照
       } else {
         status = 'plain';
-        tag = show(id) ? k.romaji : '';
+        reveal('plain');
       }
     } else if (selected === index) {
       status = 'selected';
@@ -83,6 +89,7 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
         n={index + 1}
         status={status}
         tag={tag}
+        tagKana={tagKana}
         disabled={answered}
         testID={ids[index]}
         onPress={() => press(index)}

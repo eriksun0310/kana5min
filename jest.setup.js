@@ -39,3 +39,17 @@ jest.mock('react-native-purchases', () => {
     PACKAGE_TYPE: { LIFETIME: 'LIFETIME' },
   };
 });
+
+// 本機通知：jest 裡沒有原生模組，用最小 mock（排程測試直接檢查這些 jest.fn 的呼叫）
+jest.mock('expo-notifications', () => ({
+  __esModule: true,
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ granted: false })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: false })),
+  getAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve([])),
+  cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
+  scheduleNotificationAsync: jest.fn(() => Promise.resolve('id')),
+  AndroidImportance: { DEFAULT: 3 },
+  SchedulableTriggerInputTypes: { DATE: 'date', DAILY: 'daily' },
+}));

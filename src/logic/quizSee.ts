@@ -21,3 +21,22 @@ export function pressSeeOption(state: SeePressState, index: number, answered: bo
     play: true,
   };
 }
+
+export type RevealKind = 'answer' | 'wrong' | 'plain';
+
+export interface RevealTag {
+  /** 假名（用 Klee One 顯示）；整段標記文字 = kana + text */
+  kana: string;
+  /** 假名之後的文字：" u・正確"、"・正確"（拼音淡出時）、" sa"、"" */
+  text: string;
+}
+
+/**
+ * 作答後選項右側的標記：假名永遠顯示，拼音依 showRomaji 決定。
+ * 正確答案「う u・正確」（拼音淡出時「う・正確」）、選錯「さ sa」（一律顯示拼音）、其他「あ a」。
+ */
+export function revealTag(kind: RevealKind, kana: string, romaji: string, showRomaji: boolean): RevealTag {
+  if (kind === 'answer') return { kana, text: showRomaji ? ` ${romaji}・正確` : '・正確' };
+  if (kind === 'wrong') return { kana, text: ` ${romaji}` };
+  return { kana, text: showRomaji ? ` ${romaji}` : '' };
+}

@@ -21,6 +21,10 @@ export interface SettingsState extends Settings {
   punPromptAfterAdsShown: boolean;
   /** 片假名開始畫面的買斷連結是否已出現過 */
   punPromptKataShown: boolean;
+  // --- 提醒優化（reminder session）---
+  /** 結果頁的「每天提醒你練習嗎？」是否已問過（不論選什麼都只問一次） */
+  reminderAsked: boolean;
+  // --- 提醒優化 結束 ---
 
   setTheme: (theme: Settings['theme']) => void;
   setDailyGoalMinutes: (m: Settings['dailyGoalMinutes']) => void;
@@ -37,6 +41,7 @@ export interface SettingsState extends Settings {
   addPunAdWatched: () => number;
   setPunPromptAfterAdsShown: (shown: boolean) => void;
   setPunPromptKataShown: (shown: boolean) => void;
+  setReminderAsked: (asked: boolean) => void;
   /** 記錄今天有練習 */
   markPracticed: (now: number) => void;
   /** 回到預設值（除錯用） */
@@ -52,6 +57,7 @@ export const defaultSettings: Settings & {
   punAdsWatched: number;
   punPromptAfterAdsShown: boolean;
   punPromptKataShown: boolean;
+  reminderAsked: boolean;
 } = {
   theme: 'system',
   dailyGoalMinutes: 5,
@@ -67,6 +73,7 @@ export const defaultSettings: Settings & {
   punAdsWatched: 0,
   punPromptAfterAdsShown: false,
   punPromptKataShown: false,
+  reminderAsked: false,
 };
 
 export const SETTINGS_STORAGE_KEY = 'kana5min-settings';
@@ -93,6 +100,7 @@ export const useSettingsStore = create<SettingsState>()(
       },
       setPunPromptAfterAdsShown: (punPromptAfterAdsShown) => set({ punPromptAfterAdsShown }),
       setPunPromptKataShown: (punPromptKataShown) => set({ punPromptKataShown }),
+      setReminderAsked: (reminderAsked) => set({ reminderAsked }),
       markPracticed: (now) => set((s) => ({ practiceDates: addPracticeDate(s.practiceDates, now) })),
       resetSettings: () => set({ ...defaultSettings, punUnlocked: [] }),
     }),

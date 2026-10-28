@@ -4,8 +4,9 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { LogBox, View } from 'react-native';
+import { AppState, LogBox, View } from 'react-native';
 import { openSqliteRepository } from '../src/db';
+import { syncRemindersFromStores } from '../src/notifications/syncReminders';
 import { initPurchases } from '../src/monetization/purchases';
 import { useProgressStore, waitForSettingsHydration } from '../src/store';
 import { useSessionStore } from '../src/store/sessionStore';
@@ -44,6 +45,16 @@ export default function RootLayout() {
 
   // 字型載入失敗時仍然進 App（退回系統字型），不要卡在啟動畫面
   const ready = (fontsLoaded || !!fontError) && (dataReady || !!dataError);
+
+  // 啟動與每次回到前景都重排提醒（今天練過就不跳、重設 3／7 天召回）
+  useEffect(() => {
+    if (!ready || dataError) return;
+    void syncRemindersFromStores();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void syncRemindersFromStores();
+    });
+    return () => sub.remove();
+  }, [ready, dataError]);
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync().catch(() => {});

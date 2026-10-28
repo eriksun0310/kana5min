@@ -24,3 +24,24 @@ describe('pressSeeOption（看字選音的點選）', () => {
     expect(pressSeeOption(state, 2, true)).toEqual({ selected: 1, heard: [1], play: false });
   });
 });
+
+import { revealTag } from '../quizSee';
+
+describe('revealTag（揭曉標記）', () => {
+  it('正確答案：顯示假名、拼音與「正確」', () => {
+    expect(revealTag('answer', 'う', 'u', true)).toEqual({ kana: 'う', text: ' u・正確' });
+  });
+
+  it('正確答案且拼音淡出：假名仍在，只隱藏拼音', () => {
+    expect(revealTag('answer', 'う', 'u', false)).toEqual({ kana: 'う', text: '・正確' });
+  });
+
+  it('選錯：一律顯示拼音，即使已淡出', () => {
+    expect(revealTag('wrong', 'さ', 'sa', false)).toEqual({ kana: 'さ', text: ' sa' });
+  });
+
+  it('其他選項：假名＋拼音；拼音淡出時只有假名；片假名同理', () => {
+    expect(revealTag('plain', 'ア', 'a', true)).toEqual({ kana: 'ア', text: ' a' });
+    expect(revealTag('plain', 'ア', 'a', false)).toEqual({ kana: 'ア', text: '' });
+  });
+});

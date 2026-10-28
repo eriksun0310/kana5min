@@ -48,22 +48,24 @@ export interface QuizSoundOptionProps {
   /** 聲音編號（1–4） */
   n: number;
   status: OptionStatus;
-  /** 右側小字，例如「已聽」「ke・正確」「ka」 */
+  /** 右側小字，例如「已聽」「 ke・正確」「 ka」（揭曉時接在 tagKana 後面） */
   tag?: string;
+  /** 揭曉時標記前面的假名（Klee One）；沒有就只顯示 tag */
+  tagKana?: string;
   onPress: () => void;
   disabled?: boolean;
   testID?: string;
 }
 
 /** 看字選音的選項列（C2-08）：36px 喇叭圓、「聲音 N」、右側標記。minHeight 62、radius 18、border 2。 */
-export function QuizSoundOption({ n, status, tag, onPress, disabled, testID }: QuizSoundOptionProps) {
+export function QuizSoundOption({ n, status, tag, tagKana, onPress, disabled, testID }: QuizSoundOptionProps) {
   const t = useTheme();
   const c = optionColors(t, status);
   return (
     <Pressable
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={`聲音 ${n}`}
+      accessibilityLabel={`聲音 ${n}${tagKana ? ` ${tagKana}${tag ?? ''}` : ''}`}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -75,7 +77,14 @@ export function QuizSoundOption({ n, status, tag, onPress, disabled, testID }: Q
         <Icon name="speakerSmall" size={18} color={t.text} />
       </View>
       <Text style={[styles.label, { color: t.text }]}>聲音 {n}</Text>
-      {tag ? <Text style={[styles.tag, { color: c.tag }]}>{tag}</Text> : null}
+      {tagKana ? (
+        <Text style={[styles.tag, { color: c.tag }]}>
+          <Text style={styles.tagKana}>{tagKana}</Text>
+          {tag}
+        </Text>
+      ) : tag ? (
+        <Text style={[styles.tag, { color: c.tag }]}>{tag}</Text>
+      ) : null}
     </Pressable>
   );
 }
@@ -122,6 +131,7 @@ const styles = StyleSheet.create({
   speaker: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   label: { flex: 1, textAlign: 'left', fontSize: 16 },
   tag: { fontSize: 14 },
+  tagKana: { fontFamily: KANA_FONT, fontSize: 16 },
   card: {
     flex: 1,
     height: 116,
