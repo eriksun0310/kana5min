@@ -14,6 +14,7 @@ import {
   TianGrid,
 } from '../../src/components';
 import { byId, exampleWordOf } from '../../src/data';
+import { counterpartId } from '../../src/logic/counterpart';
 import { useBottomPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
@@ -41,6 +42,8 @@ export default function KanaDetailScreen() {
   const confusable = kana.confusableWith?.[0] ? byId(kana.confusableWith[0]) : undefined;
   // 拗音是兩個字，字級縮小才放得進 260 的田字格
   const glyphSize = [...kana.char].length > 1 ? 110 : 190;
+  const otherId = counterpartId(kana.id);
+  const otherChar = otherId ? byId(otherId)?.char : undefined;
   const goFlow = (pathname: '/learn/stroke' | '/learn/trace') =>
     router.push({ pathname, params: { id: kana.id, standalone: '1' } });
 
@@ -60,6 +63,22 @@ export default function KanaDetailScreen() {
               {kana.romaji}
             </Text>
           </TianGrid>
+
+          {otherId && otherChar ? (
+            <Pressable
+              testID="detail-compare"
+              accessibilityRole="button"
+              accessibilityLabel={`對照${kana.script === 'hiragana' ? '片假名' : '平假名'} ${otherChar}`}
+              hitSlop={{ top: 6, bottom: 6, left: 10, right: 10 }}
+              onPress={() => router.replace({ pathname: '/kana/[id]', params: { id: otherId } })}
+              style={[styles.compare, { backgroundColor: t.chip }]}
+            >
+              <Text style={{ fontSize: 13, color: t.muted }}>對照</Text>
+              <KanaText size={16} lineHeightRatio={1.2} color={t.text}>
+                {otherChar}
+              </KanaText>
+            </Pressable>
+          ) : null}
 
           <View style={styles.playRow}>
             <Pressable
@@ -161,6 +180,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+  },
+  compare: {
+    minHeight: 36,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   romaji: { position: 'absolute', bottom: 10, fontSize: 18, letterSpacing: 2 },
