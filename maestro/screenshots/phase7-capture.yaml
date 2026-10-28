@@ -1,0 +1,58 @@
+# 新手教學截圖：導覽 3 頁、首頁說明面板、學新字提示氣泡。
+# run-phase7.sh 以 -e THEME=light|dark 呼叫。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: tour-page-1
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-Tour1-${THEME}
+- tapOn:
+    id: tour-next
+- assertVisible: く＝哭
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-Tour2-${THEME}
+- tapOn:
+    id: tour-next
+- assertVisible: 答錯的字，我會再叫你
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-Tour3-${THEME}
+- tapOn:
+    id: tour-start
+- tapOn:
+    id: goal-5
+- tapOn:
+    id: start-learning
+- assertVisible:
+    id: start-today
+- tapOn:
+    id: home-help
+- assertVisible:
+    id: home-help-sheet
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-HomeHelp-${THEME}
+- tapOn:
+    id: home-help-close
+- tapOn:
+    id: start-today
+- assertVisible:
+    id: coach-intro
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-TipIntro-${THEME}
+- tapOn:
+    id: coach-intro
+- tapOn:
+    id: next-step
+- assertVisible:
+    id: coach-stroke
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-TipStroke-${THEME}
+- tapOn:
+    id: next-step
+- assertVisible:
+    id: coach-trace
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase7/T-TipTrace-${THEME}

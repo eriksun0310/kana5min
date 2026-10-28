@@ -1,0 +1,181 @@
+# 新手教學：首次導覽 3 頁（下一頁→開始學習→歡迎頁）、略過、首頁「？」說明面板、
+# 學新字第一次的提示氣泡（不擋按鈕、關閉後不再出現）、設定「重看教學」。
+appId: com.ptalk.kana5min
+---
+# ---- 1) 導覽走完 3 頁
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: tour-page-1
+- assertVisible: 每天只學 3 個字
+- assertVisible: 看、聽、寫，最後小測驗。5 分鐘就夠，不用硬撐。
+- assertVisible:
+    id: tour-skip
+- tapOn:
+    id: tour-next
+- assertVisible: く＝哭
+- assertVisible: 你是在く（哭）喔？
+- tapOn:
+    id: tour-next
+- assertVisible: 答錯的字，我會再叫你
+- assertVisible: 每日提醒可以之後在設定開啟
+- assertNotVisible:
+    id: tour-next
+- tapOn:
+    id: tour-start
+- assertVisible: 從零開始學五十音
+# 重開 App：導覽看過了，直接回歡迎頁
+- stopApp
+- launchApp
+- assertVisible: 從零開始學五十音
+# ---- 2) 略過
+- launchApp:
+    clearState: true
+- tapOn:
+    id: tour-skip
+- assertVisible: 從零開始學五十音
+- tapOn:
+    id: goal-5
+- tapOn:
+    id: start-learning
+- assertVisible:
+    id: start-today
+# ---- 3) 首頁「？」說明面板
+- tapOn:
+    id: home-help
+- assertVisible:
+    id: home-help-sheet
+- assertVisible: 快忘記、該複習的字，按開始會先考你。
+- assertVisible: 開始今天的 5 分鐘
+- tapOn:
+    id: home-help-close
+- assertNotVisible:
+    id: home-help-sheet
+# ---- 4) 學新字提示氣泡：看與聽
+- tapOn:
+    id: start-today
+- assertVisible:
+    id: coach-intro
+- assertVisible: 按喇叭聽發音，旁邊的慢速可以放慢
+- assertVisible: 拼音會慢慢消失，這樣你記的是字，不是拼音
+# 氣泡不擋按鈕：喇叭照常可按
+- tapOn:
+    id: play-audio
+- tapOn:
+    id: coach-intro
+- assertNotVisible:
+    id: coach-intro
+- tapOn:
+    id: next-step
+# 筆順：第一次出現；不關閉直接下一步，描寫頁也會出現自己的氣泡
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: learn-kana
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: coach-stroke
+- assertVisible: 跟著動畫看筆順，可以重播
+- tapOn:
+    id: replay
+- tapOn:
+    id: next-step
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: stroke-canvas
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: coach-trace
+- assertVisible: 用手指照著筆順描一次
+- tapOn:
+    id: coach-trace
+- assertNotVisible:
+    id: coach-trace
+- runFlow: common/exit-flow.yaml
+# 從頭再開始一次：三則提示都不再出現
+- runFlow:
+    when:
+      visible:
+        id: restart-today
+    commands:
+      - tapOn:
+          id: restart-today
+- runFlow:
+    when:
+      notVisible:
+        id: restart-today
+    commands:
+      - tapOn:
+          id: start-today
+- assertVisible:
+    id: learn-kana
+- assertNotVisible:
+    id: coach-intro
+- tapOn:
+    id: next-step
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: learn-kana
+          commands:
+            - tapOn:
+                id: next-step
+      - assertVisible:
+          id: stroke-canvas
+- assertNotVisible:
+    id: coach-stroke
+- runFlow: common/exit-flow.yaml
+# ---- 5) 設定「重看教學」
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-replay-tour
+- tapOn:
+    id: row-replay-tour
+- assertVisible:
+    id: tour-page-1
+- tapOn:
+    id: tour-next
+- tapOn:
+    id: tour-next
+- tapOn:
+    id: tour-start
+# 重看完回到設定頁，不會進歡迎頁，進度與目標都還在
+- assertNotVisible: 從零開始學五十音
+- assertVisible:
+    id: row-replay-tour
+- tapOn:
+    id: tab-home
+- assertVisible: 開始今天的 5 分鐘
+# 提示氣泡重置：從頭再進學新字又看得到
+- runFlow:
+    when:
+      visible:
+        id: restart-today
+    commands:
+      - tapOn:
+          id: restart-today
+- runFlow:
+    when:
+      notVisible:
+        id: restart-today
+    commands:
+      - tapOn:
+          id: start-today
+- assertVisible:
+    id: coach-intro

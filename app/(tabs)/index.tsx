@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Icon, KanaText, PrimaryButton, Screen, StatCard } from '../../src/components';
+import { HomeHelpSheet, Icon, KanaText, PrimaryButton, Screen, StatCard } from '../../src/components';
 import { byId, scriptLabel } from '../../src/data';
 import { isGraduated } from '../../src/logic/graduate';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const graduateSeen = useSettingsStore((s) => s.graduateSeen);
 
   // 回到前景（切回分頁、練習結束返回）時重算「現在」，到期數與連續天數才會更新
+  const [helpOpen, setHelpOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   useFocusEffect(
     useCallback(() => {
@@ -84,9 +85,21 @@ export default function HomeScreen() {
         <Text testID="home-script" style={{ fontSize: 15, color: t.muted }}>
           {label}
         </Text>
-        <View style={styles.streak} testID="home-streak">
-          <Icon name="flame" size={18} color={t.accentText} />
-          <Text style={{ fontSize: 14, fontWeight: '700', color: t.accentText }}>{streak} 天</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.streak} testID="home-streak">
+            <Icon name="flame" size={18} color={t.accentText} />
+            <Text style={{ fontSize: 14, fontWeight: '700', color: t.accentText }}>{streak} 天</Text>
+          </View>
+          <Pressable
+            testID="home-help"
+            accessibilityRole="button"
+            accessibilityLabel="首頁說明"
+            onPress={() => setHelpOpen(true)}
+            hitSlop={8}
+            style={[styles.help, { borderColor: t.line, backgroundColor: t.surface }]}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '700', color: t.muted }}>?</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -187,6 +200,7 @@ export default function HomeScreen() {
           </Pressable>
         ) : null}
       </View>
+      <HomeHelpSheet visible={helpOpen} goalMinutes={goal} onClose={() => setHelpOpen(false)} />
     </Screen>
   );
 }
@@ -197,6 +211,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  help: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 24 },

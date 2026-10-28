@@ -264,6 +264,18 @@ export default function SettingsScreen() {
               </Text>
             </View>
             <Pressable
+              testID="row-replay-tour"
+              accessibilityRole="button"
+              onPress={() => {
+                useSettingsStore.getState().resetTutorial();
+                router.push('/tour');
+              }}
+              style={rowStyle}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>重看教學</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            <Pressable
               testID="row-next"
               accessibilityRole="button"
               onPress={() => router.push('/next')}

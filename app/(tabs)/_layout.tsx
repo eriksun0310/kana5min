@@ -1,6 +1,7 @@
 import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 import { TabBar, type TabItem } from '../../src/components';
+import { entryRoute } from '../../src/logic/tour';
 import { useSettingsStore } from '../../src/store';
 
 const ITEMS: TabItem[] = [
@@ -12,8 +13,11 @@ const ITEMS: TabItem[] = [
 
 export default function TabsLayout() {
   const onboarded = useSettingsStore((s) => s.onboarded);
-  // 還沒完成歡迎頁（選每日目標）就先導去 /welcome；設定已在根 layout 讀回，不會閃一下
-  if (!onboarded) return <Redirect href="/welcome" />;
+  const tourSeen = useSettingsStore((s) => s.tourSeen);
+  // 首次開啟先導去 /tour（3 頁導覽），再 /welcome（選每日目標）；設定已在根 layout 讀回，不會閃一下
+  const entry = entryRoute({ onboarded, tourSeen });
+  if (entry === 'tour') return <Redirect href="/tour" />;
+  if (entry === 'welcome') return <Redirect href="/welcome" />;
 
   return (
     <Tabs

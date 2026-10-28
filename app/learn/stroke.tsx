@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   BackHeader,
+  CoachTip,
   FlowHeader,
   Icon,
   PrimaryButton,
@@ -13,6 +14,7 @@ import { byId } from '../../src/data';
 import { strokesOf } from '../../src/data/strokes';
 import { useLearnSnapshot } from '../../src/hooks/useLearnSnapshot';
 import { confirmExitFlow } from '../../src/nav/exitToHome';
+import { useSettingsStore } from '../../src/store/settingsStore';
 import { useTheme } from '../../src/theme/useTheme';
 
 /** C2-06 學新字・筆順（standalone=1 時為詳情頁進來的單獨查看） */
@@ -22,6 +24,7 @@ export default function LearnStroke() {
   const snap = useLearnSnapshot();
   const { width } = useWindowDimensions();
   const [replayKey, setReplayKey] = useState(0);
+  const tipSeen = useSettingsStore((s) => s.learnTipsSeen.stroke);
   const kana = snap.kanaId ? byId(snap.kanaId) : undefined;
 
   if (!kana || (!snap.standalone && !snap.active)) return <Redirect href="/" />;
@@ -68,7 +71,15 @@ export default function LearnStroke() {
           <Text style={[styles.replayLabel, { color: t.text }]}>重播</Text>
         </Pressable>
       </View>
-      <View style={styles.flex} />
+      <View style={styles.flex}>
+        <CoachTip
+          visible={!tipSeen}
+          lines={['跟著動畫看筆順，可以重播']}
+          arrowAlign="right"
+          testID="coach-stroke"
+          onDismiss={() => useSettingsStore.getState().setLearnTipSeen('stroke')}
+        />
+      </View>
       <View style={styles.bottom}>
         {snap.standalone ? (
           <PrimaryButton testID="next-step" label="完成" onPress={() => router.back()} />

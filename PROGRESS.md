@@ -336,3 +336,10 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 
 已完成（2026-10-28）：App 圖示與啟動圖（`assets/images/`，紅底「あ」加「啊」對話框）、Google Play 512 圖示與 1024×500 主題圖（`store/graphics/`，已上傳並存草稿）、Apple 內購審查截圖換新、合併後全套 Maestro（15 個流程）通過。
 
+## 新手教學（2026-10-28）
+
+- 新增首次導覽 3 頁（`app/tour.tsx`）、學新字三則提示氣泡（`CoachTip`）、首頁「？」說明面板（`HomeHelpSheet`）、設定「重看教學」；旗標 `tourSeen`、`learnTipsSeen` 持久化，舊使用者遷移為已看過（純函式 `src/logic/tour.ts` 有單元測試）。細節見 spec 5.10、docs/architecture.md 第 14 節。
+- Maestro：`common/onboard.yaml`、`phase1-onboarding.yaml`、`phase6-timed-session.yaml`、`screenshots/phase1-capture.yaml` 加上略過導覽；新增 `phase7-tour.yaml`。
+- 假設：提示氣泡「離開畫面也算看過」；氣泡排在版面內而不是浮層，避免攔截點擊；重看教學結束後回到設定頁；「重看教學」放在「關於」區第二列（版本列之後）。
+- 環境備註：這台模擬器上的 Debug App 預設只連 localhost:8081 的 Metro，深連結指定其他埠不一定有效；8081 空著時直接用 8081 最穩。
+
