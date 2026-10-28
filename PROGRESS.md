@@ -223,7 +223,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 1. 上傳前先補齊「待確認事項」：App 圖示與啟動圖、壽司日檢 App Store 連結（`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`），以及導流頁的第三個賣點（`app/next.tsx`）。
 2. 安裝並登入 EAS CLI：
    ```bash
-   npm install -g eas-cli
+   pnpm add -g eas-cli
    ```
    ```bash
    eas login
@@ -246,7 +246,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 在本機確認 Release 版能正常運作（不需要帳號）：
 ```bash
-LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx expo run:ios --configuration Release
+LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Release
 ```
 
 ## 商店後台設定進度（2026-10-27）

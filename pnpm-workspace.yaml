@@ -1,0 +1,13 @@
+# pnpm 預設會擋 24 小時內剛發佈的套件版本。
+# 下列 4 個是 2026-10-27 發佈、npm 時期已鎖定使用的版本，過了冷卻期後可以刪掉這個例外。
+minimumReleaseAgeExclude:
+  - react-native-purchases
+  - "@revenuecat/purchases-js-hybrid-mappings"
+  - "@revenuecat/purchases-typescript-internal"
+  - node-forge
+
+# pnpm 11 預設不執行相依套件的 install script；這三個在 npm 時期會執行，維持一致。
+allowBuilds:
+  "@parcel/watcher": true
+  msedge-tts: true
+  unrs-resolver: true

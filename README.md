@@ -7,7 +7,7 @@
 3. 貼上下面這個指令，等它跑完。
 
 ```
-/goal 依照 CLAUDE.md 的工作方式，依序完成 goals/01～04：四份 goal 檔裡所有完成條件的核取方塊都已勾選為 [x]，每個階段都有對應的 git commit，最後一次執行 `npx tsc --noEmit` 沒有錯誤、`npm test` 全部通過、maestro/ 裡所有流程都跑通
+/goal 依照 CLAUDE.md 的工作方式，依序完成 goals/01～04：四份 goal 檔裡所有完成條件的核取方塊都已勾選為 [x]，每個階段都有對應的 git commit，最後一次執行 `pnpm typecheck` 沒有錯誤、`pnpm test` 全部通過、maestro/ 裡所有流程都跑通
 ```
 
 4. 跑完後看 `PROGRESS.md` 的「假設」與「待確認事項」，再依照最後的步驟用 EAS 打包上傳 TestFlight。

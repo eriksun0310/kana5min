@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "private": true,
+  "packageManager": "pnpm@11.28.2",
   "scripts": {
     "start": "expo start",
     "ios": "expo run:ios",
     "android": "expo run:android",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "build:ios": "npx eas-cli build --platform ios --profile production --local",
-    "build:android:aab": "npx eas-cli build --platform android --profile production --local",
-    "build:android:apk": "npx eas-cli build --platform android --profile production-apk --local",
+    "build:ios": "pnpm dlx eas-cli build --platform ios --profile production --local",
+    "build:android:aab": "pnpm dlx eas-cli build --platform android --profile production --local",
+    "build:android:apk": "pnpm dlx eas-cli build --platform android --profile production-apk --local",
     "prebuild": "expo prebuild"
   },
   "dependencies": {

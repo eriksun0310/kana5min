@@ -4,9 +4,9 @@
 > 版本號由 EAS 遠端管理（`eas.json` 的 `appVersionSource: "remote"` + `autoIncrement`），
 > **每次 production build 會自動遞增** iOS buildNumber／Android versionCode，不用手動改。
 >
-> 套件管理器：npm（`npm run <script>`）。
+> 套件管理器：pnpm（`pnpm <script>`）。裝套件用 `pnpm install`；Expo 相關套件用 `pnpm exec expo install <套件>`，讓版本對齊 SDK。
 > 前置：本機已裝 Xcode、CocoaPods、Android SDK（`ANDROID_HOME`）、JDK 17 以上。
-> EAS CLI 不用全域安裝，下面的 npm script 會透過 `npx` 執行（或自行 `npm i -g eas-cli`）。
+> EAS CLI 不用全域安裝，下面的 script 會透過 `pnpm dlx` 執行（或自行 `pnpm add -g eas-cli`）。
 >
 > 本專案沒有裝 `expo-updates`（沒有 OTA 熱更），也沒有 dev client；所有變更都要重新 build 上架。
 
@@ -15,11 +15,11 @@
 ## 🆕 第一次 build 前（只做一次）
 
 ```bash
-npx eas-cli login
+pnpm dlx eas-cli login
 ```
 
 ```bash
-npx eas-cli init
+pnpm dlx eas-cli init
 ```
 
 > `eas init` 會建立 EAS 專案，並把 `extra.eas.projectId` 寫進 `app.json`，記得 commit。
@@ -28,7 +28,7 @@ npx eas-cli init
 設定正式版用的公開 ID（只做一次；值不要寫進任何檔案或 commit）。`--local` build 不會讀專案的 `.env`，要放在 EAS 環境變數：
 
 ```bash
-npx eas-cli env:create --environment production --visibility plaintext --name EXPO_PUBLIC_RC_IOS_KEY --value <RevenueCat iOS 公開 key>
+pnpm dlx eas-cli env:create --environment production --visibility plaintext --name EXPO_PUBLIC_RC_IOS_KEY --value <RevenueCat iOS 公開 key>
 ```
 
 同樣方式再建 `EXPO_PUBLIC_RC_ANDROID_KEY`、`EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`。
@@ -40,7 +40,7 @@ npx eas-cli env:create --environment production --visibility plaintext --name EX
 - [ ] App 圖示（`assets/images/icon.png`、`android-icon-*.png`）已換成正式圖
 - [ ] `src/config.ts` 的壽司日檢商店連結已填
 - [ ] 上面四個 EAS 環境變數已設定
-- [ ] `npm run typecheck` 乾淨、`npm test` 全過
+- [ ] `pnpm typecheck` 乾淨、`pnpm test` 全過
 
 ---
 
@@ -53,7 +53,7 @@ npx eas-cli env:create --environment production --visibility plaintext --name EX
 ### 步驟 2：Build IPA（本機）
 
 ```bash
-npm run build:ios
+pnpm build:ios
 ```
 
 > 對應 `eas build --platform ios --profile production --local`。
@@ -64,7 +64,7 @@ npm run build:ios
 
 打開 **Transporter** App，拖入 `.ipa`，點「傳送」。
 
-> 或用指令：`npx eas-cli submit --platform ios --path ./build-*.ipa`
+> 或用指令：`pnpm dlx eas-cli submit --platform ios --path ./build-*.ipa`
 
 ### 步驟 4：TestFlight 測試／送審
 
@@ -83,7 +83,7 @@ npm run build:ios
 ### 步驟 2：Build AAB（本機）
 
 ```bash
-npm run build:android:aab
+pnpm build:android:aab
 ```
 
 > 對應 `eas build --platform android --profile production --local`（`buildType: app-bundle`）。
@@ -100,7 +100,7 @@ npm run build:android:aab
 5. **「儲存」→「審查版本」→「開始推出」**
 
 > ⚠️ Play 的**第一個版本必須在 Play Console 網頁手動上傳**，之後才能用指令：
-> `npx eas-cli submit --platform android --path ./build-*.aab`
+> `pnpm dlx eas-cli submit --platform android --path ./build-*.aab`
 > （用指令上傳需要 Google Service Account 金鑰，依 EAS CLI 提示設定；金鑰不要放進 repo。）
 
 ---
@@ -114,7 +114,7 @@ npm run build:android:aab
 ### 步驟 1：Build APK
 
 ```bash
-npm run build:android:apk
+pnpm build:android:apk
 ```
 
 > 對應 `production-apk` profile（`buildType: apk`、不遞增 versionCode）。
@@ -153,14 +153,14 @@ adb uninstall com.ptalk.kana5min
 ## 🧪 模擬器開發與測試
 
 ```bash
-npm start
+pnpm start
 ```
 
 ```bash
-npm run ios
+pnpm ios
 ```
 
-> `npm run ios` = `expo run:ios`，會編譯並裝到 iOS 模擬器。
+> `pnpm ios` = `expo run:ios`，會編譯並裝到 iOS 模擬器。
 > Maestro 流程：Metro 開著時跑 `maestro test maestro/`（詳見 `PROGRESS.md`）。
 > 啟動 Metro 前若 CocoaPods 報編碼錯誤，先 `export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8`。
 
@@ -186,14 +186,14 @@ rm -f build-*.ipa build-*.aab build-*.apk
 
 | 目的 | 指令 |
 |------|------|
-| iOS 上架（IPA） | `npm run build:ios` |
-| Android 上架（AAB） | `npm run build:android:aab` |
-| Android 實機測試（APK） | `npm run build:android:apk` |
-| iOS 上傳（指令版） | `npx eas-cli submit --platform ios --path ./build-*.ipa` |
-| 重新產生原生專案（改了 icon／splash／名稱／權限） | `npm run prebuild` |
-| 啟動開發 Metro | `npm start` |
-| 型別檢查／單元測試 | `npm run typecheck`／`npm test` |
+| iOS 上架（IPA） | `pnpm build:ios` |
+| Android 上架（AAB） | `pnpm build:android:aab` |
+| Android 實機測試（APK） | `pnpm build:android:apk` |
+| iOS 上傳（指令版） | `pnpm dlx eas-cli submit --platform ios --path ./build-*.ipa` |
+| 重新產生原生專案（改了 icon／splash／名稱／權限） | `pnpm prebuild` |
+| 啟動開發 Metro | `pnpm start` |
+| 型別檢查／單元測試 | `pnpm typecheck`／`pnpm test` |
 | 清舊 build 檔 | `rm -f build-*.ipa build-*.aab build-*.apk` |
 
 > `ios/`、`android/` 在 `.gitignore` 內，EAS build 會自己重新 prebuild，
-> 所以改了 icon、名稱等 native 設定後直接 build 就會生效；`npm run prebuild` 只影響本機模擬器用的原生專案。
+> 所以改了 icon、名稱等 native 設定後直接 build 就會生效；`pnpm prebuild` 只影響本機模擬器用的原生專案。

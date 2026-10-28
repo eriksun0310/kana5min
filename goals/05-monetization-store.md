@@ -60,5 +60,5 @@ iOS 在第一次要顯示廣告前，先顯示 UMP 同意表單，再請求 App 
 - [ ] iOS 與 Android 都能以 development build 編譯並在模擬器啟動，廣告顯示測試廣告
 - [ ] `maestro/phase5-*.yaml` 涵蓋：未購買時看到預告卡片並進入買斷頁、結果頁出現橫幅廣告，全部跑通
 - [ ] 第一到第四階段的 Maestro 流程仍然全部跑通
-- [ ] `npx tsc --noEmit` 沒有錯誤，`npm test` 全部通過
+- [ ] `pnpm typecheck` 沒有錯誤，`pnpm test` 全部通過
 - [ ] PROGRESS.md 列出開發者需要到 RevenueCat、AdMob、App Store Connect、Google Play Console 手動完成的步驟清單，並 commit

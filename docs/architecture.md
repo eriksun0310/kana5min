@@ -4,7 +4,7 @@ CLAUDE.md、spec.md、goals/ 是上位規則；這份檔案補上它們沒寫、
 
 ## 1. 專案與工具
 
-- Expo SDK 58（`expo ~58.0.19`）、React Native 0.88、React 19.3、TypeScript ~6.0、npm。用 `npx expo install` 安裝 Expo 相關套件，讓版本對齊 SDK。
+- Expo SDK 58（`expo ~58.0.19`）、React Native 0.88、React 19.3、TypeScript ~6.0、pnpm（`.npmrc` 設 `node-linker=hoisted`）。用 `pnpm exec expo install` 安裝 Expo 相關套件，讓版本對齊 SDK。
 - 導覽：expo-router。`app/(tabs)/` 放四個分頁（`index` 今天、`chart` 五十音表、`practice` 練習、`settings` 設定），自訂底部導覽列元件（照設計檔，不用預設 tab bar 外觀）。全螢幕流程放 `app/` 底下的 stack 路由，不顯示導覽列。
 - URL scheme：`kana5min`。
 - 狀態：zustand。設定與一般狀態（每日目標、主題、是否已完成歡迎頁、練習日期清單、畢業是否看過）用 zustand `persist` + AsyncStorage。每個假名的 SRS 進度與易混淆字答錯紀錄用 expo-sqlite。
@@ -12,7 +12,7 @@ CLAUDE.md、spec.md、goals/ 是上位規則；這份檔案補上它們沒寫、
 - 字型：`@expo-google-fonts/klee-one` 的 `KleeOne_600SemiBold`，載入完成前顯示啟動畫面。介面文字用系統字型。
 - 圖示：react-native-svg，統一放在 `src/components/Icon.tsx`，路徑直接取自設計檔（見第 7 節），stroke 1 色、`strokeWidth 2`、圓角線頭。畫面上不用 emoji。
 - 提醒：expo-notifications，本機每日排程通知。
-- 測試：jest-expo（`npm test` 跑 `jest`）。業務邏輯寫成不依賴 React Native 的純函式，放 `src/logic/`，測試放 `src/logic/__tests__/`。
+- 測試：jest-expo（`pnpm test` 跑 `jest`）。業務邏輯寫成不依賴 React Native 的純函式，放 `src/logic/`，測試放 `src/logic/__tests__/`。
 
 ## 2. 目錄
 

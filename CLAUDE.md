@@ -21,7 +21,7 @@
 
 ## 技術選擇（已決定）
 
-框架為 Expo SDK（使用目前穩定版）、React Native、TypeScript，套件管理用 npm。狀態管理用 Zustand；設定與一般狀態用 AsyncStorage 保存；學習進度（每個假名的 SRS 資料）用 expo-sqlite 保存。不需要後端，也不要加入任何帳號、追蹤或分析 SDK。
+框架為 Expo SDK（使用目前穩定版）、React Native、TypeScript，套件管理用 pnpm（`.npmrc` 設 `node-linker=hoisted`，React Native 需要）。狀態管理用 Zustand；設定與一般狀態用 AsyncStorage 保存；學習進度（每個假名的 SRS 資料）用 expo-sqlite 保存。不需要後端，也不要加入任何帳號、追蹤或分析 SDK。
 
 Bundle identifier 先用 `com.ptalk.kana5min`，App 名稱用「Kana 5min - 五十音入門」，兩者都記在 `PROGRESS.md` 的待確認事項。
 
@@ -49,7 +49,7 @@ App 內所有播放都經過同一個 `playKana(id, { slow })` 函式，用 expo
 
 ## 模擬器與截圖
 
-在 Mac 上用 Xcode 的 iOS 模擬器（iPhone 15 或相近尺寸）。用 `npx expo run:ios` 或 development build 安裝 App。Maestro 若尚未安裝，依官方說明安裝。截圖可以用 Maestro 的 `takeScreenshot`，或 `xcrun simctl io booted screenshot <path>`。
+在 Mac 上用 Xcode 的 iOS 模擬器（iPhone 15 或相近尺寸）。用 `pnpm exec expo run:ios`（或 `pnpm ios`） 或 development build 安裝 App。Maestro 若尚未安裝，依官方說明安裝。截圖可以用 Maestro 的 `takeScreenshot`，或 `xcrun simctl io booted screenshot <path>`。
 
 截圖比對只需要抓明顯問題：排版跑掉、文字被切掉、元件缺少、主題顏色錯誤、畫面結構與設計檔明顯不同。字距等細微差異不用反覆修。
 
