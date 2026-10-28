@@ -6,6 +6,7 @@ import { useSettingsStore } from '../store/settingsStore';
 import { useTheme } from '../theme/useTheme';
 import { Card } from './Card';
 import { Icon } from './Icon';
+import { PunShareButton } from './PunShareButton';
 import { PunUnlockSheet } from './PunUnlockSheet';
 
 export interface PunCardProps {
@@ -36,7 +37,10 @@ export function PunCard({ kanaId, style, compact }: PunCardProps) {
   if (open) {
     return (
       <Card testID="pun-card" style={[compact && styles.cardCompact, style]}>
-        <Text style={[styles.title, { color: t.accentText }]}>好笑記法</Text>
+        <View style={styles.head}>
+          <Text style={[styles.title, { color: t.accentText }]}>好笑記法</Text>
+          <PunShareButton kanaId={kanaId} />
+        </View>
         <Text style={[styles.body, { color: t.text }]}>{pun}</Text>
         <Text style={[styles.note, { color: t.muted }, compact && { marginTop: 4 }]}>
           諧音只是幫你記，念法以音檔為準

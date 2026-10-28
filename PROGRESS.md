@@ -311,3 +311,13 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
   - 結果頁「用時」改為實際練習時間（暫停不算）。測驗畫面右上新增「第幾題/總題數」，方便確認接續位置（截圖會與舊版不同）。
   - ✕ 對話框改為「要先離開嗎？／先離開」，maestro/common/exit-flow.yaml 與 phase3-unlock 同步更新。
 
+
+## 諧音梗分享卡與詳情頁對照（2026-10-28）
+- **F5 分享卡**（spec 6.4 已寫入樣式與分享方式）：`src/logic/shareCard.ts` 組資料（亮／暗 token、片假名替換沿用 `punFor`、依第一個對應假名切出強調片段），`ShareCard` 元件以 360pt 設計稿渲染，`PunShareButton` 畫面外渲染 → `react-native-view-shot` 輸出 1080×1080 PNG → `expo-sharing` 開系統分享面板。入口在已解鎖的 PunCard 右上（詳情頁與 F4 總覽共用，testID `pun-share`）；鎖住或沒有諧音句的字沒有。新增 Icon `share`。
+- 新增套件（`expo install`）：`react-native-view-shot` 6.1.1、`expo-sharing` 58.0.20（app.json 自動加入 `expo-sharing` plugin）。沒有動到 minimumReleaseAgeExclude（版本已過冷卻期）。原生套件，Debug build 需重新編譯。
+- 開發用 `kana5min://share-preview?id=h-ku`（只在 `__DEV__`）直接顯示分享卡，截圖存在 `screenshots/phase5/F5-share-card-{light,dark,kata-light}.png`、`F5-share-sheet.png`。
+- Maestro：`maestro/phase5-share.yaml`（分享圖示 → 系統分享面板 → 關閉、鎖住的字沒有圖示、總覽有圖示、預覽截圖、對照あ→ア→あ）在 iPhone 16 通過。
+- **詳情頁「對照」**：`src/logic/counterpart.ts` 以同 kind＋同 romaji 找對應字，ぢ／づ（與じ／ず同 romaji）改用片假名的 `hiraganaId` 欄位精確對應；按鈕在大字下方（testID `detail-compare`），`router.replace` 切換，不動每日流程與 SRS。
+- 假設：分享卡句子保留 emoji；強調字為句中第一個對應假名（含片假名版）；輸出圖在 360pt 設計稿上放大成 1080px；分享失敗時只跳 Alert。
+- 環境備註：Mac 預設 locale 會讓 `pod install` 因 Unicode 編碼錯誤失敗，需要 `LANG=en_US.UTF-8`。
+- 未解決：沒有在實機驗證 view-shot 離螢幕擷取（模擬器的分享面板縮圖正確顯示卡片）。

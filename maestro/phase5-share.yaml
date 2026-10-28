@@ -1,0 +1,125 @@
+# 諧音梗分享卡（F5）：已解鎖的字詳情有分享圖示 → 點了跳出系統分享面板；鎖住的字沒有；
+# 分享卡預覽（dev 深連結）亮暗各截一張；詳情頁「對照」あ ↔ ア 來回切換。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: all-done
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: cell-h-ku
+- assertVisible:
+    id: pun-share
+- tapOn:
+    id: pun-share
+# 系統分享面板（iOS 的分享面板一定有「拷貝」與「儲存到檔案」其一）
+- extendedWaitUntil:
+    visible: "(拷貝|Copy|儲存到「檔案」|Save to Files)"
+    timeout: 15000
+- takeScreenshot: F5-share-sheet
+# 點分享面板右上角的關閉鈕
+- tapOn:
+    point: 93%,76%
+- assertVisible:
+    id: detail-char
+- tapOn:
+    id: back
+# 鎖住的字（さ）沒有分享圖示
+- tapOn:
+    id: cell-h-sa
+- assertVisible:
+    id: pun-locked
+- assertNotVisible:
+    id: pun-share
+- tapOn:
+    id: back
+# 總覽頁：已解鎖格展開的卡片也有分享圖示
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-puns
+- tapOn:
+    id: puns-cell-ku
+- assertVisible:
+    id: pun-share
+- tapOn:
+    id: back
+# 分享卡預覽截圖（亮、暗；片假名版）
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-light
+- openLink: kana5min://share-preview?id=h-ku
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
+- assertVisible:
+    id: share-card
+- waitForAnimationToEnd
+- takeScreenshot: F5-share-card-light
+- openLink: kana5min://share-preview?id=k-ku
+- assertVisible: ク
+- waitForAnimationToEnd
+- takeScreenshot: F5-share-card-kata-light
+- openLink: kana5min://debug?preset=pun-reset
+- extendedWaitUntil:
+    visible:
+      id: tab-settings
+    timeout: 15000
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-dark
+- openLink: kana5min://share-preview?id=h-ku
+- assertVisible:
+    id: share-card
+- waitForAnimationToEnd
+- takeScreenshot: F5-share-card-dark
+- openLink: kana5min://debug?preset=pun-reset
+- extendedWaitUntil:
+    visible:
+      id: tab-settings
+    timeout: 15000
+- tapOn:
+    id: tab-settings
+- tapOn:
+    id: theme-system
+
+# ---- 對照：あ → ア → あ ----
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: cell-h-a
+- assertVisible:
+    id: detail-compare
+- assertVisible:
+    id: detail-char
+- takeScreenshot: D-compare-hira
+- tapOn:
+    id: detail-compare
+- assertVisible: ア
+- takeScreenshot: D-compare-kata
+- tapOn:
+    id: detail-compare
+- assertVisible: あ
+- tapOn:
+    id: back
+- assertVisible:
+    id: cell-h-a
