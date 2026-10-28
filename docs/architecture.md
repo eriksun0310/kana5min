@@ -186,7 +186,7 @@ screenshots/phaseN/      截圖
 - `app/puns.tsx`（F4 總覽）：清音 46 格照五十音表排法（沿用 `seionGrid`），上方切換平假名／片假名（片假名未解鎖時只顯示平假名）。每格顯示假名與狀態（已解鎖：accent 點；未解鎖：鎖頭；沒有諧音：淡色「—」）。點已解鎖格 → 下方展開顯示 PunCard；點未解鎖格 → 解鎖面板。testID `puns-cell-<sound>`。
 - 設定頁新增「好笑記憶包」區：「好笑記法總覽」（testID `row-puns`）、未購買時「買斷好笑記憶包」（testID `row-punpack`）、「恢復購買」（testID `row-restore`）。
 - 片假名開始畫面（C2-18）：未購買且 `punPromptKataShown` 為 false 時，主按鈕下方顯示一行文字連結「片假名也有諧音梗：好笑記憶包」（testID `kata-punpack-link`）→ `/punpack`，顯示後設 `punPromptKataShown = true`。
-- F5 分享卡本次不做（記在 PROGRESS 待確認）。
+- F5 分享卡（spec 6.4）：`src/logic/shareCard.ts` 的 `buildShareCard(kanaId, theme)` 組資料（大字、讀音、依第一個對應假名切成一般／強調片段、App 名稱、取自 token 的 bg／text／muted／accent）；`src/components/ShareCard.tsx` 以 360pt 設計稿渲染；`PunShareButton` 放在已解鎖 PunCard 右上（testID `pun-share`），畫面外渲染 ShareCard → `react-native-view-shot` 輸出 1080×1080 PNG（tmpfile）→ `expo-sharing` 開系統分享面板。開發用深連結 `kana5min://share-preview?id=h-ku` 把分享卡直接顯示在螢幕上（`app/share-preview.tsx`，只在 `__DEV__`）。
 
 ### 開發與測試
 - 除錯預設（只在 `__DEV__`）新增 `pun-reset`（清空 punUnlocked／punAdsWatched／兩個 prompt 旗標，punPackPurchased=false）與 `pun-purchased`（punPackPurchased=true），除錯選單加對應按鈕。

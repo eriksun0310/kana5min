@@ -19,7 +19,8 @@ export type IconName =
   | 'close'
   | 'replay'
   | 'check'
-  | 'lock';
+  | 'lock'
+  | 'share';
 
 const SPEAKER_BODY = 'M4 9v6h4l5 4V5L8 9z';
 
@@ -94,6 +95,13 @@ function glyph(name: IconName): React.ReactNode {
         <>
           <Rect x={5} y={11} width={14} height={10} rx={2} />
           <Path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </>
+      );
+    case 'share':
+      return (
+        <>
+          <Path d="M12 15V3M8 7l4-4 4 4" />
+          <Path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
         </>
       );
   }

@@ -10,3 +10,5 @@ export { StatCard, type StatCardProps } from './StatCard';
 export { TianGrid, type TianGridProps } from './TianGrid';
 export { PunCard, type PunCardProps } from './PunCard';
 export { PunUnlockSheet, type PunUnlockSheetProps } from './PunUnlockSheet';
+export { ShareCard, SHARE_CARD_SIZE, type ShareCardProps } from './ShareCard';
+export { PunShareButton } from './PunShareButton';
