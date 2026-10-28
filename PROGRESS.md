@@ -329,7 +329,7 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 
 ## 開發者待辦清單（只列還沒做的，依優先順序；2026-10-28 更新）
 
-1. **設定 EAS 環境變數 `EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`**（RevenueCat 專案 `81be02cb` → API keys 的公開 SDK key；用 `eas env:create production --name … --value … --visibility plaintext`，key 由開發者自己貼）。AdMob 的兩個獎勵廣告 ID（`EXPO_PUBLIC_ADMOB_REWARDED_IOS`／`ANDROID`）已於 2026-10-28 設好（production 環境）。
+1. ✅ EAS 環境變數已於 2026-10-28 全部設好（production 環境）：`EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`（開發者自己貼入真的 key）、`EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`。
 2. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
 3. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
 4. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
