@@ -5,8 +5,15 @@ appId: com.ptalk.kana5min
 ---
 - launchApp
 - extendedWaitUntil:
-    visible: "(今天|從零開始學五十音)"
+    visible: "(今天|從零開始學五十音|略過)"
     timeout: 60000
+- runFlow:
+    when:
+      visible:
+        id: tour-skip
+    commands:
+      - tapOn:
+          id: tour-skip
 - runFlow:
     when:
       visible: 從零開始學五十音

@@ -1,4 +1,5 @@
 import { useProgressStore } from '../store/progressStore';
+import { allLearnTipsSeen } from '../logic/tour';
 import { useSettingsStore } from '../store/settingsStore';
 import {
   isDebugPunPreset,
@@ -19,6 +20,8 @@ export async function applyDebugPreset(
   now = Date.now(),
   options: { due?: boolean } = {},
 ): Promise<void> {
+  // 開發用預設一律視為已看過教學，避免導覽與提示氣泡擋住測試
+  useSettingsStore.setState({ tourSeen: true, learnTipsSeen: allLearnTipsSeen() });
   // 好笑記憶包預設只改設定，不動進度
   if (isDebugPunPreset(preset)) {
     useSettingsStore.setState(punPresetSettings(preset));

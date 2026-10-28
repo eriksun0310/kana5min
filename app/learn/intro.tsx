@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
 import {
   Card,
+  CoachTip,
   FlowHeader,
   Icon,
   KanaText,
@@ -37,6 +38,21 @@ export default function LearnIntro() {
 interface IntroProps {
   kana: Kana;
   snap: LearnSnapshot;
+}
+
+const INTRO_TIP_LINES = ['按喇叭聽發音，旁邊的慢速可以放慢', '拼音會慢慢消失，這樣你記的是字，不是拼音'];
+
+/** 看與聽第一次的提示氣泡（指向喇叭）；點一下或離開畫面後不再出現 */
+function IntroTip() {
+  const seen = useSettingsStore((s) => s.learnTipsSeen.intro);
+  return (
+    <CoachTip
+      visible={!seen}
+      lines={INTRO_TIP_LINES}
+      testID="coach-intro"
+      onDismiss={() => useSettingsStore.getState().setLearnTipSeen('intro')}
+    />
+  );
 }
 
 /** 進畫面自動播放一次 */
@@ -88,6 +104,7 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
             <Icon name="speaker" size={34} color={t.text} />
           </Pressable>
         </View>
+        <IntroTip />
       </View>
       <PunCard kanaId={kana.id} style={styles.pun} />
       <View style={styles.bottom}>
@@ -149,6 +166,7 @@ function KataIntro({ kana, snap }: IntroProps) {
             <Icon name="speaker" size={30} color={t.text} />
           </Pressable>
         </View>
+        <IntroTip />
       </View>
       {hira || kana.diffNote ? (
         <View style={kataStyles.cardWrapTop}>

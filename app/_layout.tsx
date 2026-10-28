@@ -61,6 +61,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.bg } }}>
         {/* 歡迎頁是從 (tabs) 的 Redirect 導過來的，不要有推入動畫，否則啟動時會看到畫面從右邊滑進來 */}
         <Stack.Screen name="welcome" options={{ animation: 'none', gestureEnabled: false }} />
+        <Stack.Screen name="tour" options={{ animation: 'fade', gestureEnabled: false }} />
       </Stack>
     </View>
   );

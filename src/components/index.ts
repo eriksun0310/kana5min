@@ -12,3 +12,5 @@ export { PunCard, type PunCardProps } from './PunCard';
 export { PunUnlockSheet, type PunUnlockSheetProps } from './PunUnlockSheet';
 export { ShareCard, SHARE_CARD_SIZE, type ShareCardProps } from './ShareCard';
 export { PunShareButton } from './PunShareButton';
+export { CoachTip, type CoachTipProps } from './CoachTip';
+export { HomeHelpSheet, type HomeHelpSheetProps } from './HomeHelpSheet';

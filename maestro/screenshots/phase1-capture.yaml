@@ -11,6 +11,8 @@ tags:
 - evalScript: ${output.seeN = 0; output.hearN = 0}
 - launchApp:
     clearState: true
+- tapOn:
+    id: tour-skip
 - assertVisible: 從零開始學五十音
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/phase1/C2-01-Welcome-${THEME}

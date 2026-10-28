@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Settings } from '../data/types';
 import { addPracticeDate } from '../logic/progressStats';
+import { migrateTourFlags, noLearnTipsSeen, type LearnTipKey, type LearnTipsSeen } from '../logic/tour';
 
 export interface SettingsState extends Settings {
   /** 是否已完成歡迎頁（選過每日目標） */
@@ -21,6 +22,12 @@ export interface SettingsState extends Settings {
   punPromptAfterAdsShown: boolean;
   /** 片假名開始畫面的買斷連結是否已出現過 */
   punPromptKataShown: boolean;
+  // ---- 新手教學 ----
+  /** 首次導覽（3 頁）是否看過或略過 */
+  tourSeen: boolean;
+  /** 學新字第一次的提示氣泡是否看過（看與聽、筆順、描寫各一則） */
+  learnTipsSeen: LearnTipsSeen;
+  // ---- /新手教學 ----
 
   setTheme: (theme: Settings['theme']) => void;
   setDailyGoalMinutes: (m: Settings['dailyGoalMinutes']) => void;
@@ -37,6 +44,12 @@ export interface SettingsState extends Settings {
   addPunAdWatched: () => number;
   setPunPromptAfterAdsShown: (shown: boolean) => void;
   setPunPromptKataShown: (shown: boolean) => void;
+  // ---- 新手教學 ----
+  setTourSeen: (seen: boolean) => void;
+  setLearnTipSeen: (key: LearnTipKey, seen?: boolean) => void;
+  /** 設定「重看教學」：導覽與三則提示都重來 */
+  resetTutorial: () => void;
+  // ---- /新手教學 ----
   /** 記錄今天有練習 */
   markPracticed: (now: number) => void;
   /** 回到預設值（除錯用） */
@@ -52,6 +65,8 @@ export const defaultSettings: Settings & {
   punAdsWatched: number;
   punPromptAfterAdsShown: boolean;
   punPromptKataShown: boolean;
+  tourSeen: boolean;
+  learnTipsSeen: LearnTipsSeen;
 } = {
   theme: 'system',
   dailyGoalMinutes: 5,
@@ -67,6 +82,8 @@ export const defaultSettings: Settings & {
   punAdsWatched: 0,
   punPromptAfterAdsShown: false,
   punPromptKataShown: false,
+  tourSeen: false,
+  learnTipsSeen: noLearnTipsSeen(),
 };
 
 export const SETTINGS_STORAGE_KEY = 'kana5min-settings';
@@ -93,15 +110,22 @@ export const useSettingsStore = create<SettingsState>()(
       },
       setPunPromptAfterAdsShown: (punPromptAfterAdsShown) => set({ punPromptAfterAdsShown }),
       setPunPromptKataShown: (punPromptKataShown) => set({ punPromptKataShown }),
+      setTourSeen: (tourSeen) => set({ tourSeen }),
+      setLearnTipSeen: (key, seen = true) =>
+        set((s) => ({ learnTipsSeen: { ...s.learnTipsSeen, [key]: seen } })),
+      resetTutorial: () => set({ tourSeen: false, learnTipsSeen: noLearnTipsSeen() }),
       markPracticed: (now) => set((s) => ({ practiceDates: addPracticeDate(s.practiceDates, now) })),
-      resetSettings: () => set({ ...defaultSettings, punUnlocked: [] }),
+      resetSettings: () =>
+        set({ ...defaultSettings, punUnlocked: [], learnTipsSeen: noLearnTipsSeen() }),
     }),
     {
       name: SETTINGS_STORAGE_KEY,
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
       // v2 新增好笑記憶包欄位：舊資料補預設值（punPackPurchased 沿用已存的值）
-      migrate: (persisted) => ({ ...defaultSettings, ...((persisted as object) ?? {}) }) as SettingsState,
+      // v3 新增新手教學旗標：老使用者（已完成歡迎頁）視為都看過，見 migrateTourFlags
+      migrate: (persisted) =>
+        ({ ...defaultSettings, ...((persisted as object) ?? {}), ...migrateTourFlags(persisted) }) as SettingsState,
     },
   ),
 );

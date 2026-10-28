@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   BackHeader,
+  CoachTip,
   FlowHeader,
   PrimaryButton,
   Screen,
@@ -15,6 +16,7 @@ import { useLearnSnapshot } from '../../src/hooks/useLearnSnapshot';
 import { evaluateTrace, type Stroke } from '../../src/logic/trace';
 import { confirmExitFlow } from '../../src/nav/exitToHome';
 import { useSessionStore } from '../../src/store/sessionStore';
+import { useSettingsStore } from '../../src/store/settingsStore';
 import { useTheme } from '../../src/theme/useTheme';
 
 /** 每個新字要描幾次 */
@@ -27,6 +29,7 @@ export default function LearnTrace() {
   const snap = useLearnSnapshot();
   const { width } = useWindowDimensions();
   const kana = snap.kanaId ? byId(snap.kanaId) : undefined;
+  const tipSeen = useSettingsStore((s) => s.learnTipsSeen.trace);
 
   const [attempt, setAttempt] = useState(1);
   const [canvasKey, setCanvasKey] = useState(0);
@@ -103,6 +106,12 @@ export default function LearnTrace() {
         />
       </View>
       <View style={styles.hintBox}>
+        <CoachTip
+          visible={!tipSeen}
+          lines={['用手指照著筆順描一次']}
+          testID="coach-trace"
+          onDismiss={() => useSettingsStore.getState().setLearnTipSeen('trace')}
+        />
         {hint ? (
           <Text testID="trace-hint" style={[styles.hint, { color: t.accentText }]}>
             再照著淡色的字描描看

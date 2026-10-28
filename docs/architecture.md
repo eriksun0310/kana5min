@@ -206,3 +206,10 @@ screenshots/phaseN/      截圖
 - **測試用**：debug 深連結 `kana5min://debug?preset=all-done&due=1&timescale=0.001`：`due=1` 讓全部進度到期（只有複習題）、`timescale` 縮放每日目標與「再練 5 分鐘」（`timeConfig.scale`，只有開發版會設）。Maestro：`maestro/phase6-timed-session.yaml`。
 - 本機驗證用的 Debug build 不是 dev client：改 Metro 位置要 `xcrun simctl spawn <udid> defaults write com.ptalk.kana5min RCT_jsLocation localhost:<port>`。
 
+## 14. 新手教學（2026-10-28）
+
+- 路由：`app/tour.tsx`（3 頁 ScrollView pagingEnabled，testID `tour-page-1..3`／`tour-next`／`tour-skip`／`tour-start`）。`app/(tabs)/_layout.tsx` 用純函式 `entryRoute({onboarded, tourSeen})`（`src/logic/tour.ts`）決定導去 `/tour`、`/welcome` 或留在首頁。已完成歡迎頁（`onboarded`）時進導覽視為「重看」：結束或略過後 `router.back()`，不進歡迎頁。
+- 設定旗標（settingsStore 內「新手教學」區塊）：`tourSeen`、`learnTipsSeen {intro, stroke, trace}`；方法 `setTourSeen`、`setLearnTipSeen(key)`、`resetTutorial()`。persist version 3，`migrate` 呼叫 `migrateTourFlags`：沒有新欄位且 `onboarded=true` 的舊資料兩者都設為已看過。
+- `CoachTip`（`src/components/CoachTip.tsx`）：反色氣泡＋朝上箭頭，排在版面流程內（不是浮層），Pressable 設 `accessible={false}` 讓文字可被 Maestro 讀到；卸載時也會呼叫 `onDismiss`。testID `coach-intro`／`coach-stroke`／`coach-trace`。
+- `HomeHelpSheet`（`src/components/HomeHelpSheet.tsx`）：Modal 底部面板，內容 `homeHelpItems(goal)`；testID `home-help`（首頁按鈕）、`home-help-sheet`、`home-help-close`、`home-help-backdrop`。設定頁列 `row-replay-tour`。
+- 開發深連結預設（`applyDebugPreset`）一律把 `tourSeen` 與三個提示設為已看過。Maestro：`common/onboard.yaml` 清除狀態後先點 `tour-skip`；`maestro/phase7-tour.yaml` 測導覽、說明面板、提示氣泡與重看教學。

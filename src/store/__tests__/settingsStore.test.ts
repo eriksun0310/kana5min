@@ -27,6 +27,8 @@ describe('settingsStore（設定保存）', () => {
     expect(s.punAdsWatched).toBe(0);
     expect(s.punPromptAfterAdsShown).toBe(false);
     expect(s.punPromptKataShown).toBe(false);
+    expect(s.tourSeen).toBe(false);
+    expect(s.learnTipsSeen).toEqual({ intro: false, stroke: false, trace: false });
   });
 
   it('好笑記憶包：解鎖不重複、看廣告計數、旗標寫進 AsyncStorage，resetSettings 清空', async () => {
@@ -113,5 +115,33 @@ describe('settingsStore（設定保存）', () => {
     expect(s.onboarded).toBe(true);
     expect(s.theme).toBe('light');
     expect(typeof s.setTheme).toBe('function'); // action 沒有被覆蓋掉
+  });
+
+  it('新手教學旗標：設定後寫進 AsyncStorage，resetTutorial 與 resetSettings 還原', async () => {
+    const st = useSettingsStore.getState();
+    st.setTourSeen(true);
+    st.setLearnTipSeen('intro');
+    st.setLearnTipSeen('trace');
+    const saved = JSON.parse((await AsyncStorage.getItem(SETTINGS_STORAGE_KEY)) as string).state;
+    expect(saved.tourSeen).toBe(true);
+    expect(saved.learnTipsSeen).toEqual({ intro: true, stroke: false, trace: true });
+    useSettingsStore.getState().resetTutorial();
+    expect(useSettingsStore.getState().tourSeen).toBe(false);
+    expect(useSettingsStore.getState().learnTipsSeen).toEqual({ intro: false, stroke: false, trace: false });
+    useSettingsStore.getState().setLearnTipSeen('stroke');
+    useSettingsStore.getState().resetSettings();
+    expect(useSettingsStore.getState().learnTipsSeen.stroke).toBe(false);
+  });
+
+  it('舊版（version 2）已完成歡迎頁的資料 rehydrate 後：導覽與提示都視為看過', async () => {
+    await AsyncStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({ state: { onboarded: true, dailyGoalMinutes: 10 }, version: 2 }),
+    );
+    await useSettingsStore.persist.rehydrate();
+    const s = useSettingsStore.getState();
+    expect(s.dailyGoalMinutes).toBe(10);
+    expect(s.tourSeen).toBe(true);
+    expect(s.learnTipsSeen).toEqual({ intro: true, stroke: true, trace: true });
   });
 });

@@ -3,6 +3,8 @@ appId: com.ptalk.kana5min
 ---
 - launchApp:
     clearState: true
+- tapOn:
+    id: tour-skip
 - assertVisible: 從零開始學五十音
 - assertVisible: 每天想練多久？
 - assertVisible: 3 分鐘.*
