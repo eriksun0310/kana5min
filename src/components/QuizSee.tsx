@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
+import { pressSeeOption } from '../logic/quizSee';
 import { shouldShowRomaji } from '../logic/romaji';
 import type { QuizQuestion } from '../logic/session';
 import { useProgressStore } from '../store/progressStore';
@@ -22,8 +23,8 @@ export interface QuizSeeProps {
 
 /**
  * 看字選音（C2-08）。
- * 互動：第一次點某個選項＝播放該聲音並暫選（標「已聽」，邊框改主色）；
- * 再點同一個選項，或按底部「選這個」，才確定作答。確定後顯示答案與各選項的羅馬拼音。
+ * 互動：點某個選項＝播放該聲音並暫選（標「已聽」，邊框改主色），再點同一個選項只會重播，
+ * 不會確定作答；只有按底部「選這個」才確定。確定後顯示答案與各選項的羅馬拼音。
  */
 export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) {
   const t = useTheme();
@@ -47,14 +48,10 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
   };
 
   const press = (index: number) => {
-    if (answered) return;
-    if (selected === index) {
-      confirm(index);
-      return;
-    }
-    playKana(question.options[index], { slow });
-    setSelected(index);
-    setHeard((h) => (h.includes(index) ? h : [...h, index]));
+    const next = pressSeeOption({ selected, heard }, index, answered);
+    if (next.play) playKana(question.options[index], { slow });
+    setSelected(next.selected);
+    setHeard(next.heard);
   };
 
   const optionView = (id: string, index: number) => {
