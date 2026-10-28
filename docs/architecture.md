@@ -179,7 +179,7 @@ screenshots/phaseN/      截圖
 - `initPurchases()`（App 啟動時呼叫；成功後讀 customerInfo 同步 `punPackPurchased`）、`getPunPackPrice(): Promise<string | null>`（商店在地化價格字串，失敗回傳 null，畫面 fallback「NT$90」）、`buyPunPack(): Promise<'purchased' | 'cancelled' | 'error' | 'unavailable'>`、`restorePunPack(): Promise<'restored' | 'none' | 'error' | 'unavailable'>`。購買或恢復成功即寫 `punPackPurchased = true`。
 
 ### 畫面（沒有設計檔，沿用現有 token、Card、PrimaryButton、Icon 的樣式；不放 emoji，圖示用單線條 SVG）
-- `src/components/PunCard.tsx`（F1／F2）：輸入 kanaId。沒有諧音 → 不渲染。已解鎖 → Card：標題「好笑記法」（accentText）、句子、下方小字「諧音幫你記，發音還是聽音檔」（muted）。未解鎖 → Card：標題同上、3 條灰色圓角條（假裝模糊文字）、鎖頭圖示、按鈕「解鎖諧音」，testID `pun-locked`，點擊開解鎖面板。已解鎖卡片 testID `pun-card`。
+- `src/components/PunCard.tsx`（F1／F2）：輸入 kanaId。沒有諧音 → 不渲染。已解鎖 → Card：標題「好笑記法」（accentText）、句子、下方小字「諧音只是幫你記，念法以音檔為準」（muted）。未解鎖 → Card：標題同上、3 條灰色圓角條（假裝模糊文字）、鎖頭圖示、按鈕「解鎖諧音」，testID `pun-locked`，點擊開解鎖面板。已解鎖卡片 testID `pun-card`。
 - `src/components/PunUnlockSheet.tsx`：底部 Modal。標題「解鎖諧音梗」。主按鈕「看廣告解鎖 3 個字」（testID `pun-watch-ad`），下方小字列出這次會解鎖的字（例如「さ・し・す」，依目前畫面的 script 顯示平假名或片假名）。次按鈕「{價格} 全部解鎖・永久免廣告」（testID `pun-buy`）→ 關面板並 `router.push('/punpack')`。關閉 testID `pun-sheet-close`。看廣告時顯示載入中；unavailable 顯示「廣告暫時無法載入，請稍後再試」。rewarded → 解鎖 batch、`punAdsWatched + 1`；若 `shouldPromptPurchase` 為真，設 `punPromptAfterAdsShown = true` 並 `router.push('/punpack?from=ads')`。
 - 出現位置：平假名與片假名學新字第一步（取代原本的「記憶小提示」卡）、五十音表字詳情頁（C2-04）。
 - `app/punpack.tsx`（F3 買斷頁）：右上關閉（testID `punpack-close`）。`from=ads` 時頂部一行「已經看了 2 支廣告，{價格} 以後都不用看」。標題「好笑記憶包」；2 句免費範例（く、こ）；三點：「解鎖全部 N 句諧音梗（平假名＋片假名）」（N 從資料算）、「永久免廣告」、「之後新增的諧音梗自動取得」；主按鈕「{價格} 買斷」（testID `punpack-buy`）；文字連結「恢復購買」（testID `punpack-restore`）。已購買時改顯示「已購買，感謝支持！」與返回按鈕。結果用 Alert 告知（取消不跳）。

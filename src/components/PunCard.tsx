@@ -39,7 +39,7 @@ export function PunCard({ kanaId, style, compact }: PunCardProps) {
         <Text style={[styles.title, { color: t.accentText }]}>好笑記法</Text>
         <Text style={[styles.body, { color: t.text }]}>{pun}</Text>
         <Text style={[styles.note, { color: t.muted }, compact && { marginTop: 4 }]}>
-          諧音幫你記，發音還是聽音檔
+          諧音只是幫你記，念法以音檔為準
         </Text>
       </Card>
     );
