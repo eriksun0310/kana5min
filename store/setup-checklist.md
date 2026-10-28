@@ -17,7 +17,7 @@
 
 - [x] 應用程式已建立（免費、`com.ptalk.kana5min`），應用程式內容 10 項已完成（隱私權政策、廣告＝是、目標對象 13 歲以上、資料安全性、內容分級等）
 - [ ] 商店資訊的圖片素材：512 圖示、1024×500 主題圖、手機截圖（見 screenshots.md）
-- [ ] 應用程式內產品 `com.ptalk.kana5min.punpack`（NT$90）：需先上傳含 Billing 權限的 AAB 到內部測試才能建立（2026-10-28 前已完成商店端建立的是 App Store 版本；Play 版請以後台實際狀態為準）
+- [x] 應用程式內產品 `com.ptalk.kana5min.punpack`（NT$90）已於 2026-10-28 在後台建立（需要先有含 Billing 權限的版本才能建立；PROGRESS.md 的 10-27 紀錄尚未更新這點）
 - [ ] 付款資料（Google 付款資料）
 
 ## RevenueCat（project `81be02cb`，名稱 Kana 5min）
