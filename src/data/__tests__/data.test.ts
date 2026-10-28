@@ -5,12 +5,18 @@ import {
   byRow,
   confusionGroupId,
   exampleWordOf,
+  FREE_SOUNDS,
   hintFor,
+  isFreeSound,
   kanaOfKind,
   newlyReadableWords,
+  punFor,
+  PUN_COUNT,
+  PUNS,
   ROW_ORDER,
   seionGrid,
   seionOrder,
+  soundOf,
   wordById,
   wordsReadableWith,
 } from '..';
@@ -143,15 +149,81 @@ describe('單字與「一行學完」', () => {
   });
 });
 
-describe('記憶小提示', () => {
-  it('あ行、か行有提示（kana-puns.md 標 ❌ 的け除外），其他行沒有', () => {
-    const rejected = new Set(['h-ke']);
-    for (const r of ['a', 'ka'])
-      for (const k of byRow(r)) {
-        if (rejected.has(k.id)) expect(hintFor(k.id)).toBeUndefined();
-        else expect(hintFor(k.id)).toBeTruthy();
-      }
-    for (const r of ROW_ORDER.slice(2)) for (const k of byRow(r)) expect(hintFor(k.id)).toBeUndefined();
+describe('好笑記憶包諧音梗（puns）', () => {
+  const sounds = Object.keys(PUNS);
+
+  it('共 41 句：只收 kana-puns.md 標 ✅ 的讀音，け、つ、ひ、ふ、へ 不收', () => {
+    expect(PUN_COUNT).toBe(41);
+    expect(sounds).toHaveLength(41);
+    for (const s of ['ke', 'tsu', 'hi', 'fu', 'he']) expect(PUNS[s]).toBeUndefined();
+  });
+
+  it('每個 key 都是清音讀音，且對應存在的平假名與片假名', () => {
+    for (const s of sounds) {
+      expect(byId(`h-${s}`)?.kind).toBe('seion');
+      expect(byId(`k-${s}`)?.kind).toBe('seion');
+    }
+  });
+
+  it('沒有 emoji、沒有半形括號、沒有頭尾與連續空白', () => {
+    const emoji = /\p{Extended_Pictographic}/u;
+    for (const [s, text] of Object.entries(PUNS)) {
+      expect({ s, emoji: emoji.test(text) }).toEqual({ s, emoji: false });
+      expect({ s, half: /[()]/.test(text) }).toEqual({ s, half: false });
+      expect({ s, trim: text === text.trim() }).toEqual({ s, trim: true });
+      expect({ s, multi: /\s{2,}/.test(text) }).toEqual({ s, multi: false });
+      expect({ s, paren: text.includes('（') && text.includes('）') || !text.includes('（') }).toEqual({
+        s,
+        paren: true,
+      });
+    }
+  });
+
+  it('每句都含對應的平假名字元', () => {
+    for (const s of sounds) expect(PUNS[s]).toContain(byId(`h-${s}`)!.char);
+  });
+
+  it('あ行與か行的讀音免費（け 沒有句子）', () => {
+    expect(FREE_SOUNDS).toEqual(['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko']);
+    for (const s of ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ko']) expect(PUNS[s]).toBeTruthy();
+    expect(PUNS.sa).toBeTruthy();
+    expect(isFreeSound('ku')).toBe(true);
+    expect(isFreeSound('sa')).toBe(false);
+  });
+
+  it('soundOf：清音回傳讀音，濁音、拗音與未知 id 沒有', () => {
+    expect(soundOf('h-ku')).toBe('ku');
+    expect(soundOf('k-ku')).toBe('ku');
+    expect(soundOf('h-shi')).toBe('shi');
+    expect(soundOf('k-wo')).toBe('wo');
+    expect(soundOf('h-ga')).toBeUndefined();
+    expect(soundOf('h-kya')).toBeUndefined();
+    expect(soundOf('nope')).toBeUndefined();
+  });
+
+  it('punFor：平假名回傳原句，片假名把第一個對應字元換成片假名', () => {
+    expect(punFor('h-ku')).toBe('你是在く（哭）喔？');
+    expect(punFor('k-ku')).toBe('你是在ク（哭）喔？');
+    expect(punFor('k-mo')).toBe('上班不要再 モ（摸）魚了！');
+    expect(punFor('k-yu')).toBe('愛老虎ユ！');
+    expect(punFor('h-ga')).toBeUndefined();
+    expect(punFor('h-ke')).toBeUndefined();
+    expect(punFor('h-tsu')).toBeUndefined();
+  });
+
+  it('片假名句子只有一個字元不同於平假名句，且沒有殘留的對應平假名', () => {
+    for (const s of sounds) {
+      const hira = punFor(`h-${s}`)!;
+      const kata = punFor(`k-${s}`)!;
+      expect(kata).not.toBe(hira);
+      expect(kata).toContain(byId(`k-${s}`)!.char);
+      expect([...kata].length).toBe([...hira].length);
+    }
+  });
+
+  it('hintFor 改由 puns 供應：あ行、か行（除了け）有，さ行起也有（解鎖與否由 PunCard 決定）', () => {
     expect(hintFor('h-ku')).toBe('你是在く（哭）喔？');
+    expect(hintFor('h-ke')).toBeUndefined();
+    expect(hintFor('h-sa')).toBe('さ（殺）小？');
   });
 });

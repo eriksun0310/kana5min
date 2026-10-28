@@ -1,6 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { KanaText, PrimaryButton, Screen } from '../src/components';
 import { hiraganaOf, mustById, SEION_COUNT } from '../src/data';
 import { useSettingsStore } from '../src/store/settingsStore';
@@ -15,6 +15,14 @@ export default function KataStartScreen() {
   const t = useTheme();
   const router = useRouter();
   const bottom = useBottomPad(44);
+
+  const purchased = useSettingsStore((s) => s.punPackPurchased);
+  const promptShown = useSettingsStore((s) => s.punPromptKataShown);
+  // 只在第一次看到這個畫面時顯示買斷連結；顯示過就記下來（本次畫面仍保留連結）
+  const [showLink] = React.useState(() => !purchased && !promptShown);
+  useEffect(() => {
+    if (showLink) useSettingsStore.getState().setPunPromptKataShown(true);
+  }, [showLink]);
 
   const start = () => {
     useSettingsStore.getState().setKataIntroSeen(true);
@@ -63,6 +71,18 @@ export default function KataStartScreen() {
       </View>
       <View style={[styles.bottom, { paddingBottom: bottom }]}>
         <PrimaryButton testID="kata-start" label="開始片假名" onPress={start} />
+        {showLink ? (
+          <Pressable
+            testID="kata-punpack-link"
+            accessibilityRole="link"
+            onPress={() => router.push('/punpack')}
+            style={styles.link}
+          >
+            <Text style={{ fontSize: 14, color: t.accentText, textDecorationLine: 'underline' }}>
+              片假名也有諧音梗：好笑記憶包
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
     </Screen>
   );
@@ -86,4 +106,5 @@ const styles = StyleSheet.create({
   },
   pair: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bottom: { paddingHorizontal: 24 },
+  link: { minHeight: 44, marginTop: 6, alignItems: 'center', justifyContent: 'center' },
 });

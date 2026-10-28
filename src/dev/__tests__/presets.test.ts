@@ -6,10 +6,13 @@ import { DAY_MS } from '../../logic/srs';
 import { isGraduated } from '../../logic/graduate';
 import {
   DEBUG_PRESETS,
+  DEBUG_PUN_PRESETS,
   isDebugPreset,
+  isDebugPunPreset,
   presetGraduateSeen,
   presetKataIntroSeen,
   presetProgress,
+  punPresetSettings,
 } from '../presets';
 
 const NOW = 1_700_000_000_000;
@@ -54,6 +57,15 @@ describe('presetProgress', () => {
     expect(ids.filter((id) => id.startsWith('k-'))).toHaveLength(46);
   });
 
+  it('hiragana-started：平假名 あ～こ 10 個已學，下一個新字是さ，片假名尚未解鎖', () => {
+    const list = presetProgress('hiragana-started', NOW);
+    expect(list.map((p) => p.kanaId)).toEqual(
+      ['a', 'i', 'u', 'e', 'o', 'ka', 'ki', 'ku', 'ke', 'ko'].map((c) => `h-${c}`),
+    );
+    expect(isKatakanaUnlocked(list)).toBe(false);
+    expect(currentScript(list)).toBe('hiragana');
+  });
+
   it('hiragana-almost：平假名清音除了 ん 以外 45 個已學，片假名尚未解鎖', () => {
     const list = presetProgress('hiragana-almost', NOW);
     expect(list).toHaveLength(45);
@@ -91,7 +103,22 @@ describe('presetProgress', () => {
     }
   });
 
-  it('isDebugPreset 只接受五個名稱', () => {
+  it('好笑記憶包預設：pun-reset 清空解鎖與旗標，pun-purchased 只設購買', () => {
+    expect(DEBUG_PUN_PRESETS).toEqual(['pun-reset', 'pun-purchased']);
+    expect(punPresetSettings('pun-reset')).toEqual({
+      punPackPurchased: false,
+      punUnlocked: [],
+      punAdsWatched: 0,
+      punPromptAfterAdsShown: false,
+      punPromptKataShown: false,
+    });
+    expect(punPresetSettings('pun-purchased')).toEqual({ punPackPurchased: true });
+    expect(isDebugPunPreset('pun-reset')).toBe(true);
+    expect(isDebugPunPreset('reset')).toBe(false);
+  });
+
+  it('isDebugPreset 接受五個進度預設與兩個好笑記憶包預設', () => {
+    for (const n of DEBUG_PUN_PRESETS) expect(isDebugPreset(n)).toBe(true);
     for (const n of DEBUG_PRESETS) expect(isDebugPreset(n)).toBe(true);
     expect(isDebugPreset('nope')).toBe(false);
     expect(isDebugPreset(undefined)).toBe(false);

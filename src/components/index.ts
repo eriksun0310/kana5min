@@ -8,3 +8,5 @@ export { BackHeader, type BackHeaderProps } from './BackHeader';
 export { TabBar, type TabBarProps, type TabItem } from './TabBar';
 export { StatCard, type StatCardProps } from './StatCard';
 export { TianGrid, type TianGridProps } from './TianGrid';
+export { PunCard, type PunCardProps } from './PunCard';
+export { PunUnlockSheet, type PunUnlockSheetProps } from './PunUnlockSheet';

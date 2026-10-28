@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { LogBox, View } from 'react-native';
 import { openSqliteRepository } from '../src/db';
+import { initPurchases } from '../src/monetization/purchases';
 import { useProgressStore, waitForSettingsHydration } from '../src/store';
 import { useTheme, useThemeName } from '../src/theme/useTheme';
 
@@ -22,6 +23,8 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 async function bootstrap() {
   const [repo] = await Promise.all([openSqliteRepository(), waitForSettingsHydration()]);
   await useProgressStore.getState().load(repo);
+  // 設定讀回之後才同步購買狀態（沒有 key 時什麼都不做；不等待結果，不擋啟動）
+  initPurchases().catch(() => {});
 }
 
 export default function RootLayout() {

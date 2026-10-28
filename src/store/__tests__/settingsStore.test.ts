@@ -22,6 +22,50 @@ describe('settingsStore（設定保存）', () => {
     expect(s.onboarded).toBe(false);
     expect(s.practiceDates).toEqual([]);
     expect(s.kataIntroSeen).toBe(false);
+    expect(s.punPackPurchased).toBe(false);
+    expect(s.punUnlocked).toEqual([]);
+    expect(s.punAdsWatched).toBe(0);
+    expect(s.punPromptAfterAdsShown).toBe(false);
+    expect(s.punPromptKataShown).toBe(false);
+  });
+
+  it('好笑記憶包：解鎖不重複、看廣告計數、旗標寫進 AsyncStorage，resetSettings 清空', async () => {
+    const st = useSettingsStore.getState();
+    st.unlockPuns(['sa', 'shi', 'su']);
+    st.unlockPuns(['su', 'se']);
+    expect(useSettingsStore.getState().punUnlocked).toEqual(['sa', 'shi', 'su', 'se']);
+    expect(useSettingsStore.getState().addPunAdWatched()).toBe(1);
+    expect(useSettingsStore.getState().addPunAdWatched()).toBe(2);
+    useSettingsStore.getState().setPunPromptAfterAdsShown(true);
+    useSettingsStore.getState().setPunPromptKataShown(true);
+    useSettingsStore.getState().setPunPackPurchased(true);
+    const saved = JSON.parse((await AsyncStorage.getItem(SETTINGS_STORAGE_KEY)) as string).state;
+    expect(saved.punUnlocked).toEqual(['sa', 'shi', 'su', 'se']);
+    expect(saved.punAdsWatched).toBe(2);
+    expect(saved.punPromptAfterAdsShown).toBe(true);
+    expect(saved.punPromptKataShown).toBe(true);
+    expect(saved.punPackPurchased).toBe(true);
+    useSettingsStore.getState().resetSettings();
+    const r = useSettingsStore.getState();
+    expect(r.punUnlocked).toEqual([]);
+    expect(r.punAdsWatched).toBe(0);
+    expect(r.punPackPurchased).toBe(false);
+  });
+
+  it('舊版（version 1）資料 rehydrate 時補上好笑記憶包欄位的預設值，沿用已存的購買狀態', async () => {
+    await AsyncStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({ state: { theme: 'dark', onboarded: true, punPackPurchased: true }, version: 1 }),
+    );
+    await useSettingsStore.persist.rehydrate();
+    const s = useSettingsStore.getState();
+    expect(s.theme).toBe('dark');
+    expect(s.punPackPurchased).toBe(true);
+    expect(s.punUnlocked).toEqual([]);
+    expect(s.punAdsWatched).toBe(0);
+    expect(s.punPromptAfterAdsShown).toBe(false);
+    expect(s.punPromptKataShown).toBe(false);
+    expect(typeof s.unlockPuns).toBe('function');
   });
 
   it('kataIntroSeen 設定後寫進 AsyncStorage，resetSettings 會設回 false', async () => {
@@ -61,7 +105,7 @@ describe('settingsStore（設定保存）', () => {
   it('rehydrate 會從 AsyncStorage 取回已存的值', async () => {
     await AsyncStorage.setItem(
       SETTINGS_STORAGE_KEY,
-      JSON.stringify({ state: { dailyGoalMinutes: 10, onboarded: true, theme: 'light' }, version: 1 }),
+      JSON.stringify({ state: { dailyGoalMinutes: 10, onboarded: true, theme: 'light' }, version: 2 }),
     );
     await useSettingsStore.persist.rehydrate();
     const s = useSettingsStore.getState();

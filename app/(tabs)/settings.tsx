@@ -12,6 +12,7 @@ import {
   REMINDER_TIME_OPTIONS,
   scheduleReminder,
 } from '../../src/notifications/reminder';
+import { restorePunPack } from '../../src/monetization/purchases';
 import { isGraduated } from '../../src/logic/graduate';
 import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
@@ -55,11 +56,12 @@ export default function SettingsScreen() {
   const romajiAutoHide = useSettingsStore((s) => s.romajiAutoHide);
   const reminder = useSettingsStore((s) => s.reminder);
   const audioSpeed = useSettingsStore((s) => s.audioSpeed);
+  const punPurchased = useSettingsStore((s) => s.punPackPurchased);
   const { setTheme, setDailyGoalMinutes, setRomajiAutoHide, setReminder, setAudioSpeed } =
     useSettingsStore.getState();
   const [sheet, setSheet] = useState<SheetKind>(null);
 
-  const appName = Constants.expoConfig?.name ?? 'Kana 5min - 五十音入門';
+  const appName = Constants.expoConfig?.name ?? '諧音五十音';
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const toggleReminder = async (next: boolean) => {
@@ -75,10 +77,18 @@ export default function SettingsScreen() {
     }
     // 權限被拒：開關維持關閉並提示
     setReminder({ enabled: false });
-    Alert.alert('需要通知權限', '請到系統設定開啟 Kana 5min 的通知，才能收到每日提醒。', [
+    Alert.alert('需要通知權限', '請到系統設定開啟「諧音五十音」的通知，才能收到每日提醒。', [
       { text: '取消', style: 'cancel' },
       { text: '前往設定', onPress: () => Linking.openSettings().catch(() => {}) },
     ]);
+  };
+
+  const restorePurchase = async () => {
+    const r = await restorePunPack();
+    if (r === 'restored') Alert.alert('已恢復購買', '好笑記憶包已全部解鎖。');
+    else if (r === 'none') Alert.alert('沒有可恢復的購買', '這個帳號下找不到好笑記憶包的購買紀錄。');
+    else if (r === 'error') Alert.alert('恢復失敗', '這次沒有恢復成功，請稍後再試。');
+    else Alert.alert('目前無法恢復', '暫時連不上商店，請稍後再試。');
   };
 
   const pickTime = async (time: string) => {
@@ -173,6 +183,40 @@ export default function SettingsScreen() {
             >
               <RowText label="發音速度" sub="測驗時的播放速度" />
               <Value text={audioSpeed === 'slow' ? '慢速' : '一般'} />
+            </Pressable>
+          </View>
+        </Section>
+
+        <Section title="好笑記憶包">
+          <View style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
+            <Pressable
+              testID="row-puns"
+              accessibilityRole="button"
+              onPress={() => router.push('/puns')}
+              style={rowStyle}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>好笑記法總覽</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            {punPurchased ? null : (
+              <Pressable
+                testID="row-punpack"
+                accessibilityRole="button"
+                onPress={() => router.push('/punpack')}
+                style={rowStyle}
+              >
+                <Text style={{ fontSize: 15, color: t.text }}>買斷好笑記憶包</Text>
+                <Icon name="chevronRight" size={16} color={t.muted} />
+              </Pressable>
+            )}
+            <Pressable
+              testID="row-restore"
+              accessibilityRole="button"
+              onPress={restorePurchase}
+              style={[styles.row, { borderBottomWidth: 0 }]}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>恢復購買</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
             </Pressable>
           </View>
         </Section>

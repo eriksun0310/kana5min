@@ -8,6 +8,7 @@ import {
   Icon,
   KanaText,
   PrimaryButton,
+  PunCard,
   Screen,
   SecondaryButton,
   TianGrid,
@@ -124,6 +125,8 @@ export default function KanaDetailScreen() {
           </Card>
         ) : null}
 
+        <PunCard kanaId={kana.id} style={styles.pun} />
+
         <View style={{ flex: 1, minHeight: 16 }} />
 
         <View style={styles.actions}>
@@ -183,5 +186,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pun: { marginTop: 10 },
   actions: { flexDirection: 'row', gap: 12 },
 });

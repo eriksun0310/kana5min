@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 const REMINDER_ID = 'kana5min-daily-reminder';
 const ANDROID_CHANNEL_ID = 'daily-reminder';
 
-export const REMINDER_TITLE = 'Kana 5min';
+export const REMINDER_TITLE = '諧音五十音';
 export const REMINDER_BODY = '今天的五十音練習還沒做喔，5 分鐘就好';
 
 /** 'HH:MM' 轉成小時與分鐘；格式錯誤時回傳 null。 */

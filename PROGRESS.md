@@ -95,6 +95,17 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 - 截圖：`screenshots/phase4/`，重跑指令 `maestro/screenshots/run-phase4.sh <UDID>`。
 - 遇到的問題：`npx expo prebuild -p ios` 會重新產生 `ios/` 資料夾（已 gitignore），之後要再跑 `pod install`（需要 UTF-8 語系）。
 
+### 好笑記憶包：廣告解鎖與買斷（2026-10-28）
+
+- 商業模式由使用者決定（spec 6.2／6.3、architecture 第 12 節）：あ行、か行免費；從さ行起看一支獎勵廣告永久解鎖 3 個讀音；NT$90 買斷全部解鎖、永久免廣告。平假名與片假名以讀音共用解鎖。
+- App 名稱改為「諧音五十音」（app.json `name`、通知標題、設定頁）。scheme、bundle id、package 不變。因為名稱全是中文，`expo prebuild` 產生的 Xcode 專案與 scheme 名稱變成 `app`，不影響 bundle id 與 EAS build。
+- 諧音資料 `src/data/puns.ts`：只收 kana-puns.md 標 ✅ 的 41 句；け、つ、ひ（❌）與 ふ、へ（未審）不顯示卡片。半形括號改全形、去掉 emoji。片假名畫面把句中的平假名換成片假名。
+- 新增：`react-native-google-mobile-ads` 17.4.0、`react-native-purchases` 10.16.0；`src/monetization/`（ads、purchases）、PunCard、PunUnlockSheet、買斷頁 `app/punpack.tsx`、總覽頁 `app/puns.tsx`、設定頁「好笑記憶包」區、片假名開始畫面的買斷連結。
+- 廣告只用獎勵廣告，全部請求非個人化廣告，不跳 ATT。開發版用 Google 測試廣告（已在模擬器實際播過並確認會解鎖）。
+- 正式版的 RevenueCat key 與 AdMob 獎勵廣告 unit id 從環境變數讀（`.env.example` 列出變數名稱）；沒設時買斷與廣告顯示「暫時無法使用」，App 其他功能正常。
+- 驗證：tsc 0 錯誤、單元測試 21 suites／292 tests 全過、Maestro 新增 `phase5-puns.yaml`，亮暗截圖在 `screenshots/phase5/`。
+- 沒做：F5 分享卡；實機購買流程未測（需 RevenueCat key 與沙盒帳號）。
+
 ### 音檔清單（階段 1）
 
 - 共 536 檔，等於（104 個假名 + 164 個單字）× 2（一般、慢速），約 3.2 MB。
@@ -183,7 +194,11 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 ## 待確認事項
 
-- App 名稱（目前：Kana 5min - 五十音入門）
+- App 名稱已定為「諧音五十音」，副標「台灣人的白爛日文記憶法」。App Store Connect 與 Google Play 後台的名稱、副標、描述尚未改（文字見 `store/app-store.md`、`store/google-play.md`）
+- AdMob 尚未建立「獎勵廣告」單元（目前只有 Banner 與 Interstitial，新模式用不到這兩個）。建立後把 unit id 設成 EAS 環境變數 `EXPO_PUBLIC_ADMOB_REWARDED_IOS`／`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`
+- RevenueCat 公開 SDK key 尚未設定：設成 EAS 環境變數 `EXPO_PUBLIC_RC_IOS_KEY`／`EXPO_PUBLIC_RC_ANDROID_KEY`（見 RELEASE.md）
+- 好笑記憶包 F5 分享卡尚未實作
+- 內購審查截圖：用模擬器的買斷頁（`screenshots/phase5/F3-PunPack-light.png`）
 - Bundle identifier（目前：com.ptalk.kana5min）
 - 壽司日檢 App Store 連結
 - 導流頁第三個賣點文案

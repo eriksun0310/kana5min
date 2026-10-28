@@ -1,0 +1,153 @@
+# 階段 5 截圖：好笑記憶包（學新字的鎖住／已解鎖卡片、解鎖面板、買斷頁、總覽頁、設定頁新區塊）。
+# 不屬於必須跑通的 phase 流程，請用 maestro/screenshots/run-phase5.sh 執行
+# （它會先切換模擬器的系統外觀，再以 THEME=light|dark 各跑一次）。
+# THEME 由 run-phase5.sh 以 -e THEME=light|dark 傳入（不要在檔頭寫預設值，檔頭的 env 會蓋掉命令列）。
+# App 的主題設定維持「跟隨系統」。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+
+# 平假名新字さ：鎖住的卡片、解鎖面板、買斷頁
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: pun-locked
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F1-Locked-${THEME}
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-watch-ad
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F2-UnlockSheet-${THEME}
+- tapOn:
+    id: pun-buy
+- extendedWaitUntil:
+    visible:
+      id: punpack-buy
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F3-PunPack-${THEME}
+- tapOn:
+    id: punpack-close
+- extendedWaitUntil:
+    visible:
+      id: pun-locked
+    timeout: 10000
+- runFlow: ../common/exit-flow.yaml
+
+# 設定頁新區塊、總覽頁（未買斷，點開一個已解鎖的字）
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-restore
+    direction: DOWN
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/Settings-PunPack-${THEME}
+- tapOn:
+    id: row-puns
+- extendedWaitUntil:
+    visible:
+      id: puns-cell-ku
+    timeout: 10000
+- tapOn:
+    id: puns-cell-ku
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F4-Overview-${THEME}
+- tapOn:
+    id: back
+
+# 已買斷：同一個字（さ）顯示句子
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: pun-purchased
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: pun-card
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F1-Unlocked-${THEME}
+- runFlow: ../common/exit-flow.yaml
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-puns
+- extendedWaitUntil:
+    visible:
+      id: puns-cell-sa
+    timeout: 10000
+- tapOn:
+    id: puns-cell-sa
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F4-Overview-Purchased-${THEME}
+- tapOn:
+    id: back
+
+# 片假名新字サ：鎖住與已買斷各一張（片假名版面較擠，要確認沒有重疊）
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: katakana-started
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: pun-locked
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F1-Locked-Kata-${THEME}
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-watch-ad
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F2-UnlockSheet-Kata-${THEME}
+- tapOn:
+    id: pun-sheet-close
+- runFlow: ../common/exit-flow.yaml
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: pun-purchased
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: pun-card
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase5/F1-Unlocked-Kata-${THEME}
+- runFlow: ../common/exit-flow.yaml

@@ -6,6 +6,7 @@ import type { Progress, Script } from '../data/types';
 import { DAY_MS } from '../logic/srs';
 
 export type DebugPresetName =
+  | 'hiragana-started'
   | 'hiragana-almost'
   | 'hiragana-done'
   | 'katakana-started'
@@ -13,6 +14,7 @@ export type DebugPresetName =
   | 'reset';
 
 export const DEBUG_PRESETS: readonly DebugPresetName[] = [
+  'hiragana-started',
   'hiragana-almost',
   'hiragana-done',
   'katakana-started',
@@ -20,9 +22,50 @@ export const DEBUG_PRESETS: readonly DebugPresetName[] = [
   'reset',
 ];
 
-export function isDebugPreset(value: unknown): value is DebugPresetName {
-  return typeof value === 'string' && (DEBUG_PRESETS as readonly string[]).includes(value);
+/** 好笑記憶包預設：只改設定，不動學習進度（docs/architecture.md 第 12 節）。 */
+export type DebugPunPresetName = 'pun-reset' | 'pun-purchased';
+
+export const DEBUG_PUN_PRESETS: readonly DebugPunPresetName[] = ['pun-reset', 'pun-purchased'];
+
+export function isDebugPunPreset(value: unknown): value is DebugPunPresetName {
+  return typeof value === 'string' && (DEBUG_PUN_PRESETS as readonly string[]).includes(value);
 }
+
+/** 深連結與除錯選單接受的所有預設名稱 */
+export type AnyDebugPreset = DebugPresetName | DebugPunPresetName;
+
+export function isDebugPreset(value: unknown): value is AnyDebugPreset {
+  return (
+    typeof value === 'string' &&
+    ((DEBUG_PRESETS as readonly string[]).includes(value) || isDebugPunPreset(value))
+  );
+}
+
+/**
+ * 好笑記憶包預設要寫進設定的值：
+ * - pun-reset：清空已解鎖讀音、看廣告次數與兩個提示旗標，未購買
+ * - pun-purchased：只把 punPackPurchased 設為 true
+ */
+export function punPresetSettings(preset: DebugPunPresetName): {
+  punPackPurchased: boolean;
+} & Partial<{
+  punUnlocked: string[];
+  punAdsWatched: number;
+  punPromptAfterAdsShown: boolean;
+  punPromptKataShown: boolean;
+}> {
+  if (preset === 'pun-purchased') return { punPackPurchased: true };
+  return {
+    punPackPurchased: false,
+    punUnlocked: [],
+    punAdsWatched: 0,
+    punPromptAfterAdsShown: false,
+    punPromptKataShown: false,
+  };
+}
+
+/** 平假名階段預設已學的字：あ～こ（あ行與か行，共 10 個），下一個新字是さ（好笑記憶包要付費解鎖的第一行）。 */
+const HIRAGANA_STARTED_COUNT = 10;
 
 /** 片假名階段預設已學的字：ア～コ（あ行與か行，共 10 個）。 */
 const KATAKANA_STARTED_COUNT = 10;
@@ -47,6 +90,7 @@ function learnedSeion(
 
 /**
  * 預設對應的完整進度（套用時會取代全部現有進度與易混淆紀錄）。
+ * - hiragana-started：平假名已學 あ～こ 10 個（下一個新字是さ），片假名尚未解鎖
  * - hiragana-almost：平假名清音除了 ん 以外全部已學（片假名尚未解鎖）
  * - hiragana-done：平假名清音全部已學，片假名全部未學（片假名剛解鎖）
  * - katakana-started：平假名全部已學，片假名已學 ア～コ 10 個
@@ -55,6 +99,8 @@ function learnedSeion(
  */
 export function presetProgress(preset: DebugPresetName, now: number): Progress[] {
   switch (preset) {
+    case 'hiragana-started':
+      return learnedSeion('hiragana', now, (_id, i) => i < HIRAGANA_STARTED_COUNT);
     case 'hiragana-almost':
       return learnedSeion('hiragana', now, (id) => id !== 'h-n');
     case 'hiragana-done':

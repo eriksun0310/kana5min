@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Kana 5min - 五十音入門",
+    "name": "諧音五十音",
     "slug": "kana5min",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,6 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.ptalk.kana5min",
-      "buildNumber": "1",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -21,14 +20,15 @@
         "NSPrivacyAccessedAPITypes": [
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
-            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
           }
         ]
       }
     },
     "android": {
       "package": "com.ptalk.kana5min",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#15171B",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -54,8 +54,25 @@
       ],
       "expo-sqlite",
       "expo-asset",
-      ["expo-audio", { "microphonePermission": false }],
-      ["expo-notifications", { "enableRemoteNotifications": false }]
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7018554061213551~6244207587",
+          "iosAppId": "ca-app-pub-7018554061213551~5849243880"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

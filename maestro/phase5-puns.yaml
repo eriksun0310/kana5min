@@ -1,0 +1,265 @@
+# 好笑記憶包：鎖住的諧音卡（平假名さ、片假名サ）→ 解鎖面板 → 買斷頁 → 關閉；
+# 設定頁新區塊 → 總覽頁（已解鎖／未解鎖）→ 設定「已買斷」後新字畫面、總覽、字詳情都看得到 pun-card；
+# 片假名開始畫面的買斷連結只出現一次。不在 Maestro 裡真的播廣告（pun-watch-ad 只檢查存在）。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+
+# ---- A. 平假名新字さ：鎖住 → 解鎖面板 → 買斷頁 → 關閉 ----
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: learn-kana
+    timeout: 10000
+- assertVisible:
+    id: pun-locked
+- assertNotVisible:
+    id: pun-card
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-watch-ad
+    timeout: 10000
+- assertVisible:
+    id: pun-buy
+- assertVisible:
+    id: pun-sheet-close
+- assertVisible: 解鎖諧音梗
+- assertVisible: "這次會解鎖：さ・し・す"
+- tapOn:
+    id: pun-buy
+- extendedWaitUntil:
+    visible:
+      id: punpack-buy
+    timeout: 10000
+- assertVisible: 好笑記憶包
+- assertVisible: 解鎖全部 41 句諧音梗（平假名＋片假名）
+- assertVisible: 永久免廣告
+- assertVisible: 之後新增的諧音梗自動取得
+- assertVisible:
+    id: punpack-restore
+- assertNotVisible:
+    id: punpack-from-ads
+- tapOn:
+    id: punpack-close
+# 回到學新字：卡片還是鎖住的；再開面板後用關閉鈕關掉
+- extendedWaitUntil:
+    visible:
+      id: pun-locked
+    timeout: 10000
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-sheet-close
+    timeout: 10000
+- tapOn:
+    id: pun-sheet-close
+- assertNotVisible:
+    id: pun-watch-ad
+- assertVisible:
+    id: pun-locked
+- runFlow: common/exit-flow.yaml
+
+# ---- B. 設定頁新區塊與總覽頁（未買斷） ----
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+- assertVisible: 好笑記憶包
+- assertVisible:
+    id: row-punpack
+- assertVisible:
+    id: row-restore
+- tapOn:
+    id: row-puns
+- extendedWaitUntil:
+    visible:
+      id: puns-cell-ku
+    timeout: 10000
+# 免費讀音已解鎖，さ 行鎖住
+- assertVisible:
+    id: puns-open-ku
+- assertNotVisible:
+    id: puns-open-sa
+- tapOn:
+    id: puns-cell-ku
+- assertVisible:
+    id: pun-card
+- assertVisible: 你是在く（哭）喔？
+- assertVisible: 諧音幫你記，發音還是聽音檔
+- tapOn:
+    id: puns-cell-sa
+- extendedWaitUntil:
+    visible:
+      id: pun-watch-ad
+    timeout: 10000
+- tapOn:
+    id: pun-sheet-close
+- assertNotVisible:
+    id: pun-watch-ad
+# 五十音表字詳情（さ）也是鎖住的卡片
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: cell-h-sa
+- assertVisible:
+    id: detail-char
+- assertVisible:
+    id: pun-locked
+- tapOn:
+    id: back
+# 設定頁 → 買斷好笑記憶包 → 關閉
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-punpack
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-punpack
+- extendedWaitUntil:
+    visible:
+      id: punpack-buy
+    timeout: 10000
+- tapOn:
+    id: punpack-close
+- assertVisible:
+    id: tab-settings
+
+# ---- C. 已買斷：新字畫面、總覽、字詳情都看得到 pun-card ----
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-purchased
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: learn-kana
+    timeout: 10000
+- assertVisible:
+    id: pun-card
+- assertNotVisible:
+    id: pun-locked
+- assertVisible: さ（殺）小？
+- runFlow: common/exit-flow.yaml
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+# 已買斷：不再有「買斷好笑記憶包」
+- assertNotVisible:
+    id: row-punpack
+- tapOn:
+    id: row-puns
+- extendedWaitUntil:
+    visible:
+      id: puns-cell-sa
+    timeout: 10000
+- assertVisible:
+    id: puns-open-sa
+- tapOn:
+    id: puns-cell-sa
+- assertVisible:
+    id: pun-card
+- assertVisible: さ（殺）小？
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: cell-h-sa
+- assertVisible:
+    id: pun-card
+- tapOn:
+    id: back
+
+# ---- D. 片假名新字サ：鎖住的卡片用片假名顯示 ----
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: katakana-started
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: start-today
+- extendedWaitUntil:
+    visible:
+      id: kata-chip
+    timeout: 10000
+- assertVisible:
+    id: pun-locked
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-watch-ad
+    timeout: 10000
+- assertVisible: "這次會解鎖：サ・シ・ス"
+- tapOn:
+    id: pun-sheet-close
+- runFlow: common/exit-flow.yaml
+
+# ---- E. 片假名開始畫面：買斷連結只出現一次 ----
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-reset
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+- assertVisible:
+    id: kata-punpack-link
+- tapOn:
+    id: kata-punpack-link
+- extendedWaitUntil:
+    visible:
+      id: punpack-buy
+    timeout: 10000
+- tapOn:
+    id: punpack-close
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+# 再套一次 hiragana-done（kataIntroSeen 重設，但 punPromptKataShown 還在）：C2-18 再出現，不再有連結
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-done
+- extendedWaitUntil:
+    visible:
+      id: kata-start
+    timeout: 10000
+- assertNotVisible:
+    id: kata-punpack-link

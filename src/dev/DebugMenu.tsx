@@ -4,12 +4,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SecondaryButton } from '../components';
 import { useTheme } from '../theme/useTheme';
 import { applyDebugPreset } from './applyPreset';
-import type { DebugPresetName } from './presets';
+import type { AnyDebugPreset } from './presets';
 
-const ACTIONS: { preset: DebugPresetName; label: string; testID: string }[] = [
+const ACTIONS: { preset: AnyDebugPreset; label: string; testID: string }[] = [
   { preset: 'hiragana-done', label: '平假名全部完成', testID: 'debug-hiragana-done' },
   { preset: 'all-done', label: '全部完成', testID: 'debug-all-done' },
   { preset: 'reset', label: '重設進度', testID: 'debug-reset' },
+  { preset: 'pun-reset', label: '重設諧音梗解鎖', testID: 'debug-pun-reset' },
+  { preset: 'pun-purchased', label: '設為已買斷諧音梗', testID: 'debug-pun-purchased' },
 ];
 
 /**
@@ -22,7 +24,7 @@ export default function DebugMenu() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
-  const apply = async (preset: DebugPresetName) => {
+  const apply = async (preset: AnyDebugPreset) => {
     if (busy) return;
     setBusy(true);
     try {

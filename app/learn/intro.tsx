@@ -8,9 +8,10 @@ import {
   Icon,
   KanaText,
   PrimaryButton,
+  PunCard,
   Screen,
 } from '../../src/components';
-import { byId, exampleWordOf, hintFor, hiraganaOf, type Kana } from '../../src/data';
+import { byId, exampleWordOf, hiraganaOf, punFor, soundOf, type Kana } from '../../src/data';
 import { useLearnSnapshot, type LearnSnapshot } from '../../src/hooks/useLearnSnapshot';
 import { confirmExitFlow } from '../../src/nav/exitToHome';
 import { shouldShowRomaji } from '../../src/logic/romaji';
@@ -54,7 +55,6 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
   useAutoPlay(kana.id);
 
   const showRomaji = shouldShowRomaji(progress[kana.id], { romajiAutoHide: autoHide });
-  const hint = hintFor(kana.id);
 
   return (
     <Screen>
@@ -89,14 +89,7 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
           </Pressable>
         </View>
       </View>
-      {hint ? (
-        <View style={styles.hintWrap}>
-          <Card testID="learn-hint">
-            <Text style={[styles.hintTitle, { color: t.accentText }]}>記憶小提示</Text>
-            <Text style={[styles.hintBody, { color: t.text }]}>{hint}</Text>
-          </Card>
-        </View>
-      ) : null}
+      <PunCard kanaId={kana.id} style={styles.pun} />
       <View style={styles.bottom}>
         <PrimaryButton
           testID="next-step"
@@ -119,6 +112,8 @@ function KataIntro({ kana, snap }: IntroProps) {
   const showRomaji = shouldShowRomaji(progress[kana.id], { romajiAutoHide: autoHide });
   const hira = hiraganaOf(kana);
   const word = exampleWordOf(kana);
+  // 有諧音卡時畫面要多放一張卡片，大字縮小一點才不會擠到播放鈕
+  const hasPun = soundOf(kana.id) !== undefined && punFor(kana.id) !== undefined;
 
   return (
     <Screen>
@@ -134,7 +129,7 @@ function KataIntro({ kana, snap }: IntroProps) {
             片假名新字
           </Text>
         </View>
-        <KanaText size={190} testID="learn-kana">
+        <KanaText size={hasPun ? 140 : 190} testID="learn-kana">
           {kana.char}
         </KanaText>
         <Text style={[styles.romaji, { color: t.muted }]} testID="learn-romaji">
@@ -202,6 +197,7 @@ function KataIntro({ kana, snap }: IntroProps) {
           </Card>
         </View>
       ) : null}
+      <PunCard kanaId={kana.id} compact style={kataStyles.pun} />
       <View style={styles.bottom}>
         <PrimaryButton
           testID="next-step"
@@ -225,7 +221,8 @@ const kataStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardWrapTop: { paddingHorizontal: 24, paddingBottom: 10 },
-  cardWrapBottom: { paddingHorizontal: 24, paddingBottom: 16 },
+  cardWrapBottom: { paddingHorizontal: 24, paddingBottom: 10 },
+  pun: { marginHorizontal: 24, marginBottom: 16 },
   compareRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   diff: { flex: 1, fontSize: 14, lineHeight: 22 },
   wordRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -254,8 +251,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  hintWrap: { paddingHorizontal: 24, paddingBottom: 16 },
-  hintTitle: { fontSize: 12, fontWeight: '700' },
-  hintBody: { fontSize: 15, lineHeight: 23, marginTop: 4 },
+  pun: { marginHorizontal: 24, marginBottom: 16 },
   bottom: { paddingHorizontal: 24, paddingBottom: 44 },
 });

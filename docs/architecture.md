@@ -147,3 +147,48 @@ screenshots/phaseN/      截圖
 - Privacy manifest：App 不收集資料。`ios.privacyManifests`：`NSPrivacyTracking: false`、`NSPrivacyTrackingDomains: []`、`NSPrivacyCollectedDataTypes: []`，`NSPrivacyAccessedAPITypes` 列 UserDefaults（`CA92.1`，AsyncStorage 使用）。
 - eas.json：`cli.version` 下限、`cli.appVersionSource: "local"`；`build.development`：`distribution: internal`、`ios.simulator: true`；`build.production`：`autoIncrement: true`（iOS buildNumber）；`submit.production` 留空物件（不填 Apple 帳號資訊）。不執行任何 eas 指令。
 - 驗證：`npx expo-doctor` 0 錯誤；`npx expo run:ios --configuration Release --no-bundler --device <UDID>` 成功並能啟動。
+
+## 12. 好笑記憶包：廣告解鎖與買斷（2026-10-28 使用者決定）
+
+商業模式（spec 6.2／6.3 已更新）：あ行、か行諧音免費（10 個讀音）；從さ行起，看一支獎勵廣告永久解鎖 3 個讀音；NT$90 買斷全部解鎖、永久免廣告。App 名稱改為「諧音五十音」。
+
+### 資料
+- `src/data/puns.ts`：以「讀音」（清音的 romaji，例如 `ku`）為 key，只收 `kana-puns.md` 標 ✅ 的句子（目前 41 句；け、つ、ひ 為 ❌，ふ、へ 未審，都不收）。整理規則：半形括號改全形「（）」、去掉 emoji、去掉多餘空白；文字其餘照原句。
+- `soundOf(kanaId)`：清音的 h-／k- id 回傳 romaji（`h-ku`、`k-ku` → `ku`）；濁音、拗音回傳 undefined（沒有諧音）。
+- `punFor(kanaId)`：平假名回傳原句；片假名回傳把句中第一個對應平假名字元換成片假名的句子（く→ク：「你是在ク（哭）喔？」）。沒有句子回傳 undefined。
+- 原本的 `hintFor` 改成從 puns.ts 取資料（保留函式名稱給既有呼叫端），原 HINTS 常數移除。
+- 免費讀音：`a i u e o ka ki ku ke ko`。
+
+### 解鎖邏輯（純函式，`src/logic/punUnlock.ts`，要有單元測試）
+- `isPunUnlocked(sound, { purchased, unlocked })`：purchased、免費讀音、或在 unlocked 內。
+- `nextUnlockBatch(sound, unlocked)`：回傳最多 3 個讀音：點到的讀音，加上照清音順序（`seionOrder`）在它之後、有諧音、尚未解鎖、非免費的 2 個；之後不足就從它之前的同條件讀音補。點到的讀音本身沒有諧音或已解鎖時，它不算在內。
+- `shouldPromptPurchase(adsWatched, alreadyPrompted)`：adsWatched ≥ 2 且還沒提示過。
+- 狀態放 settingsStore（AsyncStorage persist，升 version 並用預設值補欄位）：`punPackPurchased`（已有）、`punUnlocked: string[]`、`punAdsWatched: number`、`punPromptAfterAdsShown: boolean`、`punPromptKataShown: boolean`。
+
+### 廣告（`src/monetization/ads.ts`）
+- 套件 `react-native-google-mobile-ads`（17.x，peer 需 RN ≥ 0.86）。app.json plugin 設 `androidAppId`、`iosAppId`（公開 ID，值見 `store/admob-ids.md` 的 App ID 兩列）。不要求 ATT，不設 `userTrackingUsageDescription`；所有請求 `requestNonPersonalizedAdsOnly: true`。
+- 只用獎勵廣告（Rewarded）。unit id：`__DEV__` 用 `TestIds.REWARDED`；正式版讀 `process.env.EXPO_PUBLIC_ADMOB_REWARDED_IOS`／`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`，沒有值就回報「廣告暫時無法使用」。
+- `showRewardedAd(): Promise<'rewarded' | 'dismissed' | 'unavailable'>`：第一次呼叫時才 `mobileAds().initialize()`（之前先 `AdsConsent.gatherConsent()`，錯誤忽略）；載入逾時 15 秒視為 unavailable；收到 EARNED_REWARD 才算 rewarded。
+- jest 用 mock，不載入原生模組。
+
+### 內購（`src/monetization/purchases.ts`）
+- 套件 `react-native-purchases`（10.x）。key 讀 `process.env.EXPO_PUBLIC_RC_IOS_KEY`／`EXPO_PUBLIC_RC_ANDROID_KEY`；沒有 key 就不 configure，所有函式回傳 unavailable，App 其他功能照常。key 不寫進任何檔案，不 log。新增 `.env.example`（只有變數名稱、值留空），`.env` 已在 .gitignore 確認。
+- entitlement `pun_pack`；offering `default` 的 lifetime package（`$rc_lifetime`），產品 `com.ptalk.kana5min.punpack`。
+- `initPurchases()`（App 啟動時呼叫；成功後讀 customerInfo 同步 `punPackPurchased`）、`getPunPackPrice(): Promise<string | null>`（商店在地化價格字串，失敗回傳 null，畫面 fallback「NT$90」）、`buyPunPack(): Promise<'purchased' | 'cancelled' | 'error' | 'unavailable'>`、`restorePunPack(): Promise<'restored' | 'none' | 'error' | 'unavailable'>`。購買或恢復成功即寫 `punPackPurchased = true`。
+
+### 畫面（沒有設計檔，沿用現有 token、Card、PrimaryButton、Icon 的樣式；不放 emoji，圖示用單線條 SVG）
+- `src/components/PunCard.tsx`（F1／F2）：輸入 kanaId。沒有諧音 → 不渲染。已解鎖 → Card：標題「好笑記法」（accentText）、句子、下方小字「諧音幫你記，發音還是聽音檔」（muted）。未解鎖 → Card：標題同上、3 條灰色圓角條（假裝模糊文字）、鎖頭圖示、按鈕「解鎖諧音」，testID `pun-locked`，點擊開解鎖面板。已解鎖卡片 testID `pun-card`。
+- `src/components/PunUnlockSheet.tsx`：底部 Modal。標題「解鎖諧音梗」。主按鈕「看廣告解鎖 3 個字」（testID `pun-watch-ad`），下方小字列出這次會解鎖的字（例如「さ・し・す」，依目前畫面的 script 顯示平假名或片假名）。次按鈕「{價格} 全部解鎖・永久免廣告」（testID `pun-buy`）→ 關面板並 `router.push('/punpack')`。關閉 testID `pun-sheet-close`。看廣告時顯示載入中；unavailable 顯示「廣告暫時無法載入，請稍後再試」。rewarded → 解鎖 batch、`punAdsWatched + 1`；若 `shouldPromptPurchase` 為真，設 `punPromptAfterAdsShown = true` 並 `router.push('/punpack?from=ads')`。
+- 出現位置：平假名與片假名學新字第一步（取代原本的「記憶小提示」卡）、五十音表字詳情頁（C2-04）。
+- `app/punpack.tsx`（F3 買斷頁）：右上關閉（testID `punpack-close`）。`from=ads` 時頂部一行「已經看了 2 支廣告，{價格} 以後都不用看」。標題「好笑記憶包」；2 句免費範例（く、こ）；三點：「解鎖全部 N 句諧音梗（平假名＋片假名）」（N 從資料算）、「永久免廣告」、「之後新增的諧音梗自動取得」；主按鈕「{價格} 買斷」（testID `punpack-buy`）；文字連結「恢復購買」（testID `punpack-restore`）。已購買時改顯示「已購買，感謝支持！」與返回按鈕。結果用 Alert 告知（取消不跳）。
+- `app/puns.tsx`（F4 總覽）：清音 46 格照五十音表排法（沿用 `seionGrid`），上方切換平假名／片假名（片假名未解鎖時只顯示平假名）。每格顯示假名與狀態（已解鎖：accent 點；未解鎖：鎖頭；沒有諧音：淡色「—」）。點已解鎖格 → 下方展開顯示 PunCard；點未解鎖格 → 解鎖面板。testID `puns-cell-<sound>`。
+- 設定頁新增「好笑記憶包」區：「好笑記法總覽」（testID `row-puns`）、未購買時「買斷好笑記憶包」（testID `row-punpack`）、「恢復購買」（testID `row-restore`）。
+- 片假名開始畫面（C2-18）：未購買且 `punPromptKataShown` 為 false 時，主按鈕下方顯示一行文字連結「片假名也有諧音梗：好笑記憶包」（testID `kata-punpack-link`）→ `/punpack`，顯示後設 `punPromptKataShown = true`。
+- F5 分享卡本次不做（記在 PROGRESS 待確認）。
+
+### 開發與測試
+- 除錯預設（只在 `__DEV__`）新增 `pun-reset`（清空 punUnlocked／punAdsWatched／兩個 prompt 旗標，punPackPurchased=false）與 `pun-purchased`（punPackPurchased=true），除錯選單加對應按鈕。
+- Maestro `maestro/phase5-puns.yaml`：學到さ行時新字畫面出現 `pun-locked` → 開面板看到 `pun-watch-ad`、`pun-buy` → 進買斷頁 → 關閉；`pun-purchased` 後新字畫面與總覽看得到 `pun-card`。不在 Maestro 裡真的播廣告。截圖亮暗各一份存 `screenshots/phase5/`。
+
+### App 名稱
+- app.json `name`：「諧音五十音」。通知標題、設定頁 fallback、通知權限 Alert 文字同步改。scheme（`kana5min://`）、bundle id、package 不變。

@@ -12,3 +12,8 @@ coverage/
 /screenshots/**/tmp/
 expo-env.d.ts
 *.tsbuildinfo
+
+# 本機 EAS build 產物
+build-*.ipa
+build-*.aab
+build-*.apk

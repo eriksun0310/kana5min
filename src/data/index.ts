@@ -4,6 +4,7 @@ import type { Kana, KanaKind, Script, Word } from './types';
 
 export * from './types';
 export { hintFor } from './hints';
+export * from './puns';
 
 export const allKana: Kana[] = kanaJson as Kana[];
 export const allWords: Word[] = wordsJson as Word[];

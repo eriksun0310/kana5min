@@ -1,8 +1,10 @@
 # 以開發用深連結套用進度預設（只在 __DEV__ 版本有效，見 docs/architecture.md 第 10 節）。
 # 用法：runFlow: { file: common/preset.yaml, env: { PRESET: hiragana-done } }
-# PRESET = hiragana-almost | hiragana-done | katakana-started | all-done | reset
+# PRESET = hiragana-started | hiragana-almost | hiragana-done | katakana-started | all-done | reset | pun-reset | pun-purchased
+# hiragana-started：平假名已學 あ～こ，下一個新字是さ（好笑記憶包第一個鎖住的字）。
+# pun-reset／pun-purchased 只改好笑記憶包設定（解鎖、買斷），不動學習進度。
 # hiragana-done 套用後首頁會推出 C2-18（kata-start）、all-done 會推出 C2-21（graduate-next）；其他預設回到首頁。
-# 模擬器開 custom scheme 時可能跳出「要在「Kana 5min」中打開嗎？」系統確認框，出現就點「打開」。
+# 模擬器開 custom scheme 時可能跳出「要在「諧音五十音」中打開嗎？」系統確認框，出現就點「打開」。
 appId: com.ptalk.kana5min
 ---
 - openLink: kana5min://debug?preset=${PRESET}
