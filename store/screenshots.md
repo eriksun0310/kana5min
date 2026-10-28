@@ -34,3 +34,22 @@ Apple 取 1～8 即可（至少 3 張，建議 6～8 張）；Google Play 取 1�
 - 五十音表：`screenshots/phase1/C2-03-Chart-light.png`。
 - 設定頁的外觀選項（亮／暗）：`screenshots/phase1/C2-12-Settings-light.png`。
 - 注意：截圖中不要出現開發版才有的除錯選單或測試廣告字樣。
+
+## 已產生的商店截圖（2026-10-28）
+
+用 iPhone 17 Pro Max（6.9 吋，1320×2868）模擬器、亮色、狀態列 9:41 重截，共 8 張，順序兩個商店相同：
+
+| # | 檔名 | 畫面 | 賣點 |
+|---|---|---|---|
+| 1 | `01-home.png` | 首頁：各行進度、開始今天的 5 分鐘 | 每天只要 5 分鐘 |
+| 2 | `02-pun-detail.png` | 「か」詳情：好笑記法、正常／慢速 | 用諧音梗記假名 |
+| 3 | `03-stroke.png` | 筆順動畫 | 跟著筆順寫一次 |
+| 4 | `04-quiz-hear.png` | 聽音選字測驗 | 用耳朵記讀音 |
+| 5 | `05-confusable.png` | わ、ね、れ 易混淆比較 | 長得像的字不再搞混 |
+| 6 | `06-youon.png` | 拗音合成 | 拗音一看就懂 |
+| 7 | `07-katakana-word.png` | 片假名測驗「ケーキ」 | 用外來語學片假名 |
+| 8 | `08-pun-overview.png` | 好笑記法總覽 | 全部諧音梗一次看 |
+
+- `store/screenshots/ios-6.9/`：原圖 1320×2868，直接上傳 App Store（6.9 吋）。
+- `store/screenshots/google-play/`：同一組裁掉頂部 180 px（狀態列）與底部 48 px，成 1320×2640（長寬比剛好 2:1），符合 Google Play「長邊不超過短邊 2 倍」。
+- 重截方式：6.9 吋模擬器跑 `maestro/screenshots/phase{1,2,3,5}-capture.yaml`（THEME=light）。注意：清除狀態後開發版 App 第一次啟動偶爾停在「No script URL」紅畫面，需點 Reload 才會連上 Metro。
