@@ -11,7 +11,7 @@ CLAUDE.md、spec.md、goals/ 是上位規則；這份檔案補上它們沒寫、
 - 音訊：expo-audio。所有播放走 `src/audio/playKana.ts` 的 `playKana(id, { slow })`。
 - 字型：`@expo-google-fonts/klee-one` 的 `KleeOne_600SemiBold`，載入完成前顯示啟動畫面。介面文字用系統字型。
 - 圖示：react-native-svg，統一放在 `src/components/Icon.tsx`，路徑直接取自設計檔（見第 7 節），stroke 1 色、`strokeWidth 2`、圓角線頭。畫面上不用 emoji。
-- 提醒：expo-notifications，本機每日排程通知。
+- 提醒：expo-notifications，本機單次（DATE）通知，每次 App 啟動／回前景、練習完成、設定改動時由 `src/notifications/syncReminders.ts` 取消舊的再重排：未來 7 天的每日提醒（identifier `kana5min-reminder-YYYYMMDD`，今天練過或已過時間就不排今天）＋ 3、7 天沒開 App 的召回（`kana5min-recall-3`／`-7`，召回日不再排每日提醒）。「要排哪幾天」是純函式（`reminderPlan.ts`），文案是純函式（`reminderCopy.ts`：待複習 > 連續天數 > 通用，只有最近一則用即時資料）。召回只在提醒已開且已有通知權限時排，絕不主動請求權限；權限只在使用者開啟提醒時請求（設定頁開關、或第一輪練完後結果頁的詢問卡 `reminder-ask`，`reminderAsked` 旗標保證只問一次）。
 - 測試：jest-expo（`pnpm test` 跑 `jest`）。業務邏輯寫成不依賴 React Native 的純函式，放 `src/logic/`，測試放 `src/logic/__tests__/`。
 
 ## 2. 目錄

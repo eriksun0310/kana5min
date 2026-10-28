@@ -29,6 +29,7 @@ describe('settingsStore（設定保存）', () => {
     expect(s.punPromptKataShown).toBe(false);
     expect(s.tourSeen).toBe(false);
     expect(s.learnTipsSeen).toEqual({ intro: false, stroke: false, trace: false });
+    expect(s.reminderAsked).toBe(false);
   });
 
   it('好笑記憶包：解鎖不重複、看廣告計數、旗標寫進 AsyncStorage，resetSettings 清空', async () => {

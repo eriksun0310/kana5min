@@ -343,3 +343,15 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 假設：提示氣泡「離開畫面也算看過」；氣泡排在版面內而不是浮層，避免攔截點擊；重看教學結束後回到設定頁；「重看教學」放在「關於」區第二列（版本列之後）。
 - 環境備註：這台模擬器上的 Debug App 預設只連 localhost:8081 的 Metro，深連結指定其他埠不一定有效；8081 空著時直接用 8081 最穩。
 
+
+## 本地提醒優化＋召回通知＋看字選音揭曉顯示假名（2026-10-28）
+
+- **看字選音揭曉**：作答後各選項右側顯示「假名 拼音」（正確「う u・正確」、選錯「さ sa」、其他「あ a」；片假名用片假名）。拼音自動淡出時假名仍顯示（「う・正確」），選錯一律顯示拼音。組裝抽成純函式 `revealTag`（`src/logic/quizSee.ts`）。選項的 accessibilityLabel 在揭曉後包含標記文字（Maestro 斷言用）。
+- **提醒**：改為「滾動排未來 7 天單次 DATE 通知」（`src/notifications/reminder.ts`、`reminderPlan.ts`、`reminderCopy.ts`、`reminderTime.ts`、`syncReminders.ts`）；舊版每天固定的通知（`kana5min-daily-reminder`）升級後會被清掉。排程時機：App 啟動／回前景（`app/_layout.tsx`）、`finish()` 內 `markPracticed` 之後（`sessionStore`）、設定頁開關／改時間。召回 3、7 天（`kana5min-recall-3/-7`，時間用提醒時間），只在提醒已開且已有權限時排；召回日不再排每日提醒（避免同一時間響兩次）。
+- **第一輪練完詢問**：`app/result.tsx` 的詢問卡，testID `reminder-ask`、`reminder-ask-yes`、`reminder-ask-no`；設定旗標 `reminderAsked`（`settingsStore`，集中在一塊並加註解）。權限被拒時 Alert 說明並維持關閉。
+- **設定頁**：提醒列說明文字加上「練過的日子不會打擾你」，權限被拒文案更清楚。
+- **測試**：jest 新增 `src/notifications/__tests__`（排哪幾天：跨月跨年、已過時間、今天已練、召回讓位；文案優先順序；召回排程與取消、有開才排、不請求權限），`revealTag` 測試；`jest.setup.js` 新增 expo-notifications mock。Maestro：`maestro/phase8-reminder.yaml`。
+- **假設**：1) 「第一次完成一輪」＝從未問過且提醒未開，所以升級的舊使用者下一次練完也會被問一次。2) 每日提醒窗口為 7 個「有排的日子」（今天不排時從明天起 7 天）；窗口與召回日重疊的那天讓位給召回。3) 最近一則的待複習數與連續天數用排程當下的資料；其餘天用通用文案。4) 7 天召回「已學字數」＝已學的假名數（平假名＋片假名）。
+- **待真機驗證**：通知準時跳；練完後當天不跳（已練的日子之後仍會跳）；3、7 天沒開 App 的召回（可暫時改系統時間）；iOS 權限被拒後的 Alert 與「前往設定」；通知文案在鎖定畫面不被截斷。
+- **驗證**：iPhone 17 模擬器、Metro 8081。Maestro 全套 16 個流程中 15 個通過（含新的 `phase8-reminder`，看字選音揭曉斷言 `".*聲音 . .+ .*・正確"`、詢問卡出現與只問一次、設定頁說明文字）；`phase4-graduate` 失敗是舊的導流頁賣點文案斷言（「從 N5 基礎單字開始」，主分支已改文案，非本次造成）。截圖（亮暗各一）在 `screenshots/phase8/`（看字選音揭曉、結果頁詢問卡、設定頁提醒列），文字沒被切掉，兩種主題顏色正確。截圖腳本 `maestro/screenshots/run-phase8.sh`。
+- **備註**：設定頁提醒列是 Pressable，accessibilityLabel 會蓋掉子文字，所以說明文字也放進了 accessibilityLabel（Maestro 才看得到）。

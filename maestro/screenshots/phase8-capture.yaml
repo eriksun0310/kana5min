@@ -1,0 +1,70 @@
+# 階段 8（提醒優化）截圖：看字選音揭曉、結果頁提醒詢問卡、設定頁提醒列。
+# 用 maestro/screenshots/run-phase8.sh 執行（THEME 由它以 -e 傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+- tapOn:
+    id: start-today
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 30
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+            - assertVisible: ".*聲音 . .+ .*・正確"
+            - runFlow:
+                when:
+                  true: ${output.shot != 1}
+                commands:
+                  - takeScreenshot: screenshots/phase8/see-reveal-${THEME}
+                  - evalScript: ${output.shot = 1}
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible:
+    id: reminder-ask
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/phase8/result-reminder-ask-${THEME}
+- tapOn:
+    id: reminder-ask-no
+- tapOn:
+    id: result-home
+- tapOn:
+    id: tab-settings
+- assertVisible: ".*練過的日子不會打擾你"
+- takeScreenshot: screenshots/phase8/settings-reminder-${THEME}

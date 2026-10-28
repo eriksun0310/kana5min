@@ -6,12 +6,8 @@ import { Card, Icon, Screen } from '../../src/components';
 import { OptionSheet, type SheetOption } from '../../src/components/OptionSheet';
 import { Toggle } from '../../src/components/Toggle';
 import type { Settings, ThemeSetting } from '../../src/data/types';
-import {
-  cancelReminder,
-  enableReminder,
-  REMINDER_TIME_OPTIONS,
-  scheduleReminder,
-} from '../../src/notifications/reminder';
+import { REMINDER_TIME_OPTIONS } from '../../src/notifications/reminder';
+import { syncRemindersFromStores, turnOnReminder } from '../../src/notifications/syncReminders';
 import { loadPrivacyOptionsRequired, openPrivacyOptionsForm } from '../../src/monetization/privacyOptions';
 import { restorePunPack } from '../../src/monetization/purchases';
 import { isGraduated } from '../../src/logic/graduate';
@@ -76,17 +72,12 @@ export default function SettingsScreen() {
   const toggleReminder = async (next: boolean) => {
     if (!next) {
       setReminder({ enabled: false });
-      await cancelReminder();
+      await syncRemindersFromStores(); // 關閉時會取消所有提醒與召回
       return;
     }
-    const ok = await enableReminder(reminder.time);
-    if (ok) {
-      setReminder({ enabled: true });
-      return;
-    }
+    if (await turnOnReminder()) return;
     // 權限被拒：開關維持關閉並提示
-    setReminder({ enabled: false });
-    Alert.alert('需要通知權限', '請到系統設定開啟「諧音五十音」的通知，才能收到每日提醒。', [
+    Alert.alert('需要通知權限', '目前沒有通知權限，所以無法提醒你。請到系統設定開啟「諧音五十音」的通知，再回來打開每日提醒。', [
       { text: '取消', style: 'cancel' },
       { text: '前往設定', onPress: () => Linking.openSettings().catch(() => {}) },
     ]);
@@ -103,7 +94,7 @@ export default function SettingsScreen() {
   const pickTime = async (time: string) => {
     setSheet(null);
     setReminder({ time });
-    if (reminder.enabled) await scheduleReminder(time);
+    if (reminder.enabled) await syncRemindersFromStores();
   };
 
   const rowStyle = [styles.row, { borderBottomColor: t.line }];
@@ -170,11 +161,11 @@ export default function SettingsScreen() {
               <Pressable
                 testID="row-reminder-time"
                 accessibilityRole="button"
-                accessibilityLabel={`每日提醒時間，每天 ${reminder.time}`}
+                accessibilityLabel={`每日提醒時間，每天 ${reminder.time}，練過的日子不會打擾你`}
                 onPress={() => setSheet('time')}
                 style={styles.rowTextPress}
               >
-                <RowText label="每日提醒" sub={`每天 ${reminder.time}`} />
+                <RowText label="每日提醒" sub={`每天 ${reminder.time}，練過的日子不會打擾你`} />
               </Pressable>
               <Toggle
                 testID="toggle-reminder"

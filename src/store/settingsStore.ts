@@ -28,6 +28,10 @@ export interface SettingsState extends Settings {
   /** 學新字第一次的提示氣泡是否看過（看與聽、筆順、描寫各一則） */
   learnTipsSeen: LearnTipsSeen;
   // ---- /新手教學 ----
+  // --- 提醒優化（reminder session）---
+  /** 結果頁的「每天提醒你練習嗎？」是否已問過（不論選什麼都只問一次） */
+  reminderAsked: boolean;
+  // --- 提醒優化 結束 ---
 
   setTheme: (theme: Settings['theme']) => void;
   setDailyGoalMinutes: (m: Settings['dailyGoalMinutes']) => void;
@@ -50,6 +54,7 @@ export interface SettingsState extends Settings {
   /** 設定「重看教學」：導覽與三則提示都重來 */
   resetTutorial: () => void;
   // ---- /新手教學 ----
+  setReminderAsked: (asked: boolean) => void;
   /** 記錄今天有練習 */
   markPracticed: (now: number) => void;
   /** 回到預設值（除錯用） */
@@ -67,6 +72,7 @@ export const defaultSettings: Settings & {
   punPromptKataShown: boolean;
   tourSeen: boolean;
   learnTipsSeen: LearnTipsSeen;
+  reminderAsked: boolean;
 } = {
   theme: 'system',
   dailyGoalMinutes: 5,
@@ -84,6 +90,7 @@ export const defaultSettings: Settings & {
   punPromptKataShown: false,
   tourSeen: false,
   learnTipsSeen: noLearnTipsSeen(),
+  reminderAsked: false,
 };
 
 export const SETTINGS_STORAGE_KEY = 'kana5min-settings';
@@ -114,6 +121,7 @@ export const useSettingsStore = create<SettingsState>()(
       setLearnTipSeen: (key, seen = true) =>
         set((s) => ({ learnTipsSeen: { ...s.learnTipsSeen, [key]: seen } })),
       resetTutorial: () => set({ tourSeen: false, learnTipsSeen: noLearnTipsSeen() }),
+      setReminderAsked: (reminderAsked) => set({ reminderAsked }),
       markPracticed: (now) => set((s) => ({ practiceDates: addPracticeDate(s.practiceDates, now) })),
       resetSettings: () =>
         set({ ...defaultSettings, punUnlocked: [], learnTipsSeen: noLearnTipsSeen() }),

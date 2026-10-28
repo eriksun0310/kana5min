@@ -1,0 +1,77 @@
+# 提醒優化：看字選音揭曉顯示「假名 拼音」；第一輪練完後結果頁詢問每日提醒（只問一次）；設定頁說明文字。
+# 不處理系統通知權限視窗（只點「不用了」）。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- tapOn:
+    id: start-today
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+# 測驗：全選正確；看字選音揭曉後正確選項要有「假名 拼音・正確」（新字還沒熟，拼音不淡出）
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 30
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+            - assertVisible: ".*聲音 . .+ .*・正確"
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: loanword-text
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+# 結果頁：第一次完成，出現詢問卡；不擋「回首頁」
+- assertVisible:
+    id: reminder-ask
+- assertVisible: 每天提醒你練習嗎？
+- assertVisible:
+    id: reminder-ask-yes
+- assertVisible:
+    id: result-home
+- tapOn:
+    id: reminder-ask-no
+- assertNotVisible:
+    id: reminder-ask
+# 再練一輪：結果頁不再詢問
+- tapOn:
+    id: result-again
+- runFlow: common/answer-quiz.yaml
+- assertVisible:
+    id: result-home
+- assertNotVisible:
+    id: reminder-ask
+- tapOn:
+    id: result-home
+# 設定頁提醒列說明文字
+- tapOn:
+    id: tab-settings
+- assertVisible: ".*練過的日子不會打擾你"

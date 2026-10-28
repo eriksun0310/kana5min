@@ -1,9 +1,12 @@
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Icon, KanaText, PrimaryButton, Screen, StatCard } from '../src/components';
 import { mustById } from '../src/data';
 import { exitToHome } from '../src/nav/exitToHome';
+import { shouldAskReminder } from '../src/notifications/reminderPlan';
+import { turnOnReminder } from '../src/notifications/syncReminders';
+import { useSettingsStore } from '../src/store/settingsStore';
 import { useSessionStore } from '../src/store/sessionStore';
 import { useTheme } from '../src/theme/useTheme';
 import { useTopPad } from '../src/theme/layout';
@@ -27,6 +30,8 @@ export default function ResultScreen() {
   const router = useRouter();
   const top = useTopPad(52);
   const result = useSessionStore((s) => s.result);
+  const reminder = useSettingsStore((s) => s.reminder);
+  const reminderAsked = useSettingsStore((s) => s.reminderAsked);
 
   if (!result) return <Redirect href="/" />;
   const { summary } = result;
@@ -35,6 +40,17 @@ export default function ResultScreen() {
   const goHome = () => {
     if (result.completedRows.length > 0) router.replace('/row-done');
     else exitToHome(router);
+  };
+
+  // 不論選哪個都只問一次
+  const answerReminder = async (yes: boolean) => {
+    useSettingsStore.getState().setReminderAsked(true);
+    if (!yes) return;
+    if (await turnOnReminder()) return;
+    Alert.alert('需要通知權限', '目前沒有通知權限，所以無法提醒你。想開啟的話，請到系統設定開啟「諧音五十音」的通知，再到設定頁打開每日提醒。', [
+      { text: '取消', style: 'cancel' },
+      { text: '前往設定', onPress: () => Linking.openSettings().catch(() => {}) },
+    ]);
   };
 
   return (
@@ -85,6 +101,32 @@ export default function ResultScreen() {
           </View>
         ))}
       </ScrollView>
+      {shouldAskReminder({ reminderAsked, enabled: reminder.enabled }) ? (
+        <View
+          testID="reminder-ask"
+          style={[styles.ask, { backgroundColor: t.surface, borderColor: t.line }]}
+        >
+          <Text style={[styles.askTitle, { color: t.text }]}>每天提醒你練習嗎？</Text>
+          <View style={styles.askButtons}>
+            <Pressable
+              testID="reminder-ask-yes"
+              accessibilityRole="button"
+              onPress={() => answerReminder(true)}
+              style={[styles.askBtn, styles.askYes, { backgroundColor: t.accent }]}
+            >
+              <Text style={[styles.askYesLabel, { color: t.onAccent }]}>好，每天 {reminder.time}</Text>
+            </Pressable>
+            <Pressable
+              testID="reminder-ask-no"
+              accessibilityRole="button"
+              onPress={() => answerReminder(false)}
+              style={[styles.askBtn, styles.askNo, { borderColor: t.line }]}
+            >
+              <Text style={[styles.askNoLabel, { color: t.muted }]}>不用了</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
       <View style={styles.primary}>
         <PrimaryButton testID="result-home" label="回首頁" onPress={goHome} />
       </View>
@@ -130,6 +172,21 @@ const styles = StyleSheet.create({
   itemKana: { width: 36 },
   itemState: { flex: 1, fontSize: 14 },
   itemWhen: { fontSize: 13 },
+  ask: {
+    marginHorizontal: 24,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+    gap: 10,
+  },
+  askTitle: { fontSize: 15, fontWeight: '700' },
+  askButtons: { flexDirection: 'row', gap: 10 },
+  askBtn: { minHeight: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
+  askYes: { flex: 2 },
+  askYesLabel: { fontSize: 15, fontWeight: '700' },
+  askNo: { flex: 1, borderWidth: 1 },
+  askNoLabel: { fontSize: 15 },
   primary: { paddingHorizontal: 24, paddingBottom: 6 },
   secondary: { paddingHorizontal: 24, paddingBottom: 30 },
   again: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },

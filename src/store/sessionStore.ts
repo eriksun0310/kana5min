@@ -3,6 +3,7 @@
 // 中途離開時把這一輪做到哪存進 AsyncStorage（與 SRS 的 sqlite 分開），之後可從首頁繼續。
 // 流程見 docs/architecture.md 第 5、13 節。
 
+import { syncRemindersFromStores } from '../notifications/syncReminders';
 import { create } from 'zustand';
 import type { Progress, Script } from '../data/types';
 import {
@@ -479,6 +480,8 @@ export const useSessionStore = create<SessionState>()((set, get) => {
       );
       const { before, after } = await useProgressStore.getState().commitRound(srsAnswers, now);
       useSettingsStore.getState().markPracticed(now);
+      // 練完了：重排提醒（今天不再跳）；不等待、不擋結果頁
+      void syncRemindersFromStores(now);
       const summary = buildResultSummary({
         answers: s.answers,
         before,
