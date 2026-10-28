@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { byId, punFor, soundOf } from '../data';
-import { isPunUnlocked } from '../logic/punUnlock';
+import { punCardState } from '../logic/punUnlock';
 import { useSettingsStore } from '../store/settingsStore';
 import { useTheme } from '../theme/useTheme';
 import { Card } from './Card';
@@ -31,7 +31,7 @@ export function PunCard({ kanaId, style, compact }: PunCardProps) {
   const pun = punFor(kanaId);
   if (!sound || !pun) return null;
 
-  const open = isPunUnlocked(sound, { purchased, unlocked });
+  const open = punCardState(sound, { purchased, unlocked }) === 'unlocked';
   const script = byId(kanaId)?.script ?? 'hiragana';
 
   if (open) {

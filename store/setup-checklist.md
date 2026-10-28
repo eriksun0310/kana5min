@@ -1,30 +1,39 @@
-# 後台可以先建立的項目
+# 後台設定清單與進度
 
-這些項目只跟已確定的商業模式有關，不需要等 App 做完。
+這些項目只跟已確定的商業模式有關。狀態依 PROGRESS.md「商店後台設定進度」，2026-10-28 更新。
 
 ## App Store Connect
 
-1. 在 Certificates, Identifiers & Profiles 新增 App ID：`com.ptalk.kana5min`，勾選 In-App Purchase。
-2. 在 App Store Connect 新增 App，名稱「Kana 5min - 五十音入門」，主要語言繁體中文，選擇上面的 Bundle ID。
-3. 在「App 內購買項目」新增非消耗型項目：產品 ID `com.ptalk.kana5min.punpack`，價格 NT$90，文字見 app-store.md。
-4. 確認付費 App 協議（Paid Apps Agreement）仍有效。
+- [x] App ID `com.ptalk.kana5min` 已註冊（含 In-App Purchase）
+- [x] App 已建立（Apple ID 6827398112，SKU `kana5min`），主要語言繁體中文
+- [x] 非消耗型內購 `com.ptalk.kana5min.punpack`，NT$90（文字見 app-store.md），已建立
+- [x] App 隱私已發佈（見 privacy-labels.md）
+- [ ] 後台的名稱、副標、描述改成最新文字（見 app-store.md；上架名稱「日文五十音｜白爛諧音記憶法」）
+- [ ] 內購審查截圖換成目前紅色版買斷頁（目前上傳的是舊琥珀色），送審時對內購按「新增以供審查」
+- [ ] App 審查聯絡人資料、iOS 截圖（6.9 吋，見 screenshots.md）、build
+- [ ] 確認付費 App 協議（Paid Apps Agreement）與稅務／銀行資料
 
 ## Google Play Console
 
-1. 建立應用程式「Kana 5min - 五十音入門」，預設語言繁體中文，類型為應用程式、免費。
-2. 應用程式內產品需要先上傳一個含 Billing 權限的版本才能建立，所以這一步等第一個 Android 版本上傳到內部測試後再做：產品 ID `com.ptalk.kana5min.punpack`，價格 NT$90。
+- [x] 應用程式已建立（免費、`com.ptalk.kana5min`），應用程式內容 10 項已完成（隱私權政策、廣告＝是、目標對象 13 歲以上、資料安全性、內容分級等）
+- [ ] 商店資訊的圖片素材：512 圖示、1024×500 主題圖、手機截圖（見 screenshots.md）
+- [x] 應用程式內產品 `com.ptalk.kana5min.punpack`（NT$90）已於 2026-10-28 在後台建立（需要先有含 Billing 權限的版本才能建立；PROGRESS.md 的 10-27 紀錄尚未更新這點）
+- [ ] 付款資料（Google 付款資料）
 
-## RevenueCat
+## RevenueCat（project `81be02cb`，名稱 Kana 5min）
 
-1. 新增專案 Kana 5min，加入 iOS App（Bundle ID `com.ptalk.kana5min`）與 Android App（套件名稱 `com.ptalk.kana5min`）。
-2. 建立 entitlement `pun_pack`。
-3. 建立 product `com.ptalk.kana5min.punpack`，綁定到 `pun_pack`。
-4. 建立預設 offering，放入這個 product。
-5. 把 iOS 與 Android 的 public SDK key 填進專案的 `.env`（`EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`）。
+- [x] iOS App 與 Android App 已加入
+- [x] Entitlement `pun_pack`、product `com.ptalk.kana5min.punpack`、offering `default`（lifetime package）
+- [ ] Play Store App 上傳 service account JSON
+- [ ] 把 iOS／Android 公開 SDK key 設成 EAS 環境變數 `EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`
 
-## AdMob
+## AdMob（發布商 pub-7018554061213551）
 
-1. 新增兩個應用程式：iOS 與 Android 各一個，名稱 Kana 5min。
-2. 每個應用程式各建立兩個廣告單元：橫幅（Banner）與插頁式（Interstitial）。
-3. 把 App ID 與四個廣告單元 ID 填進 `.env`，變數名稱以 Claude Code 產生的 `.env.example` 為準。
-4. 在「隱私權與訊息」建立 GDPR 與 IDFA 說明訊息，供 UMP 同意表單使用。
+不使用橫幅與插頁廣告，只需要獎勵廣告單元；所有請求固定非個人化，不要求 ATT。
+
+- [x] iOS、Android 各一個 App（名稱 Kana 5min）
+- [x] 獎勵廣告單元已於 2026-10-28 建立（`ios-rewarded`、`android-rewarded`，ID 見 admob-ids.md）。App 內設成 EAS 環境變數 `EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`
+- 既有的 Banner 與 Interstitial 單元不會用到，不必刪除，也不要填進環境變數
+- [ ] 帳號層級付款資料
+- [ ] 「隱私權與訊息」建立 GDPR 訊息（供 UMP 同意表單使用）；**不需要** IDFA／ATT 訊息
+- [ ] 上架後在 AdMob 把兩個 App 連結到商店

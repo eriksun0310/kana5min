@@ -1,7 +1,9 @@
 import { FREE_SOUNDS, PUNS } from '../../data/puns';
 import {
+  canWatchRewardedAd,
   isPunUnlocked,
   nextUnlockBatch,
+  punCardState,
   shouldPromptPurchase,
 } from '../punUnlock';
 
@@ -86,5 +88,41 @@ describe('shouldPromptPurchase', () => {
     expect(shouldPromptPurchase(5, false)).toBe(true);
     expect(shouldPromptPurchase(2, true)).toBe(false);
     expect(shouldPromptPurchase(9, true)).toBe(false);
+  });
+});
+
+describe('已購買時沒有廣告入口（punPackPurchased = true）', () => {
+  const PAID = { purchased: true, unlocked: [] as string[] };
+  const lockedSounds = Object.keys(PUNS).filter((s) => !FREE_SOUNDS.includes(s));
+
+  it('未購買時，鎖定的讀音顯示鎖定卡並且可以看廣告', () => {
+    expect(lockedSounds.length).toBeGreaterThan(0);
+    for (const s of lockedSounds) {
+      expect(punCardState(s, NONE)).toBe('locked');
+      expect(canWatchRewardedAd(s, NONE)).toBe(true);
+    }
+  });
+
+  it('已購買時，所有讀音都顯示已解鎖卡，不出現鎖定卡（沒有解鎖鈕）', () => {
+    for (const s of Object.keys(PUNS)) {
+      expect(punCardState(s, PAID)).toBe('unlocked');
+    }
+  });
+
+  it('已購買時，任何讀音都不能看廣告（不會呼叫 showRewardedAd）', () => {
+    for (const s of Object.keys(PUNS)) {
+      expect(canWatchRewardedAd(s, PAID)).toBe(false);
+    }
+  });
+
+  it('已用廣告解鎖或免費的讀音也不能再看廣告', () => {
+    const s = lockedSounds[0];
+    expect(canWatchRewardedAd(s, { purchased: false, unlocked: [s] })).toBe(false);
+    expect(canWatchRewardedAd(FREE_SOUNDS[0], NONE)).toBe(false);
+  });
+
+  it('沒有諧音的讀音不顯示卡片', () => {
+    expect(punCardState(undefined, PAID)).toBe('none');
+    expect(punCardState('gya', PAID)).toBe('none');
   });
 });

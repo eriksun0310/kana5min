@@ -1,6 +1,6 @@
 # AdMob ID（發布商 pub-7018554061213551，Google 帳號 authuser=1）
 
-這些是公開 ID（會被編進 App），不是金鑰。開發時一律用 TestIds，不要點自己的正式廣告。
+這些是公開 ID（會被編進 App），不是金鑰。開發時一律用 TestIds，不要點自己的正式廣告。App 只用 Rewarded；Banner 與 Interstitial 兩列保留作紀錄，App 不使用。
 
 | 項目 | 值 |
 |---|---|

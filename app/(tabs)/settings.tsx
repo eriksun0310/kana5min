@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Icon, Screen } from '../../src/components';
 import { OptionSheet, type SheetOption } from '../../src/components/OptionSheet';
@@ -12,6 +12,7 @@ import {
   REMINDER_TIME_OPTIONS,
   scheduleReminder,
 } from '../../src/notifications/reminder';
+import { loadPrivacyOptionsRequired, openPrivacyOptionsForm } from '../../src/monetization/privacyOptions';
 import { restorePunPack } from '../../src/monetization/purchases';
 import { isGraduated } from '../../src/logic/graduate';
 import { useProgressStore, useSettingsStore } from '../../src/store';
@@ -60,6 +61,14 @@ export default function SettingsScreen() {
   const { setTheme, setDailyGoalMinutes, setRomajiAutoHide, setReminder, setAudioSpeed } =
     useSettingsStore.getState();
   const [sheet, setSheet] = useState<SheetKind>(null);
+  const [privacyOptions, setPrivacyOptions] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    loadPrivacyOptionsRequired().then((v) => alive && setPrivacyOptions(v));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const appName = Constants.expoConfig?.name ?? '諧音五十音';
   const version = Constants.expoConfig?.version ?? '1.0.0';
@@ -227,6 +236,23 @@ export default function SettingsScreen() {
               學習紀錄只存在這支手機上，不需要註冊帳號。
             </Text>
           </Card>
+          {privacyOptions ? (
+            <View
+              style={[styles.group, { backgroundColor: t.surface, borderColor: t.line, marginTop: 10 }]}
+            >
+              <Pressable
+                testID="row-privacy-options"
+                accessibilityRole="button"
+                onPress={() => {
+                  openPrivacyOptionsForm();
+                }}
+                style={[styles.row, { borderBottomWidth: 0 }]}
+              >
+                <Text style={{ fontSize: 15, color: t.text }}>隱私權選項</Text>
+                <Icon name="chevronRight" size={16} color={t.muted} />
+              </Pressable>
+            </View>
+          ) : null}
         </Section>
 
         <Section title="關於">

@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { mustById, type Script } from '../data';
-import { nextUnlockBatch, shouldPromptPurchase } from '../logic/punUnlock';
+import { canWatchRewardedAd, nextUnlockBatch, shouldPromptPurchase } from '../logic/punUnlock';
 import { showRewardedAd } from '../monetization/ads';
 import { usePunPackPrice } from '../monetization/usePunPackPrice';
 import { useSettingsStore } from '../store/settingsStore';
@@ -29,12 +29,14 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
   const bottom = useBottomPad(24);
   const price = usePunPackPrice();
   const unlocked = useSettingsStore((s) => s.punUnlocked);
+  const purchased = useSettingsStore((s) => s.punPackPurchased);
   const [status, setStatus] = useState<AdStatus>('idle');
 
   const batch = nextUnlockBatch(sound, unlocked);
   const prefix = script === 'katakana' ? 'k' : 'h';
   const chars = batch.map((s) => mustById(`${prefix}-${s}`).char).join('・');
   const loading = status === 'loading';
+  const canWatch = canWatchRewardedAd(sound, { purchased, unlocked });
 
   const close = () => {
     setStatus('idle');
@@ -42,7 +44,7 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
   };
 
   const watch = async () => {
-    if (loading || batch.length === 0) return;
+    if (loading || !canWatch) return;
     setStatus('loading');
     const result = await showRewardedAd();
     if (result === 'rewarded') {
@@ -92,21 +94,25 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
           </View>
 
           <View style={styles.watch}>
-            <PrimaryButton
-              testID="pun-watch-ad"
-              label={loading ? '廣告載入中' : `看廣告解鎖 ${batch.length} 個字`}
-              disabled={loading}
-              onPress={watch}
-            />
+            {canWatch ? (
+              <PrimaryButton
+                testID="pun-watch-ad"
+                label={loading ? '廣告載入中' : `看廣告解鎖 ${batch.length} 個字`}
+                disabled={loading}
+                onPress={watch}
+              />
+            ) : null}
             {loading ? (
               <View style={styles.loading} pointerEvents="none">
                 <ActivityIndicator color={t.muted} />
               </View>
             ) : null}
           </View>
-          <Text testID="pun-batch" style={[styles.batch, { color: t.muted }]}>
-            這次會解鎖：{chars}
-          </Text>
+          {canWatch ? (
+            <Text testID="pun-batch" style={[styles.batch, { color: t.muted }]}>
+              這次會解鎖：{chars}
+            </Text>
+          ) : null}
           {status === 'unavailable' ? (
             <Text testID="pun-ad-unavailable" style={[styles.warn, { color: t.wrongText }]}>
               廣告暫時無法載入，請稍後再試
