@@ -234,6 +234,6 @@ describe('好笑記憶包諧音梗（puns）', () => {
   it('hintFor 改由 puns 供應：あ行、か行（除了け）有，さ行起也有（解鎖與否由 PunCard 決定）', () => {
     expect(hintFor('h-ku')).toBe('你是在く（哭）喔？ 🥹');
     expect(hintFor('h-ke')).toBeUndefined();
-    expect(hintFor('h-sa')).toBe('さ（殺）小？ 🤨');
+    expect(hintFor('h-sa')).toBe('さ（殺）小？ 🤨 （台語）');
   });
 });
