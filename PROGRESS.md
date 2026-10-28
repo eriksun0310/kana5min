@@ -194,13 +194,9 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 
 ## 待確認事項
 
-- App 名稱已定為「諧音五十音」，副標「台灣人的白爛日文記憶法」。App Store Connect 與 Google Play 後台的名稱、副標、描述尚未改（文字見 `store/app-store.md`、`store/google-play.md`）
-- AdMob 尚未建立「獎勵廣告」單元（目前只有 Banner 與 Interstitial，新模式用不到這兩個）。建立後把 unit id 設成 EAS 環境變數 `EXPO_PUBLIC_ADMOB_REWARDED_IOS`／`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`
-- RevenueCat 公開 SDK key 尚未設定：設成 EAS 環境變數 `EXPO_PUBLIC_RC_IOS_KEY`／`EXPO_PUBLIC_RC_ANDROID_KEY`（見 RELEASE.md）
-- 好笑記憶包 F5 分享卡尚未實作
-- 內購審查截圖：用模擬器的買斷頁（`screenshots/phase5/F3-PunPack-light.png`）
+- App 名稱：手機上顯示「諧音五十音」（app.json `name`），商店上架名稱「日文五十音｜白爛諧音記憶法」，副標「台灣人專屬｜平假名片假名 5 分鐘學會」。後台名稱與文字見 `store/app-store.md`、`store/google-play.md`（尚缺的後台項目見最後面「開發者待辦清單」）
 - Bundle identifier（目前：com.ptalk.kana5min）
-- 壽司日檢 App Store 連結
+- 壽司日檢 App Store 連結（`src/config.ts`）
 - 導流頁第三個賣點文案
 - 人工聽過所有單一假名音檔，特別是 は、へ、を、ん 與拗音（音檔清單由 Claude Code 列在上方「音檔清單」）
 - 人工聽過片假名相關的 overrides：k-wo（オ）、k-di（ジ）、k-du（ズ）、w-otaku（オタク）
@@ -210,10 +206,7 @@ Claude Code 每完成一個階段就更新這份檔案。完成條件的勾選�
 - 外來語詞庫與例字（見「假設」的階段 3），特別是 ニョッキ、ヒューズ、リャマ 等較冷門的詞是否保留
 - 部分拗音例字較罕見（ひゅうが、みゅう 等），是否替換
 - `src/logic/autoQuiz.ts` 已不再使用，是否刪除
-- Android：expo-audio 在 Android 會帶入 RECORD_AUDIO 權限（iOS 不受影響），上 Google Play 前需處理
 - eas.json 的 `cli.version` 下限（目前 `>= 16.0.0`），請依實際安裝的 eas-cli 版本確認
-- 好笑記憶包、內購、廣告（goals/05）不在這四個階段的範圍內，尚未實作
-- App 圖示
 - `kana-puns.md` 的 ❌ 句子（お、け 等）換新句後，同步更新 `src/data/hints.ts`
 - Maestro 官方安裝程式在 `~/.zshrc` 加了 `export PATH=$PATH:$HOME/.maestro/bin`，並新建 `~/.bash_profile`；是否保留由使用者決定
 
@@ -327,3 +320,24 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **隱私權選項入口**：設定頁「資料」區新增「隱私權選項」（testID `row-privacy-options`），`src/monetization/privacyOptions.ts`：`AdsConsent.getConsentInfo()` 若 `privacyOptionsRequirementStatus` 為 UNKNOWN 先 `requestInfoUpdate()`，只有 `REQUIRED` 才顯示（判斷為純函式 `shouldShowPrivacyOptions`），按下呼叫 `AdsConsent.showPrivacyOptionsForm()`。離線或錯誤時視為不需要（不顯示）。需在 AdMob 後台建立 GDPR 訊息、且使用者落在需要的地區，這一列才會出現；實機驗證需開發者進行。
 - **已購買不出現廣告入口**：`punCardState`、`canWatchRewardedAd`（`src/logic/punUnlock.ts`）抽成純函式，PunCard 與 PunUnlockSheet 共用；已購買時 PunCard 一律是已解鎖卡、解鎖面板不渲染看廣告鈕、`watch()` 直接返回，不會呼叫 `showRewardedAd`。
 - **移除 RECORD_AUDIO**：專案內沒有任何錄音或麥克風程式（`src` 與 `app` 沒有 expo-audio 的 recorder、expo-av、getUserMedia）。RECORD_AUDIO 來自 expo-audio config plugin 的預設（`recordAudioAndroid` 預設為 true），所以 app.json 同時移除 `android.permissions` 的 `RECORD_AUDIO`，並把 expo-audio plugin 設為 `recordAudioAndroid: false`。保留 `MODIFY_AUDIO_SETTINGS`、`FOREGROUND_SERVICE`、`FOREGROUND_SERVICE_MEDIA_PLAYBACK`（播放音檔用）。iOS：`microphonePermission: false`，app.json 的 `infoPlist` 沒有 `NSMicrophoneUsageDescription`；以 `expo config --type introspect` 確認輸出的 Info.plist 與 Android 權限都沒有麥克風項目。原本待確認事項中「Android RECORD_AUDIO」一條已處理。
+
+- **App 名稱統一**：手機上顯示「諧音五十音」（app.json `name`，slug、bundle id、scheme 不變）；CLAUDE.md、docs/architecture.md、goals/05 已改，商店上架名稱不變。RevenueCat／AdMob 後台的 `Kana 5min` 是後台名稱，沒有改。Maestro 流程沒有 assert App 名稱（只有 `common/preset.yaml` 的註解與「打開」按鈕比對）。
+- **store/ 補齊**：新增 `privacy-policy.md`、`screenshots.md`、`privacy-labels.md`（Apple 隱私標籤＋Google 資料安全性）；`app-store.md`、`google-play.md` 各欄位標示程式計算的字數（名稱 13、副標 19、宣傳文字 79、關鍵字 41 字元／91 位元組、描述 543、簡短說明 40、IAP 名稱 5、IAP 描述 21／59），原稿寫的「14 字元」「約 20 字元」已更正。`setup-checklist.md` 改為依後台實際進度勾選，移除 Banner／Interstitial／ATT。
+- **假設**：`privacy-labels.md` 中 Apple 各類型的用途與「連結到使用者」細項是依 SDK 行為整理的建議，後台實際值以後台為準；Google「4 種資料」我解讀為 4 大類（財務資訊、應用程式活動、應用程式資訊與成效、裝置或其他 ID）。`screenshots/` 現有截圖是 1206×2622（6.3 吋），不是 App Store 6.9 吋尺寸，Google Play 也會因長寬比超過 2:1 被退，需在 6.9 吋模擬器重截，記在 `store/screenshots.md`。
+- **測試指令備註**：在這個 `.claude/worktrees/` 下的 worktree 執行 jest 時，`--testPathIgnorePatterns '.claude/worktrees'` 會把自己也忽略（找不到任何測試）；在 worktree 內直接 `pnpm exec jest` 即可（336→341 個測試通過）。
+
+## 開發者待辦清單（只列還沒做的，依優先順序）
+
+1. **設定 EAS 環境變數**（`eas env:create`，visibility 選 sensitive 或 plaintext 皆可，這些是公開 ID／key）：
+   - `EXPO_PUBLIC_RC_IOS_KEY`、`EXPO_PUBLIC_RC_ANDROID_KEY`：RevenueCat 專案 `81be02cb` → API keys 的公開 SDK key
+   - `EXPO_PUBLIC_ADMOB_REWARDED_IOS`、`EXPO_PUBLIC_ADMOB_REWARDED_ANDROID`：ID 見 `store/admob-ids.md`
+2. **App 圖示與啟動圖**：`assets/images/` 仍是 Expo 範本圖，亮色啟動畫面的圖形幾乎看不見。
+3. **壽司日檢 App Store 連結**：`src/config.ts` 的 `SUSHI_JP_APP_STORE_URL`；導流頁（`app/next.tsx`）補第三個賣點與壽司日檢圖示。
+4. **人工聽音檔**：特別是 は、へ、を、ん、拗音，以及 k-wo、k-di、k-du、w-otaku、h-i／k-i（清單見「音檔清單」）。
+5. **RevenueCat**：Play Store App 上傳 service account JSON（之後 Android 商品才會變成有效）。
+6. **AdMob**：帳號付款資料；「隱私權與訊息」建立 GDPR 訊息（UMP；不需要 IDFA／ATT）；上架後把兩個 App 連結到商店。
+7. **Apple**：內購審查截圖換成目前紅色版買斷頁（現在上傳的是舊琥珀色，可用 `screenshots/phase5/F3-PunPack-light.png`），送審時對內購按「新增以供審查」；App 審查聯絡人資料；6.9 吋截圖；付費 App 合約與稅務／銀行資料。
+8. **Google Play**：付款資料；商店圖片素材（512 圖示、1024×500 主題圖、手機截圖）；上傳含 Billing 權限的 AAB 到內部測試。
+9. **兩平台沙盒購買與恢復購買實測**（iOS Sandbox 帳號、Google Play 授權測試人員）。
+10. **Android 實機編譯與測試**：確認能編譯、兩平台都看到測試獎勵廣告，隱私權選項（歐盟地區）可開啟表單。
+11. **重跑 Maestro 全套**：本次收尾改了 App 名稱字串與設定頁，合併後確認第一到第六階段流程仍通過。
