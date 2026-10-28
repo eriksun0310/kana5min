@@ -56,3 +56,20 @@ export function nextUnlockBatch(sound: string, unlocked: readonly string[]): str
 export function shouldPromptPurchase(adsWatched: number, alreadyPrompted: boolean): boolean {
   return adsWatched >= PROMPT_AFTER_ADS && !alreadyPrompted;
 }
+
+export type PunCardState = 'none' | 'unlocked' | 'locked';
+
+/** 諧音卡片的狀態：沒有諧音不顯示；已解鎖（含買斷）顯示句子；其餘為「看廣告／買斷」的鎖定卡。 */
+export function punCardState(sound: string | undefined, access: PunAccess): PunCardState {
+  if (!sound || !punOfSound(sound)) return 'none';
+  return isPunUnlocked(sound, access) ? 'unlocked' : 'locked';
+}
+
+/**
+ * 是否可以看獎勵廣告解鎖：已買斷、已解鎖、沒有可解鎖的字時一律不行
+ * （廣告入口不出現，也不會呼叫 showRewardedAd）。
+ */
+export function canWatchRewardedAd(sound: string, access: PunAccess): boolean {
+  if (access.purchased || isPunUnlocked(sound, access)) return false;
+  return nextUnlockBatch(sound, access.unlocked).length > 0;
+}

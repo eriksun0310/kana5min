@@ -53,7 +53,7 @@ spec.md 第 6 節、`kana-puns.md`、設計檔 F1～F5（不在 `design/` 裡的
 - [x] 購買後全部諧音梗解鎖，F4 總覽與 F5 分享卡（1080×1080 PNG，跟隨主題，系統分享面板，詳見 spec 6.4）可用（phase5-puns、phase5-share 通過），購買狀態由 settingsStore persist，離線時依本機快取判斷
 - [x] 諧音梗資料由 `kana-puns.md` 轉成 `src/data/puns.ts`（`scripts/gen-puns.mjs`，單元測試檢查同步），あ行與か行免費，其他鎖定
 - [x] 獎勵廣告：只在使用者主動點「解鎖諧音」後顯示，看完永久解鎖 3 個讀音；不做橫幅、不做插頁、不要求 ATT（已取代原本的橫幅與插頁條目）
-- [ ] 購買好笑記憶包後不再出現獎勵廣告入口，也不會呼叫 `showRewardedAd`：邏輯與單元測試見 PROGRESS.md 的「第五階段收尾」一節（本項待該 commit 合併後確認）
+- [x] 購買好笑記憶包後不再出現獎勵廣告入口，也不會呼叫 `showRewardedAd`：判斷邏輯抽成 `punCardState`／`canWatchRewardedAd`（src/logic/punUnlock.ts），單元測試覆蓋；PunCard 與解鎖面板都使用它
 - [x] 開發版本使用 AdMob 測試廣告單元（`__DEV__` 用 `TestIds.REWARDED`），正式獎勵廣告 ID 來自環境變數，`.env.example` 已列出所有變數
 - [x] 所有廣告請求固定非個人化；UMP 同意表單保留（`AdsConsent.gatherConsent()`）；設定頁有「隱私權選項」入口（見第五階段收尾）
   - [ ] UMP 訊息本身尚未在 AdMob「隱私權與訊息」建立（GDPR 訊息），需開發者在後台完成
