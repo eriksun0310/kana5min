@@ -132,3 +132,8 @@ export function presetKataIntroSeen(preset: DebugPresetName): boolean {
 export function presetGraduateSeen(_preset: DebugPresetName): boolean {
   return false;
 }
+
+/** 把全部進度改成「已到期」（nextReviewAt 在一天前）：debug 深連結 due=1，用來測試複習題很多的情況。 */
+export function makeAllDue(items: Progress[], now: number): Progress[] {
+  return items.map((p) => ({ ...p, nextReviewAt: now - DAY_MS }));
+}

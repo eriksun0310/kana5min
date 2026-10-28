@@ -1,6 +1,7 @@
-// 進行中的練習狀態（每日練習與自動練習共用）。不持久化：
-// 離開流程（結束、殺掉 App）時這一輪沒提交的內容就丟掉，SRS 只在一輪完整結束時寫入。
-// 流程見 docs/architecture.md 第 5 節。
+// 進行中的練習狀態（每日練習、自動練習、易混淆快速辨識共用）。
+// SRS 只在一輪結束（完整或「結束這一輪」的部分提交）時寫入；
+// 中途離開時把這一輪做到哪存進 AsyncStorage（與 SRS 的 sqlite 分開），之後可從首頁繼續。
+// 流程見 docs/architecture.md 第 5、13 節。
 
 import { create } from 'zustand';
 import type { Progress, Script } from '../data/types';
@@ -15,6 +16,22 @@ import {
   buildResultSummary,
   type ResultSummary,
 } from '../logic/progressStats';
+import {
+  elapsedMs,
+  extendTimer,
+  isTimeUp,
+  limitMsFor,
+  pauseTimer,
+  resumeTimer,
+  type TimerState,
+} from '../logic/practiceTimer';
+import {
+  hasSessionProgress,
+  newQuestionsFirst,
+  SESSION_SAVE_VERSION,
+  type SavedSession,
+} from '../logic/sessionSave';
+import { toDateKey } from '../logic/progressStats';
 import { mixLoanwordDrafts, pickLoanwordDrafts } from '../logic/loanword';
 import {
   buildDailySession,
@@ -25,6 +42,7 @@ import {
   type Rng,
 } from '../logic/session';
 import { progressList, useProgressStore } from './progressStore';
+import { clearSavedSession, readSavedSession, writeSavedSession } from './sessionSaveStorage';
 import { useSettingsStore } from './settingsStore';
 
 /** daily = 每日練習；auto = 自動練習；confuse = 易混淆字組快速辨識 */
@@ -50,6 +68,9 @@ export interface SessionResultData {
   after: Progress[];
 }
 
+/** 答完一題後前進的結果：next = 已換下一題；timeup = 時間到（沒有前進，要詢問）；done = 已是最後一題 */
+export type AdvanceOutcome = 'next' | 'timeup' | 'done';
+
 export type StartDailyOutcome = 'learn' | 'quiz' | 'empty';
 
 export interface SessionState {
@@ -72,9 +93,19 @@ export interface SessionState {
   /** 讀外來語題的對錯（不屬於任何假名，只計入結果頁的答對數，不更新 SRS） */
   loanwordAnswers: boolean[];
   startedAt: number;
+  /** 目前這一題已作答、還沒按下一題（存檔時要把位置往後算一題，接續才不會重答） */
+  qAnswered: boolean;
+  /** 計時：已累積的練習時間、目前這一段的開始時間、上限（0 = 不限時，只有每日練習限時） */
+  usedMs: number;
+  runningSince: number | null;
+  limitMs: number;
   result: SessionResultData | null;
   /** 提交中，避免重複提交 */
   finishing: boolean;
+  /** 可接續的存檔（今天的）；沒有為 null。不隨 clear() 清掉 */
+  saved: SavedSession | null;
+  /** 目前存檔屬於哪一輪（sid）；一輪結束只清自己寫的存檔 */
+  savedOwner: number | null;
 
   /** 開始每日練習：有新字 → 'learn'；只有複習 → 直接建好題目 'quiz'；都沒有 → 'empty' */
   startDaily: (allProgress: Progress[], now: number, rng?: Rng) => StartDailyOutcome;
@@ -96,6 +127,29 @@ export interface SessionState {
   recordLoanwordAnswer: (correct: boolean) => void;
   /** 前進到下一題；已經是最後一題時回傳 false（不動） */
   nextQuestion: () => boolean;
+  /** 啟動時讀回存檔（隔天的存檔作廢） */
+  loadSaved: (now: number) => Promise<void>;
+  /** 存檔若已不是今天的就丟掉（App 開著過了午夜） */
+  refreshSaved: (now: number) => void;
+  /** 丟掉存檔（「從頭開始」） */
+  discardSaved: () => void;
+  /**
+   * 接續存檔的那一輪：回傳要去的畫面。'learn' 從該新字的「看與聽」重新開始；'quiz' 回到離開時的那一題；
+   * 'finish' 表示題目都答完了、只差提交；沒有存檔回 null。
+   */
+  resumeSaved: (now: number) => 'learn' | 'quiz' | 'finish' | null;
+  /** 畫面取得焦點／回到前景時繼續計時 */
+  resumeTimer: (now: number) => void;
+  /** 畫面失去焦點／切到背景時暫停計時（同時更新存檔的已用時間） */
+  pauseTimer: (now: number) => void;
+  /** 離開流程（✕ → 先離開）：暫停、存檔（有進度才存）、清掉這一輪的狀態 */
+  leave: (now: number) => void;
+  /** 答完一題後前進：每日練習時間到時回 'timeup'（會先把後面的新字題排到前面，新字測驗完才詢問） */
+  advanceQuiz: (now: number) => AdvanceOutcome;
+  /** 剛進入測驗畫面（含接續）時檢查：時間到而且沒有新字題待答 → true，要詢問 */
+  timeUpDue: (now: number) => boolean;
+  /** 「再練 5 分鐘」：延長上限，並前進到下一題（若目前這題已答完） */
+  extendTime: (now: number) => void;
   /** 一輪結束：依 SRS 提交進度、記錄今天為練習日、組出結果頁資料 */
   finish: (now: number) => Promise<SessionResultData>;
   clear: () => void;
@@ -129,12 +183,58 @@ const empty = {
   answers: {} as Record<string, boolean[]>,
   loanwordAnswers: [] as boolean[],
   startedAt: 0,
+  qAnswered: false,
+  usedMs: 0,
+  runningSince: null as number | null,
+  limitMs: 0,
   result: null as SessionResultData | null,
   finishing: false,
 };
 
-export const useSessionStore = create<SessionState>()((set, get) => ({
+function timerOf(s: Pick<SessionState, 'usedMs' | 'runningSince' | 'limitMs'>): TimerState {
+  return { usedMs: s.usedMs, runningSince: s.runningSince, limitMs: s.limitMs };
+}
+
+function snapshotOf(s: SessionState, now: number): SavedSession {
+  return {
+    version: SESSION_SAVE_VERSION,
+    day: toDateKey(now),
+    savedAt: now,
+    mode: s.mode,
+    groupId: s.groupId,
+    phase: s.phase,
+    newKanaIds: s.newKanaIds,
+    reviewKanaIds: s.reviewKanaIds,
+    learnedIds: s.learnedIds,
+    newIndex: s.newIndex,
+    questions: s.questions,
+    qIndex: s.qAnswered ? s.qIndex + 1 : s.qIndex,
+    answers: s.answers,
+    loanwordAnswers: s.loanwordAnswers,
+    startedAt: s.startedAt,
+    usedMs: elapsedMs(timerOf(s), now),
+    limitMs: s.limitMs,
+  };
+}
+
+export const useSessionStore = create<SessionState>()((set, get) => {
+  /** 把目前這一輪存起來（有進度才存；一輪已結束就不存） */
+  const persist = (now: number = Date.now()) => {
+    const s = get();
+    if (!s.active || s.result || s.finishing || !hasSessionProgress(s)) return;
+    const saved = snapshotOf(s, now);
+    set({ saved, savedOwner: s.sid });
+    void writeSavedSession(saved);
+  };
+  const dropSaved = () => {
+    set({ saved: null, savedOwner: null });
+    void clearSavedSession();
+  };
+
+  return {
   sid: 0,
+  saved: null,
+  savedOwner: null,
   ...empty,
 
   startDaily(allProgress, now, rng = Math.random) {
@@ -150,8 +250,11 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
           [],
           rng,
         );
+    // 重新開始每日練習 = 丟掉舊的存檔（接續走 resumeSaved）
+    dropSaved();
     set((s) => ({
       ...empty,
+      limitMs: limitMsFor(useSettingsStore.getState().dailyGoalMinutes),
       sid: s.sid + 1,
       active: true,
       mode: 'daily',
@@ -210,6 +313,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     const s = get();
     if (s.newIndex + 1 < s.newKanaIds.length) {
       set({ newIndex: s.newIndex + 1 });
+      persist();
       return 'next';
     }
     const questions = withLoanwords(
@@ -222,12 +326,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       s.newKanaIds,
       rng,
     );
-    set({ phase: 'quiz', questions, qIndex: 0 });
+    set({ phase: 'quiz', questions, qIndex: 0, qAnswered: false });
+    persist();
     return 'quiz';
   },
 
   recordAnswer(kanaId, correct) {
-    set((s) => ({ answers: { ...s.answers, [kanaId]: [...(s.answers[kanaId] ?? []), correct] } }));
+    set((s) => ({
+      answers: { ...s.answers, [kanaId]: [...(s.answers[kanaId] ?? []), correct] },
+      qAnswered: true,
+    }));
+    persist();
     if (!correct) {
       // 作答當下就寫入易混淆字組的答錯次數，不等一輪結束；寫入失敗不影響作答流程
       useProgressStore
@@ -238,14 +347,112 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   },
 
   recordLoanwordAnswer(correct) {
-    set((s) => ({ loanwordAnswers: [...s.loanwordAnswers, correct] }));
+    set((s) => ({ loanwordAnswers: [...s.loanwordAnswers, correct], qAnswered: true }));
+    persist();
   },
 
   nextQuestion() {
     const s = get();
     if (s.qIndex + 1 >= s.questions.length) return false;
-    set({ qIndex: s.qIndex + 1 });
+    set({ qIndex: s.qIndex + 1, qAnswered: false });
     return true;
+  },
+
+  async loadSaved(now) {
+    set({ saved: await readSavedSession(now) });
+  },
+
+  refreshSaved(now) {
+    const saved = get().saved;
+    if (saved && saved.day !== toDateKey(now)) dropSaved();
+  },
+
+  discardSaved() {
+    dropSaved();
+  },
+
+  resumeSaved(now) {
+    const saved = get().saved;
+    if (!saved || saved.day !== toDateKey(now)) {
+      if (saved) dropSaved();
+      return null;
+    }
+    set((s) => ({
+      ...empty,
+      sid: s.sid + 1,
+      savedOwner: s.sid + 1,
+      active: true,
+      mode: saved.mode,
+      groupId: saved.groupId,
+      phase: saved.phase,
+      newKanaIds: saved.newKanaIds,
+      reviewKanaIds: saved.reviewKanaIds,
+      learnedIds: saved.learnedIds,
+      newIndex: saved.newIndex,
+      questions: saved.questions,
+      qIndex: saved.qIndex,
+      answers: saved.answers,
+      loanwordAnswers: saved.loanwordAnswers,
+      startedAt: saved.startedAt,
+      usedMs: saved.usedMs,
+      limitMs: saved.limitMs,
+    }));
+    if (saved.phase === 'quiz' && saved.qIndex >= saved.questions.length) return 'finish';
+    return saved.phase;
+  },
+
+  resumeTimer(now) {
+    const s = get();
+    if (!s.active || s.result || s.finishing) return;
+    set(timerOf(resumeTimer(timerOf(s), now)));
+  },
+
+  pauseTimer(now) {
+    const s = get();
+    if (s.runningSince === null) return;
+    set(timerOf(pauseTimer(timerOf(s), now)));
+    persist(now);
+  },
+
+  leave(now) {
+    get().pauseTimer(now);
+    persist(now);
+    set({ ...empty });
+  },
+
+  advanceQuiz(now) {
+    const s = get();
+    const next = s.qIndex + 1;
+    if (next >= s.questions.length) return 'done';
+    if (s.mode === 'daily' && isTimeUp(timerOf(s), now)) {
+      const r = newQuestionsFirst(s.questions, next, new Set(s.newKanaIds));
+      if (!r.hasNew) return 'timeup';
+      set({ questions: r.questions, qIndex: next, qAnswered: false });
+      return 'next';
+    }
+    set({ qIndex: next, qAnswered: false });
+    return 'next';
+  },
+
+  timeUpDue(now) {
+    const s = get();
+    if (!s.active || s.mode !== 'daily' || s.phase !== 'quiz' || s.qAnswered) return false;
+    if (s.qIndex >= s.questions.length || !isTimeUp(timerOf(s), now)) return false;
+    const r = newQuestionsFirst(s.questions, s.qIndex, new Set(s.newKanaIds));
+    if (r.hasNew) {
+      set({ questions: r.questions });
+      return false;
+    }
+    return true;
+  },
+
+  extendTime(now) {
+    const s = get();
+    set({
+      ...timerOf(extendTimer(timerOf(s), now)),
+      ...(s.qAnswered ? { qIndex: s.qIndex + 1, qAnswered: false } : {}),
+    });
+    persist(now);
   },
 
   async finish(now) {
@@ -262,7 +469,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         });
       });
     }
-    set({ finishing: true });
+    // 先停表：用時只算練習畫面的時間
+    set({ ...timerOf(pauseTimer(timerOf(s), now)), finishing: true });
     try {
       // SRS 只更新已學的字與這輪的新字；快速辨識裡還沒學的字只記答錯次數（已在作答當下寫入）
       const eligible = new Set([...s.learnedIds, ...s.newKanaIds]);
@@ -278,6 +486,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         startedAt: s.startedAt,
         finishedAt: now,
         extraAnswers: s.loanwordAnswers,
+        elapsedMs: get().usedMs,
       });
       const hiraganaRows = completedRows(before, after, 'hiragana');
       const rowsScript: Script = hiraganaRows.length > 0 ? 'hiragana' : 'katakana';
@@ -291,6 +500,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         after,
       };
       set({ result, finishing: false });
+      // 這一輪自己寫的存檔隨提交清掉（別的模式寫的存檔不動）
+      if (get().savedOwner === s.sid) dropSaved();
       return result;
     } catch (e) {
       set({ finishing: false });
@@ -301,7 +512,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   clear() {
     set({ ...empty });
   },
-}));
+  };
+});
 
 /** 目前進度的陣列（方便畫面從 progressStore 取用）。 */
 export function currentProgressList(): Progress[] {

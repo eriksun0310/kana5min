@@ -188,6 +188,8 @@ export function buildResultSummary(args: {
   startedAt: number;
   finishedAt: number;
   extraAnswers?: boolean[];
+  /** 實際練習時間（只計在練習畫面的時間）；沒給就用 finishedAt - startedAt */
+  elapsedMs?: number;
 }): ResultSummary {
   const { answers, before, after, startedAt, finishedAt, extraAnswers = [] } = args;
   const beforeLearned = learnedIdSet(before);
@@ -222,7 +224,7 @@ export function buildResultSummary(args: {
     total,
     newCount: newItems.length,
     reviewCount: reviewItems.length,
-    elapsedMs: Math.max(0, finishedAt - startedAt),
+    elapsedMs: Math.max(0, args.elapsedMs ?? finishedAt - startedAt),
     items: [...newItems, ...reviewItems],
   };
 }

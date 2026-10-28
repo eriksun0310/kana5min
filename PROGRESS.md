@@ -299,3 +299,15 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **Maestro 全套重跑**：`maestro/` 下 13 個流程全數通過（phase1-chart-detail、daily-practice、onboarding、theme；phase2-auto-practice、confuse、special；phase3-learn-katakana、loanword、unlock；phase4-graduate、next；phase5-puns），iPhone 17（iOS 26.5）。
 - **截圖更新**：`screenshots/phase1/` 的 C2-02 首頁、C2-03 五十音表、C2-04 詳情頁，新增 `C2-03-Chart-katakana-locked-*`（片假名未解鎖）；`screenshots/phase3/` 全部重截。亮色與暗色皆已看過，顏色有跟著切換。完整的 `phase1-capture.yaml` 在重截時因描寫手勢（長按 trace-canvas）偶爾不穩而失敗兩次（失敗點不同，判斷為模擬器手勢時序），所以新增較精簡的 `phase1-ui-capture.yaml`／`run-phase1-ui.sh` 只截今天改過的畫面；phase1 其餘截圖（C2-05～C2-12）未重截。
 - **expo 修補版升級**：`expo` ~58.0.19 → ~58.0.20、`expo-router` ~58.0.26 → ~58.0.27（SDK 58 內；`expo install` 同時把新發佈的相依版本加進 `pnpm-workspace.yaml` 的 `minimumReleaseAgeExclude`，冷卻期過後可刪）。`tsc --noEmit` 通過；jest（排除 `.claude/worktrees`）295/296 通過，唯一失敗是 `kana-puns.md` 有未 commit 的工作區修改導致 puns 同步測試不一致（非這次升級造成，需要另行 `pnpm gen:puns` 或還原 md）；`expo-doctor` 19/20，唯一未過是 `eas-cli` 在專案相依中（既有狀況）。因 expo-modules-core 升版，重跑 `pod install`（需 `LANG=en_US.UTF-8`，否則 CocoaPods 會因編碼錯誤失敗）並重新編譯 Debug build，升級後再跑 phase1-daily-practice、phase3-unlock、phase5-puns 皆通過。
+
+## 限時練習與中途接續（2026-10-28）
+- 每日目標改成每輪的時間上限：只計練習畫面的時間（離開／背景暫停）；時間到等答完當下那題，詢問「結束這一輪」或「再練 5 分鐘」（固定 5 分鐘，可再次觸發）。結束＝部分提交（只提交已作答的字）。
+- 中途離開（✕「先離開」）把這一輪存進 AsyncStorage（`kana5min-session`，與 SRS 分開）；首頁按鈕變「繼續今天的練習」＋小字「從頭開始」；隔天作廢。每日／自動／易混淆快速辨識共用。實作與測試見 docs/architecture.md 第 13 節、`src/logic/practiceTimer.ts`、`sessionSave.ts`、`src/store/__tests__/sessionResume.test.ts`、`maestro/phase6-timed-session.yaml`。
+- 假設：
+  - 新字的流程與其測驗不受時間限制：時間到時，剩下的新字題會排到前面，全部答完才詢問，所以「新字學完就超時」時會先做完新字的 2 題測驗再詢問是否繼續複習（否則新字沒測驗就不算學會）。
+  - 自動練習與易混淆快速辨識固定 10 題，不限時，只共用存檔。
+  - 只有一個存檔位：開始新的自動練習並答題後會蓋掉原本存起來的每日練習；重新開始每日練習（含「從頭開始」）也會丟掉舊存檔。
+  - 新字階段接續時，從該新字的「看與聽」重新開始（不細存字內步驟）；什麼都還沒做就離開不存檔。
+  - 結果頁「用時」改為實際練習時間（暫停不算）。測驗畫面右上新增「第幾題/總題數」，方便確認接續位置（截圖會與舊版不同）。
+  - ✕ 對話框改為「要先離開嗎？／先離開」，maestro/common/exit-flow.yaml 與 phase3-unlock 同步更新。
+

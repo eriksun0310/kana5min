@@ -1,0 +1,106 @@
+# 限時練習與中途接續（需要 __DEV__ 版本的 debug 深連結）：
+# 1) 中途 ✕ 離開 → 首頁出現「繼續今天的練習」→ 繼續後回到離開時的那一題；「從頭開始」重建。
+# 2) 時間到（timescale 縮短）→ 答完當下那題後出現提示 → 「再練 5 分鐘」繼續、再次時間到 → 「結束這一輪」→ 結果頁。
+appId: com.ptalk.kana5min
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "(今天|從零開始學五十音)"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: 從零開始學五十音
+    commands:
+      - tapOn:
+          id: goal-10
+      - tapOn:
+          id: start-learning
+# 平假名＋片假名都已學、全部到期（只有複習題，沒有新字）
+- openLink: kana5min://debug?preset=all-done&due=1
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
+- extendedWaitUntil:
+    visible: 開始今天的 10 分鐘
+    timeout: 15000
+- assertNotVisible:
+    id: restart-today
+# ---- 1) 中途離開與接續
+- tapOn:
+    id: start-today
+- assertVisible: "1/[0-9]+"
+- runFlow: common/answer-one.yaml
+- assertVisible: "2/[0-9]+"
+- runFlow: common/answer-one.yaml
+- assertVisible: "3/[0-9]+"
+- tapOn:
+    id: flow-close
+- assertVisible: 要先離開嗎？
+- tapOn: 先離開
+- assertVisible: 繼續今天的練習
+- assertVisible: 從頭開始
+# 殺掉 App 再開，存檔仍在
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: 繼續今天的練習
+    timeout: 60000
+- tapOn:
+    id: start-today
+# 回到離開時的那一題（第 3 題），不會重答
+- assertVisible: "3/[0-9]+"
+- tapOn:
+    id: flow-close
+- tapOn: 先離開
+# 從頭開始：重建一輪，回到第 1 題，首頁不再有「繼續」
+- tapOn:
+    id: restart-today
+- assertVisible: "1/[0-9]+"
+- tapOn:
+    id: flow-close
+- tapOn: 先離開
+- assertNotVisible: 繼續今天的練習
+# ---- 2) 時間到
+- openLink: kana5min://debug?preset=all-done&due=1&timescale=0.001
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
+- extendedWaitUntil:
+    visible: 開始今天的 10 分鐘
+    timeout: 15000
+- tapOn:
+    id: start-today
+- assertVisible: "1/[0-9]+"
+# 答完第 1 題後時間已到：跳出提示
+- runFlow: common/answer-one.yaml
+- assertVisible: "已經練習 1 分鐘了，要繼續嗎？"
+- assertVisible: 結束這一輪
+- assertVisible: 再練 5 分鐘
+- tapOn: 再練 5 分鐘
+- assertVisible: "2/[0-9]+"
+# 再答一題後又超過新的上限：可以再次觸發
+- runFlow: common/answer-one.yaml
+- assertVisible: "已經練習 1 分鐘了，要繼續嗎？"
+- tapOn: 結束這一輪
+# 部分提交後照常顯示結果頁，只算做過的 2 題
+- extendedWaitUntil:
+    visible:
+      id: result-home
+    timeout: 15000
+- assertVisible: 今天完成了
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: start-today
+- assertNotVisible: 繼續今天的練習
+# 還原時間縮放
+- openLink: kana5min://debug?preset=reset
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"

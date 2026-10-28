@@ -1,11 +1,9 @@
-# 離開學習／測驗流程回首頁：左上關閉 → 確認「結束」。
-# 關閉鈕的 accessibilityLabel 也是「結束」，文字會點到它；改點對話框右側按鈕（座標百分比）。
+# 離開學習／測驗流程回首頁：左上關閉 → 確認「先離開」（做到哪會存起來，可從首頁繼續）。
 appId: com.ptalk.kana5min
 ---
 - tapOn:
     id: flow-close
-- assertVisible: 要結束這一輪嗎？
-- tapOn:
-    point: 67%,56%
+- assertVisible: 要先離開嗎？
+- tapOn: 先離開
 - assertVisible:
     id: tab-settings

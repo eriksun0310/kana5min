@@ -1,0 +1,33 @@
+# 答一題（選正確答案）並前進到下一題；__DEV__ 版本正確選項 testID 為 opt-correct。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    when:
+      visible:
+        id: quiz-kana
+    commands:
+      - tapOn:
+          id: opt-correct
+      - tapOn:
+          id: quiz-confirm
+- runFlow:
+    when:
+      visible:
+        id: replay-audio
+    commands:
+      - tapOn:
+          id: opt-correct
+- runFlow:
+    when:
+      visible:
+        id: loanword-text
+    commands:
+      - tapOn:
+          id: opt-correct
+- runFlow:
+    when:
+      visible:
+        id: quiz-next
+    commands:
+      - tapOn:
+          id: quiz-next

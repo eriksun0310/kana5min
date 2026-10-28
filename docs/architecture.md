@@ -194,3 +194,15 @@ screenshots/phaseN/      截圖
 
 ### App 名稱
 - app.json `name`：「諧音五十音」。通知標題、設定頁 fallback、通知權限 Alert 文字同步改。scheme（`kana5min://`）、bundle id、package 不變。
+
+## 13. 限時練習與中途接續（2026-10-28）
+
+- **計時**（`src/logic/practiceTimer.ts`，純函式）：`usedMs`（已累積）＋`runningSince`（目前這一段）＋`limitMs`（上限，0＝不限時）。`FlowHeader` 內的 `useSessionTimer`（`src/hooks`）在畫面取得焦點且 App 在前景時 `resumeTimer`，失去焦點／背景時 `pauseTimer`；所以看與聽、筆順、描寫、測驗都計入，離開就暫停。只有每日練習限時（`limitMs = 每日目標分鐘 × 60000`）；自動練習與易混淆快速辨識固定 10 題，`limitMs = 0`。
+- **時間到**：`sessionStore.advanceQuiz(now)` 在答完一題後回 `'next' | 'timeup' | 'done'`。最後一題一律 `'done'`（直接提交，不詢問）。時間到時先用 `newQuestionsFirst` 把後面的新字題排到前面，新字題都答完才回 `'timeup'`（新字一定要測驗完才算學會）。`app/quiz.tsx` 跳 Alert「已經練習 N 分鐘了，要繼續嗎？」：「結束這一輪」＝`finish()`（只提交 `answers` 裡有的字＝部分提交，沒做到的複習字不動）；「再練 5 分鐘」＝`extendTime`（新上限 = 已練習時間 + 5 分鐘，可再次觸發）。接續時進測驗畫面用 `timeUpDue` 先檢查一次。
+- **存檔**：單一存檔位，AsyncStorage key `kana5min-session`（`src/store/sessionSaveStorage.ts`），內容見 `src/logic/sessionSave.ts` 的 `SavedSession`（模式、階段、新字／複習／已學 id、題目清單、下一題位置、答對錯、已用時間、上限、存檔日期）。與 SRS（sqlite）分開，SRS 仍只在 `finish` 時寫入。寫入時機：每答一題、`advanceNew`、暫停計時、離開。`qIndex` 存「下一題」（已作答的題目位置 +1，接續才不會重答）。沒有進度（沒答過題、沒學完任何新字）不存。
+- **接續**：`sessionStore.saved`（App 啟動 `loadSaved`、首頁取得焦點 `refreshSaved`）；本地日期（`toDateKey`）不是存檔當天就作廢。首頁有 `saved` 時主按鈕「繼續今天的練習」（`start-today`）→ `resumeSavedAndGo`（`src/nav/startDaily.ts`）：新字階段回到該新字的「看與聽」（字內步驟不細存），測驗回到離開時的題目，題目都答完則直接提交；小字「從頭開始」（`restart-today`）＝重新 `startDaily`（會丟掉存檔）。一輪提交後只清自己寫的存檔（`savedOwner === sid`）。
+- **✕**：`confirmExitFlow`「要先離開嗎？」→「先離開」呼叫 `sessionStore.leave`（暫停＋存檔＋清除狀態）。
+- **結果頁用時**：`buildResultSummary` 的 `elapsedMs` 用 `usedMs`（只算練習畫面的時間）。
+- **測試用**：debug 深連結 `kana5min://debug?preset=all-done&due=1&timescale=0.001`：`due=1` 讓全部進度到期（只有複習題）、`timescale` 縮放每日目標與「再練 5 分鐘」（`timeConfig.scale`，只有開發版會設）。Maestro：`maestro/phase6-timed-session.yaml`。
+- 本機驗證用的 Debug build 不是 dev client：改 Metro 位置要 `xcrun simctl spawn <udid> defaults write com.ptalk.kana5min RCT_jsLocation localhost:<port>`。
+

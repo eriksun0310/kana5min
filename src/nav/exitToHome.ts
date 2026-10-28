@@ -1,5 +1,6 @@
 import type { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
+import { useSessionStore } from '../store/sessionStore';
 
 type Router = ReturnType<typeof useRouter>;
 
@@ -13,11 +14,20 @@ export function exitToHome(router: Router): void {
   else router.replace('/');
 }
 
-/** 流程左上「結束」：確認後回首頁；這一輪還沒提交的內容不保存。 */
+/**
+ * 流程左上「✕」：確認後回首頁。做到哪會存起來（SRS 不動），首頁按「繼續今天的練習」可以接續；
+ * 時間暫停，隔天的存檔作廢。
+ */
 export function confirmExitFlow(router: Router): void {
-  Alert.alert('要結束這一輪嗎？', '這一輪還沒完成，進度不會被保存。', [
+  Alert.alert('要先離開嗎？', '做到哪會幫你存起來，之後可以從首頁繼續。', [
     { text: '繼續練習', style: 'cancel' },
-    { text: '結束', style: 'destructive', onPress: () => exitToHome(router) },
+    {
+      text: '先離開',
+      onPress: () => {
+        useSessionStore.getState().leave(Date.now());
+        exitToHome(router);
+      },
+    },
   ]);
 }
 
