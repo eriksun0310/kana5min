@@ -286,3 +286,6 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 新增 `scripts/gen-puns.mjs`：從 `kana-puns.md`（只收「狀態」含 ✅、且句子含該假名的列）產生 `src/data/puns.ts` 的 PUNS 區塊（`pnpm gen:puns`／`pnpm check:puns`）。整理規則：半形括號改全形、合併空白，emoji 保留。
 - 第一次同步後，`puns.ts` 有 10 句變更、新增 ふ（共 42 句）；`と` 的句子原本沒有「と」，已在 md 補成「と（偷）偷喜歡我就直說！」。
 - 單元測試加入「puns.ts 與 kana-puns.md 同步」檢查。
+
+## 首頁進度條改為各行進度（2026-10-28）
+- 原本 46 格點點沒有說明、看不懂 → 改成 10 段「各行進度條」：每段依該行已學字數填滿，目前行外加框，標題寫「各行進度／學到○行」。`HomeStats.rows`、`currentRowLabel` 為新增欄位，`dots` 保留（測試仍用）。

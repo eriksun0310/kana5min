@@ -1,6 +1,6 @@
 // 首頁統計、連續練習天數、結果頁文字與時間格式（docs/architecture.md 第 5 節）。
 
-import { seionOrder, SEION_COUNT } from '../data';
+import { ROW_ORDER, rowLabel, seionOrder, SEION_COUNT } from '../data';
 import type { Progress, Script } from '../data/types';
 import { DAY_MS, isDue, MINUTE_MS } from './srs';
 import { NEW_PER_SESSION, learnedIdSet } from './session';
@@ -8,6 +8,18 @@ import { NEW_PER_SESSION, learnedIdSet } from './session';
 // ---------------------------------------------------------------- 首頁
 
 export type DotState = 'learned' | 'next' | 'rest';
+
+export interface RowProgress {
+  row: string;
+  /** 行首的假名：あ、か… 或 ア、カ… */
+  head: string;
+  /** 這行已學字數 */
+  learned: number;
+  /** 這行字數 */
+  total: number;
+  /** 下一個新字所在的行 */
+  current: boolean;
+}
 
 export interface HomeStats {
   /** 已學清音數 */
@@ -22,6 +34,10 @@ export interface HomeStats {
   nextKanaId?: string;
   /** 46 格進度條：已學／下一個新字／其餘 */
   dots: DotState[];
+  /** 10 行的各行進度（あ行～わ行） */
+  rows: RowProgress[];
+  /** 下一個新字所在行的標籤（如「さ行」）；全部學完時為 undefined */
+  currentRowLabel?: string;
 }
 
 export function computeHomeStats(
@@ -40,6 +56,17 @@ export function computeHomeStats(
     }
     return 'rest';
   });
+  const nextRow = order.find((k) => k.id === nextKanaId)?.row;
+  const rows: RowProgress[] = ROW_ORDER.map((row) => {
+    const inRow = order.filter((k) => k.row === row);
+    return {
+      row,
+      head: inRow[0]?.char ?? '',
+      learned: inRow.filter((k) => learned.has(k.id)).length,
+      total: inRow.length,
+      current: row === nextRow,
+    };
+  });
   const learnedCount = order.filter((k) => learned.has(k.id)).length;
   return {
     learnedCount,
@@ -48,6 +75,8 @@ export function computeHomeStats(
     newTodayCount: Math.min(NEW_PER_SESSION, order.length - learnedCount),
     nextKanaId,
     dots,
+    rows,
+    currentRowLabel: nextRow ? rowLabel(nextRow, script) : undefined,
   };
 }
 

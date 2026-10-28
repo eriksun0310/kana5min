@@ -42,6 +42,17 @@ describe('computeHomeStats', () => {
     expect(s.dots[8]).toBe('rest');
   });
 
+  it('rows：10 行，已學 7 個時 あ行滿、か行 2/5 且為目前行', () => {
+    const all = order.slice(0, 7).map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }));
+    const s = computeHomeStats(all, NOW);
+    expect(s.rows).toHaveLength(10);
+    expect(s.rows[0]).toMatchObject({ head: 'あ', learned: 5, total: 5, current: false });
+    expect(s.rows[1]).toMatchObject({ head: 'か', learned: 2, total: 5, current: true });
+    expect(s.currentRowLabel).toBe('か行');
+    expect(s.rows.filter((r) => r.current)).toHaveLength(1);
+    expect(computeHomeStats(order.map((id) => prog(id, { nextReviewAt: NOW + DAY_MS })), NOW).currentRowLabel).toBeUndefined();
+  });
+
   it('剩 2 個新字：今天新字 2；全部學完：0，沒有 next', () => {
     const learn = (n: number) => order.slice(0, n).map((id) => prog(id, { nextReviewAt: NOW + DAY_MS }));
     expect(computeHomeStats(learn(44), NOW).newTodayCount).toBe(2);

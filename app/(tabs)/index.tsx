@@ -11,7 +11,7 @@ import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
 /**
- * C2-02 首頁：下一個新字、三個統計、46 格進度條、開始今天的練習。
+ * C2-02 首頁：下一個新字、三個統計、各行進度條、開始今天的練習。
  * 平假名清音學完後（片假名階段）標題與已學、進度條、下一個新字都改算片假名；
  * 解鎖後第一次回到首頁時先顯示片假名開始畫面（C2-18）；
  * 平假名與片假名都學完後，第一次回到首頁時顯示畢業畫面（C2-21）。
@@ -117,16 +117,35 @@ export default function HomeScreen() {
         <StatCard style={styles.stat} testID="stat-new" value={String(stats.newTodayCount)} label="今天新字" />
       </View>
 
-      <View style={styles.dots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        {stats.dots.map((d, i) => (
-          <View
-            key={i}
-            style={[
-              styles.dot,
-              { backgroundColor: d === 'learned' ? t.accent : d === 'next' ? t.next : t.track },
-            ]}
-          />
-        ))}
+      <View style={styles.rows} testID="home-rows">
+        <View style={styles.rowsHeader}>
+          <Text style={{ fontSize: 13, color: t.muted }}>各行進度</Text>
+          {stats.currentRowLabel ? (
+            <Text style={{ fontSize: 13, fontWeight: '600', color: t.accent }}>學到{stats.currentRowLabel}</Text>
+          ) : null}
+        </View>
+        <View style={styles.rowsBars} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          {stats.rows.map((r) => (
+            <View key={r.row} style={styles.rowCell}>
+              <View
+                style={[
+                  styles.rowTrack,
+                  { backgroundColor: t.track },
+                  r.current && { borderWidth: 1.5, borderColor: t.accent },
+                ]}
+              >
+                <View
+                  style={{
+                    width: `${(r.learned / Math.max(1, r.total)) * 100}%`,
+                    height: '100%',
+                    backgroundColor: t.accent,
+                  }}
+                />
+              </View>
+              <Text style={{ fontSize: 12, marginTop: 4, color: r.current ? t.accent : t.muted }}>{r.head}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View style={styles.cta}>
@@ -171,8 +190,11 @@ const styles = StyleSheet.create({
   },
   stats: { paddingHorizontal: 24, flexDirection: 'row', gap: 10 },
   stat: { flex: 1 },
-  dots: { paddingHorizontal: 24, paddingTop: 14, flexDirection: 'row', gap: 4 },
-  dot: { flex: 1, height: 6, borderRadius: 3 },
+  rows: { paddingHorizontal: 24, paddingTop: 14 },
+  rowsHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  rowsBars: { flexDirection: 'row', gap: 4 },
+  rowCell: { flex: 1, alignItems: 'center' },
+  rowTrack: { alignSelf: 'stretch', height: 8, borderRadius: 4, overflow: 'hidden' },
   cta: { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16 },
   nextLink: { minHeight: 44, marginTop: 4, alignItems: 'center', justifyContent: 'center' },
 });
