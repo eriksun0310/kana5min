@@ -6,22 +6,44 @@ describe('主題 token', () => {
     expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
   });
 
-  it('spec 第 7 節的 11 個 token 數值正確', () => {
+  it('spec 第 7 節的 token 數值正確', () => {
     expect(dark).toMatchObject({
-      bg: '#15171B', surface: '#1F2228', line: '#2C3038', text: '#F1EFEA', muted: '#A9A59D', track: '#2C3038',
-      chip: '#262A31', accentText: '#F2B54A', accentSoft: '#3A3020', correct: '#7FC8A9', wrong: '#F28C7A',
+      bg: '#1C1B18', surface: '#28261F', line: '#3A382F', text: '#F0EEE6', muted: '#9A978A', track: '#3A382F',
+      chip: '#2F2D25', accentText: '#E8734F', accentSoft: '#3A2A22', correct: '#6BBF7D', wrong: '#E8734F',
+      accent: '#E8734F', onAccent: '#1C1B18',
     });
     expect(light).toMatchObject({
-      bg: '#F7F5F1', surface: '#FFFFFF', line: '#E7E3DC', text: '#1C1E22', muted: '#5F5B54', track: '#E5E1DA',
-      chip: '#F0EDE7', accentText: '#8A5F0E', accentSoft: '#FBEFD6', correct: '#2F8A63', wrong: '#D9644F',
+      bg: '#FAFAF7', surface: '#FFFFFF', line: '#D6D6D2', text: '#1A1A1A', muted: '#6A6964', track: '#E4E4E0',
+      chip: '#F1F1ED', accentText: '#A83A28', accentSoft: '#FDF0EC', correct: '#4A9A5A', wrong: '#C44830',
+      accent: '#C44830', onAccent: '#FFFFFF',
     });
   });
 
-  it('accent 與 onAccent 兩主題相同', () => {
-    expect(dark.accent).toBe('#F2B54A');
-    expect(light.accent).toBe('#F2B54A');
-    expect(dark.onAccent).toBe('#15171B');
-    expect(light.onAccent).toBe('#15171B');
+  // WCAG 相對亮度對比；spec 要求文字對比至少 4.5:1
+  const luminance = (hex: string) => {
+    const [r, g, b] = [1, 3, 5]
+      .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (a: string, b: string) => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('%s 主題的文字對比至少 4.5:1', (_name, t) => {
+    expect(contrast(t.onAccent, t.accent)).toBeGreaterThanOrEqual(4.5);
+    for (const bg of [t.bg, t.surface]) {
+      expect(contrast(t.text, bg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(t.muted, bg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(t.accentText, bg)).toBeGreaterThanOrEqual(4.5);
+    }
+    expect(contrast(t.accentText, t.accentSoft)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(t.correctText, t.correctSoft)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(t.wrongText, t.wrongSoft)).toBeGreaterThanOrEqual(4.5);
   });
 });
 

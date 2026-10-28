@@ -30,7 +30,7 @@
     "android": {
       "package": "com.ptalk.kana5min",
       "adaptiveIcon": {
-        "backgroundColor": "#15171B",
+        "backgroundColor": "#1C1B18",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -43,11 +43,11 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F5F1",
+          "backgroundColor": "#FAFAF7",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76,
           "dark": {
-            "backgroundColor": "#15171B",
+            "backgroundColor": "#1C1B18",
             "image": "./assets/images/splash-icon.png"
           }
         }

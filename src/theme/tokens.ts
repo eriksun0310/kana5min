@@ -1,5 +1,7 @@
 // 主題顏色 token（spec 第 7 節 + docs/architecture.md 第 3 節）。
 // 色碼只允許出現在這個資料夾；元件一律透過 useTheme() 取用。
+// 配色對齊同團隊的壽司日檢（jlpt5minapp constants/tokens.ts）：主色為壽司紅，
+// 底色為暖米白／暖黑；muted、track、guide 為推導值，確保對比與可見度。
 
 export interface ThemeTokens {
   /** 背景 */
@@ -38,59 +40,59 @@ export interface ThemeTokens {
   wrongSoft: string;
   /** 答錯文字 */
   wrongText: string;
-  /** 主色（兩主題相同） */
+  /** 主色（暗色下提亮） */
   accent: string;
-  /** 主色按鈕上的文字（兩主題相同） */
+  /** 主色按鈕上的文字（亮色白字、暗色深字，對比皆 ≥ 4.5） */
   onAccent: string;
   /** 設定頁開關的圓鈕 */
   knob: string;
 }
 
 export const dark: ThemeTokens = {
-  bg: '#15171B',
-  surface: '#1F2228',
-  line: '#2C3038',
-  text: '#F1EFEA',
-  muted: '#A9A59D',
-  track: '#2C3038',
-  chip: '#262A31',
-  accentText: '#F2B54A',
-  accentSoft: '#3A3020',
-  correct: '#7FC8A9',
-  wrong: '#F28C7A',
-  next: '#6B6760',
-  faint: '#2A2E35',
-  guide: '#2C3038',
-  correctSoft: '#1D2E28',
-  correctText: '#9FDCC2',
-  wrongSoft: '#33221F',
-  wrongText: '#F7B0A4',
-  accent: '#F2B54A',
-  onAccent: '#15171B',
+  bg: '#1C1B18',
+  surface: '#28261F',
+  line: '#3A382F',
+  text: '#F0EEE6',
+  muted: '#9A978A',
+  track: '#3A382F',
+  chip: '#2F2D25',
+  accentText: '#E8734F',
+  accentSoft: '#3A2A22',
+  correct: '#6BBF7D',
+  wrong: '#E8734F',
+  next: '#5F5C4E',
+  faint: '#322F27',
+  guide: '#3A382F',
+  correctSoft: '#233B28',
+  correctText: '#8FD99F',
+  wrongSoft: '#3D281F',
+  wrongText: '#F0A487',
+  accent: '#E8734F',
+  onAccent: '#1C1B18',
   knob: '#FFFFFF',
 };
 
 export const light: ThemeTokens = {
-  bg: '#F7F5F1',
+  bg: '#FAFAF7',
   surface: '#FFFFFF',
-  line: '#E7E3DC',
-  text: '#1C1E22',
-  muted: '#5F5B54',
-  track: '#E5E1DA',
-  chip: '#F0EDE7',
-  accentText: '#8A5F0E',
-  accentSoft: '#FBEFD6',
-  correct: '#2F8A63',
-  wrong: '#D9644F',
-  next: '#A7A198',
-  faint: '#ECE8E1',
-  guide: '#E2DDD5',
-  correctSoft: '#E5F3EC',
-  correctText: '#1F6B49',
-  wrongSoft: '#FBE9E5',
-  wrongText: '#A23A28',
-  accent: '#F2B54A',
-  onAccent: '#15171B',
+  line: '#D6D6D2',
+  text: '#1A1A1A',
+  muted: '#6A6964',
+  track: '#E4E4E0',
+  chip: '#F1F1ED',
+  accentText: '#A83A28',
+  accentSoft: '#FDF0EC',
+  correct: '#4A9A5A',
+  wrong: '#C44830',
+  next: '#A8A8A4',
+  faint: '#ECECEA',
+  guide: '#E4E4E0',
+  correctSoft: '#E8F4E2',
+  correctText: '#3F7A4A',
+  wrongSoft: '#FCE5DE',
+  wrongText: '#A83A28',
+  accent: '#C44830',
+  onAccent: '#FFFFFF',
   knob: '#FFFFFF',
 };
 

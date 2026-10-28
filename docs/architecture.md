@@ -38,15 +38,17 @@ screenshots/phaseN/      截圖
 
 | token | 暗色 | 亮色 |
 |---|---|---|
-| next（首頁進度條的下一格） | `#6B6760` | `#A7A198` |
-| faint（描寫的淡色字） | `#2A2E35` | `#ECE8E1` |
-| guide（田字格虛線） | `#2C3038` | `#E2DDD5` |
-| correctSoft（答對底色） | `#1D2E28` | `#E5F3EC` |
-| correctText（答對文字） | `#9FDCC2` | `#1F6B49` |
-| wrongSoft（答錯底色） | `#33221F` | `#FBE9E5` |
-| wrongText（答錯文字） | `#F7B0A4` | `#A23A28` |
-| accent（兩主題相同） | `#F2B54A` | `#F2B54A` |
-| onAccent（兩主題相同） | `#15171B` | `#15171B` |
+| next（首頁進度條的下一格） | `#5F5C4E` | `#A8A8A4` |
+| faint（描寫的淡色字） | `#322F27` | `#ECECEA` |
+| guide（田字格虛線） | `#3A382F` | `#E4E4E0` |
+| correctSoft（答對底色） | `#233B28` | `#E8F4E2` |
+| correctText（答對文字） | `#8FD99F` | `#3F7A4A` |
+| wrongSoft（答錯底色） | `#3D281F` | `#FCE5DE` |
+| wrongText（答錯文字） | `#F0A487` | `#A83A28` |
+| accent（主色） | `#E8734F` | `#C44830` |
+| onAccent（主色按鈕上的文字） | `#1C1B18` | `#FFFFFF` |
+
+配色對齊同團隊的壽司日檢（`jlpt5minapp/constants/tokens.ts`）：主色 accent／wrong 對應 accentRed、accentSoft 對應 accentRedTint、correct 對應 accentGreen、答對／答錯底色與文字對應 correctCard／incorrectCard 系列、bg／surface／text／chip／line 對應 bg／card／ink／fill／line。壽司日檢沒有對應或對比不足的才自行推導：muted 沿用壽司日檢灰色色調、調到對 bg 與 surface 至少 4.5:1；亮色 accentText 用較深的 `#A83A28`（放在 accentSoft 上 `#C44830` 只有 4.37）；track、guide 取同色調、能在 bg 上看得見的淺灰。onAccent 兩主題不同：亮色紅底白字 4.86、暗色亮紅底深字 5.74（白字只有 3.0）。`src/theme/__tests__/theme.test.ts` 會檢查文字對比。
 
 元件一律 `const t = useTheme()` 取色，元件檔裡不可出現色碼字串（`#` 開頭）。唯一例外是設定頁開關的白色圓鈕，也請放進 token（`knob: '#FFFFFF'`）。
 
