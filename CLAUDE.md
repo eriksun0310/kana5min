@@ -23,7 +23,7 @@
 
 框架為 Expo SDK（使用目前穩定版）、React Native、TypeScript，套件管理用 pnpm（`.npmrc` 設 `node-linker=hoisted`，React Native 需要）。狀態管理用 Zustand；設定與一般狀態用 AsyncStorage 保存；學習進度（每個假名的 SRS 資料）用 expo-sqlite 保存。不需要後端，也不要加入任何帳號、追蹤或分析 SDK。
 
-Bundle identifier 先用 `com.ptalk.kana5min`，App 名稱用「Kana 5min - 五十音入門」，兩者都記在 `PROGRESS.md` 的待確認事項。
+Bundle identifier 先用 `com.ptalk.kana5min`，App 名稱用「諧音五十音」（商店上架名稱為「日文五十音｜白爛諧音記憶法」），兩者都記在 `PROGRESS.md` 的待確認事項。
 
 音檔用 msedge-tts（Node 套件，免 API key）預先產生 mp3，打包在 App 內的 `assets/audio/`，不上傳任何雲端。語音使用日文神經語音（例如 `ja-JP-NanamiNeural`），所有音檔用同一個聲音。產生腳本放在 `scripts/gen-audio.mjs`，可重複執行、會跳過已存在的檔案，也能用參數只重產指定的檔案。
 
