@@ -123,6 +123,20 @@ appId: com.ptalk.kana5min
     id: detail-compare
 - assertVisible: ア
 - takeScreenshot: D-compare-kata
+# 從 あ 按對照到 ア，按返回要回到 あ（不是五十音表）
+- tapOn:
+    id: back
+- assertVisible:
+    id: detail-char
+    text: あ
+- assertNotVisible:
+    id: cell-h-a
+- tapOn:
+    id: detail-compare
+- assertVisible:
+    id: detail-char
+    text: ア
+# 在 ア 再按一次對照：回到上一頁的 あ（不再疊頁）
 - tapOn:
     id: detail-compare
 - assertVisible: あ

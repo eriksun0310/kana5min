@@ -15,3 +15,12 @@ export function counterpartId(kanaId: string): string | undefined {
   if (k.script === 'katakana') return k.hiraganaId && byId(k.hiraganaId) ? k.hiraganaId : undefined;
   return allKana.find((x) => x.script === 'katakana' && x.hiraganaId === k.id)?.id;
 }
+
+/**
+ * 詳情頁按「對照」該做什麼：
+ * - 上一頁剛好就是對照的那個字（例如 き → キ 後又按對照）：回上一頁（pop），堆疊不會越疊越深；
+ * - 其他情況：往前進一頁（push），這樣按返回會回到原本的字，而不是直接回五十音表。
+ */
+export function compareAction(previousKanaId: string | undefined, otherId: string): 'back' | 'push' {
+  return previousKanaId === otherId ? 'back' : 'push';
+}

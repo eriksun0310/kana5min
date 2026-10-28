@@ -1,4 +1,4 @@
-import { counterpartId } from '../counterpart';
+import { compareAction, counterpartId } from '../counterpart';
 
 describe('counterpartId', () => {
   it('清音、濁音、拗音來回對應', () => {
@@ -24,5 +24,16 @@ describe('counterpartId', () => {
       expect(counterpartId(o!)).toBe(k.id);
     }
     expect(counterpartId('zzz')).toBeUndefined();
+  });
+});
+
+describe('compareAction（詳情頁按對照）', () => {
+  it('上一頁就是對照的字：回上一頁，不再疊頁', () => {
+    expect(compareAction('k-ki', 'k-ki')).toBe('back');
+  });
+
+  it('上一頁是五十音表（沒有字）或別的字：往前進一頁，返回會回到原本的字', () => {
+    expect(compareAction(undefined, 'k-ki')).toBe('push');
+    expect(compareAction('h-ku', 'k-ki')).toBe('push');
   });
 });

@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
@@ -14,7 +14,7 @@ import {
   TianGrid,
 } from '../../src/components';
 import { byId, exampleWordOf } from '../../src/data';
-import { counterpartId } from '../../src/logic/counterpart';
+import { compareAction, counterpartId } from '../../src/logic/counterpart';
 import { useBottomPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
@@ -22,6 +22,7 @@ import { useTheme } from '../../src/theme/useTheme';
 export default function KanaDetailScreen() {
   const t = useTheme();
   const router = useRouter();
+  const navigation = useNavigation();
   const bottom = useBottomPad(44);
   const params = useLocalSearchParams<{ id?: string }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -43,6 +44,15 @@ export default function KanaDetailScreen() {
   // 拗音是兩個字，字級縮小才放得進 260 的田字格
   const glyphSize = [...kana.char].length > 1 ? 110 : 190;
   const otherId = counterpartId(kana.id);
+
+  /** 對照：上一頁就是對照字時回上一頁，否則往前進一頁（返回時回到原本的字）。 */
+  const openCounterpart = (target: string) => {
+    const st = navigation.getState();
+    const prev = st?.routes?.[(st.index ?? 0) - 1];
+    const prevId = prev && String(prev.name).startsWith('kana/') ? (prev.params as { id?: string } | undefined)?.id : undefined;
+    if (compareAction(prevId, target) === 'back') router.back();
+    else router.push({ pathname: '/kana/[id]', params: { id: target } });
+  };
   const otherChar = otherId ? byId(otherId)?.char : undefined;
   const goFlow = (pathname: '/learn/stroke' | '/learn/trace') =>
     router.push({ pathname, params: { id: kana.id, standalone: '1' } });
@@ -70,7 +80,7 @@ export default function KanaDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={`對照${kana.script === 'hiragana' ? '片假名' : '平假名'} ${otherChar}`}
               hitSlop={{ top: 6, bottom: 6, left: 10, right: 10 }}
-              onPress={() => router.replace({ pathname: '/kana/[id]', params: { id: otherId } })}
+              onPress={() => openCounterpart(otherId)}
               style={[styles.compare, { backgroundColor: t.chip }]}
             >
               <Text style={{ fontSize: 13, color: t.muted }}>對照</Text>
