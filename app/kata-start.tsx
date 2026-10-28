@@ -6,6 +6,7 @@ import { hiraganaOf, mustById, SEION_COUNT } from '../src/data';
 import { useSettingsStore } from '../src/store/settingsStore';
 import { useBottomPad } from '../src/theme/layout';
 import { useTheme } from '../src/theme/useTheme';
+import { startDailyAndGo } from '../src/nav/startDaily';
 
 /** 對照範例：あ→ア、か→カ、へ→ヘ（設計檔的三個例子） */
 const SAMPLE_IDS = ['k-a', 'k-ka', 'k-he'];
@@ -27,7 +28,7 @@ export default function KataStartScreen() {
   const start = () => {
     useSettingsStore.getState().setKataIntroSeen(true);
     // 直接開始今天的練習（/learn 會建立 session，新字從片假名取）
-    router.replace('/learn');
+    startDailyAndGo(router, 'replace');
   };
 
   return (

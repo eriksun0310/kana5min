@@ -20,6 +20,7 @@ import { defaultLearningOrder, nextNewKanaIds } from '../src/logic/session';
 import { exitToHome } from '../src/nav/exitToHome';
 import { useSessionStore } from '../src/store/sessionStore';
 import { useTheme } from '../src/theme/useTheme';
+import { startDailyAndGo } from '../src/nav/startDaily';
 
 /** 該文字已學清音的 Kana id 清單 */
 function learnedSeionIds(progress: Progress[], script: Script): string[] {
@@ -132,7 +133,7 @@ export default function RowDoneScreen() {
           <PrimaryButton
             testID="row-continue"
             label={`繼續 ${nextLabel}`}
-            onPress={() => router.replace('/learn')}
+            onPress={() => startDailyAndGo(router, 'replace')}
           />
         ) : (
           <PrimaryButton testID="row-continue" label="回首頁" onPress={() => exitToHome(router)} />

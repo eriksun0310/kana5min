@@ -9,6 +9,7 @@ import { currentScript } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
+import { startDailyAndGo } from '../../src/nav/startDaily';
 
 /**
  * C2-02 首頁：下一個新字、三個統計、各行進度條、開始今天的練習。
@@ -153,7 +154,7 @@ export default function HomeScreen() {
           testID="start-today"
           label={allDone ? '今天完成了' : `開始今天的 ${goal} 分鐘`}
           disabled={allDone}
-          onPress={() => router.push('/learn')}
+          onPress={() => startDailyAndGo(router, 'push')}
         />
         {graduated ? (
           <Pressable
