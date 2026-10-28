@@ -321,3 +321,9 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 假設：分享卡句子保留 emoji；強調字為句中第一個對應假名（含片假名版）；輸出圖在 360pt 設計稿上放大成 1080px；分享失敗時只跳 Alert。
 - 環境備註：Mac 預設 locale 會讓 `pod install` 因 Unicode 編碼錯誤失敗，需要 `LANG=en_US.UTF-8`。
 - 未解決：沒有在實機驗證 view-shot 離螢幕擷取（模擬器的分享面板縮圖正確顯示卡片）。
+
+## 第五階段收尾（2026-10-28）
+
+- **隱私權選項入口**：設定頁「資料」區新增「隱私權選項」（testID `row-privacy-options`），`src/monetization/privacyOptions.ts`：`AdsConsent.getConsentInfo()` 若 `privacyOptionsRequirementStatus` 為 UNKNOWN 先 `requestInfoUpdate()`，只有 `REQUIRED` 才顯示（判斷為純函式 `shouldShowPrivacyOptions`），按下呼叫 `AdsConsent.showPrivacyOptionsForm()`。離線或錯誤時視為不需要（不顯示）。需在 AdMob 後台建立 GDPR 訊息、且使用者落在需要的地區，這一列才會出現；實機驗證需開發者進行。
+- **已購買不出現廣告入口**：`punCardState`、`canWatchRewardedAd`（`src/logic/punUnlock.ts`）抽成純函式，PunCard 與 PunUnlockSheet 共用；已購買時 PunCard 一律是已解鎖卡、解鎖面板不渲染看廣告鈕、`watch()` 直接返回，不會呼叫 `showRewardedAd`。
+- **移除 RECORD_AUDIO**：專案內沒有任何錄音或麥克風程式（`src` 與 `app` 沒有 expo-audio 的 recorder、expo-av、getUserMedia）。RECORD_AUDIO 來自 expo-audio config plugin 的預設（`recordAudioAndroid` 預設為 true），所以 app.json 同時移除 `android.permissions` 的 `RECORD_AUDIO`，並把 expo-audio plugin 設為 `recordAudioAndroid: false`。保留 `MODIFY_AUDIO_SETTINGS`、`FOREGROUND_SERVICE`、`FOREGROUND_SERVICE_MEDIA_PLAYBACK`（播放音檔用）。iOS：`microphonePermission: false`，app.json 的 `infoPlist` 沒有 `NSMicrophoneUsageDescription`；以 `expo config --type introspect` 確認輸出的 Info.plist 與 Android 權限都沒有麥克風項目。原本待確認事項中「Android RECORD_AUDIO」一條已處理。
