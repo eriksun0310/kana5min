@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
+import { StyleSheet, Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
+import { compensatedMargins, glyphPadding } from '../logic/glyphBox';
 import { useTheme } from '../theme/useTheme';
 
 /** Klee One 600（由根 layout 載入）。 */
@@ -23,6 +24,16 @@ export function KanaText({
   ...rest
 }: KanaTextProps) {
   const t = useTheme();
+  // 字形可能超出行高（き、ぎ 的濁點等）：文字框上下撐大再用負 margin 抵銷，位置不變、字不被裁掉
+  const pad = glyphPadding(size);
+  const own = StyleSheet.flatten(style) ?? {};
+  const num = (v: unknown) => (typeof v === 'number' ? v : undefined);
+  const margins = compensatedMargins(pad, {
+    marginTop: num(own.marginTop),
+    marginBottom: num(own.marginBottom),
+    marginVertical: num(own.marginVertical),
+    margin: num(own.margin),
+  });
   return (
     <Text
       {...rest}
@@ -32,8 +43,11 @@ export function KanaText({
           fontSize: size,
           lineHeight: Math.round(size * lineHeightRatio),
           color: color ?? t.text,
+          paddingTop: pad.top,
+          paddingBottom: pad.bottom,
         },
         style,
+        margins,
       ]}
     >
       {children}
