@@ -2,7 +2,7 @@
 // 全部是不依賴 React Native 的純函式：
 // - samplePath / pathEndpoints / pathLength：把 KanjiVG 的 SVG path 取樣成折線，供動畫算長度與判定取起終點
 // - traceTransform：畫布像素 ↔ KanjiVG viewBox 座標（筆順動畫、描寫畫布、判定共用同一套）
-// - evaluateTrace：描寫是否算完成（只看筆畫數與第一筆方向，不做精準辨識）
+// 描寫判定（逐筆比對）在 traceShape.ts
 
 export interface Point {
   x: number;
@@ -184,8 +184,6 @@ export function fromViewBox(p: Point, tf: TraceTransform): Point {
 
 /** 畫出的線至少要有這麼長（viewBox 單位）才算一筆，輕點不算 */
 export const MIN_STROKE_LENGTH = 6;
-/** 第一筆方向與標準方向的夾角必須小於這個角度 */
-export const MAX_FIRST_STROKE_ANGLE = 90;
 
 /** 至少要畫出的筆畫數：該字筆畫數的一半，四捨五入，至少 1。 */
 export function requiredStrokeCount(kanaStrokes: number): number {
@@ -199,47 +197,4 @@ export function angleBetween(a: Point, b: Point): number {
   if (la < 1e-6 || lb < 1e-6) return 0;
   const cos = Math.min(1, Math.max(-1, (a.x * b.x + a.y * b.y) / (la * lb)));
   return (Math.acos(cos) * 180) / Math.PI;
-}
-
-export type TraceFailReason = 'too-few' | 'direction';
-
-export interface TraceEvaluation {
-  passed: boolean;
-  /** 有效筆畫數（長度達標的） */
-  strokeCount: number;
-  required: number;
-  /** 第一筆方向夾角（度）；沒有有效筆畫時為 undefined */
-  firstStrokeAngle?: number;
-  reason?: TraceFailReason;
-}
-
-/**
- * 判定描寫是否完成。
- * userStrokes：使用者畫的每一筆（viewBox 座標）。
- * referencePaths：KanjiVG 該字每一筆的 path（strokes.json 的 strokes）。
- * 規則：有效筆畫數 ≥ requiredStrokeCount(標準筆畫數)，且第一筆的起點→終點向量與
- * 標準第一筆的起點→終點向量夾角 < 90 度。
- */
-export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[]): TraceEvaluation {
-  const required = requiredStrokeCount(referencePaths.length);
-  const valid = userStrokes.filter((s) => s.length >= 2 && polylineLength(s) >= MIN_STROKE_LENGTH);
-  if (valid.length < required) {
-    return { passed: false, strokeCount: valid.length, required, reason: 'too-few' };
-  }
-  const ref = referencePaths[0] ? pathEndpoints(referencePaths[0]) : undefined;
-  if (!ref) return { passed: true, strokeCount: valid.length, required };
-  const first = valid[0];
-  const userVec = { x: first[first.length - 1].x - first[0].x, y: first[first.length - 1].y - first[0].y };
-  const refVec = { x: ref.end.x - ref.start.x, y: ref.end.y - ref.start.y };
-  const angle = angleBetween(userVec, refVec);
-  if (angle >= MAX_FIRST_STROKE_ANGLE) {
-    return {
-      passed: false,
-      strokeCount: valid.length,
-      required,
-      firstStrokeAngle: angle,
-      reason: 'direction',
-    };
-  }
-  return { passed: true, strokeCount: valid.length, required, firstStrokeAngle: angle };
 }

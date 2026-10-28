@@ -1,0 +1,79 @@
+# 描寫判定：詳情頁「描寫練習」亂畫會失敗並亮起漏掉的筆 → 連續失敗 3 次出現「先跳過」→ 跳過返回；
+# 再進一次，用開發版長按（onDevPass）通過。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: cell-h-ka
+- assertVisible:
+    id: detail-char
+- tapOn:
+    id: detail-trace
+- assertVisible:
+    id: trace-canvas
+# 還沒失敗過：沒有提示、沒有跳過
+- assertNotVisible:
+    id: trace-hint
+- assertNotVisible:
+    id: trace-skip
+# 第 1 次：亂畫一條線 → 失敗
+- swipe:
+    start: 30%, 28%
+    end: 70%, 33%
+- tapOn:
+    id: trace-done
+- assertVisible:
+    id: trace-hint
+- assertNotVisible:
+    id: trace-skip
+# 第 2 次：再亂畫 → 仍失敗
+- swipe:
+    start: 70%, 40%
+    end: 30%, 50%
+- tapOn:
+    id: trace-done
+- assertVisible:
+    id: trace-hint
+- assertNotVisible:
+    id: trace-skip
+# 重寫不重置失敗次數；第 3 次失敗後出現「先跳過」
+- tapOn:
+    id: trace-redo
+- swipe:
+    start: 35%, 45%
+    end: 65%, 30%
+- tapOn:
+    id: trace-done
+- assertVisible:
+    id: trace-hint
+- assertVisible:
+    id: trace-skip
+- tapOn:
+    id: trace-skip
+- assertVisible:
+    id: detail-char
+# 再進一次，用開發版長按通過
+- tapOn:
+    id: detail-trace
+- assertVisible:
+    id: trace-canvas
+- retry:
+    maxRetries: 2
+    commands:
+      - longPressOn:
+          id: trace-canvas
+      - tapOn:
+          id: trace-done
+      - assertVisible:
+          id: trace-praise
+- assertVisible:
+    id: detail-char
+- tapOn:
+    id: back
+- assertVisible:
+    id: cell-h-a
