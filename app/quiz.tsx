@@ -1,9 +1,11 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
+import { Alert } from 'react-native';
 import { FlowHeader, Screen } from '../src/components';
 import { QuizHear } from '../src/components/QuizHear';
 import { QuizLoanword } from '../src/components/QuizLoanword';
 import { QuizSee } from '../src/components/QuizSee';
+import { elapsedMinutes, elapsedMs, EXTEND_MINUTES } from '../src/logic/practiceTimer';
 import { confirmExitFlow } from '../src/nav/exitToHome';
 import { currentProgressList, useSessionStore } from '../src/store/sessionStore';
 
@@ -15,6 +17,8 @@ import { currentProgressList, useSessionStore } from '../src/store/sessionStore'
  * - loanword 題（C2-20 讀外來語）不屬於任何假名：作答只計入答對數，不更新 SRS。
  * - mode=confuse&group=<id>：易混淆字組快速辨識 10 題（confuse 題與選項限該組的看字選音題）。
  * 最後一題按「完成，看結果」→ 提交 SRS → 到結果頁。
+ * 每日練習有時間上限：時間到時不打斷作答，答完當下那題後詢問「結束這一輪」或「再練 5 分鐘」；
+ * 選結束 = 部分提交（只提交已作答的字，沒做到的複習字維持原狀）。
  */
 export default function QuizScreen() {
   const router = useRouter();
@@ -30,6 +34,31 @@ export default function QuizScreen() {
   const qIndex = useSessionStore((s) => s.qIndex);
   const answers = useSessionStore((s) => s.answers);
   const loanwordAnswers = useSessionStore((s) => s.loanwordAnswers);
+
+  const finishRound = async () => {
+    if (finishing.current) return;
+    finishing.current = true;
+    try {
+      await useSessionStore.getState().finish(Date.now());
+      router.replace('/result');
+    } catch {
+      finishing.current = false;
+    }
+  };
+
+  const askTimeUp = () => {
+    const s = useSessionStore.getState();
+    const minutes = elapsedMinutes(elapsedMs(s, Date.now()));
+    Alert.alert(
+      `已經練習 ${minutes} 分鐘了，要繼續嗎？`,
+      undefined,
+      [
+        { text: '結束這一輪', onPress: finishRound },
+        { text: `再練 ${EXTEND_MINUTES} 分鐘`, onPress: () => useSessionStore.getState().extendTime(Date.now()) },
+      ],
+      { cancelable: false },
+    );
+  };
 
   useEffect(() => {
     if (started.current) return;
@@ -50,6 +79,8 @@ export default function QuizScreen() {
       setOwnedSid(useSessionStore.getState().sid);
     } else if (store.active && store.phase === 'quiz' && store.questions.length > 0) {
       setOwnedSid(store.sid);
+      // 接續時如果上次離開前已經時間到，進來就先詢問
+      if (store.timeUpDue(Date.now())) askTimeUp();
     } else {
       router.replace('/');
     }
@@ -72,15 +103,10 @@ export default function QuizScreen() {
 
   const onNext = async () => {
     if (finishing.current) return;
-    const store = useSessionStore.getState();
-    if (store.nextQuestion()) return;
-    finishing.current = true;
-    try {
-      await store.finish(Date.now());
-      router.replace('/result');
-    } catch {
-      finishing.current = false;
-    }
+    const outcome = useSessionStore.getState().advanceQuiz(Date.now());
+    if (outcome === 'next') return;
+    if (outcome === 'timeup') askTimeUp();
+    else await finishRound();
   };
 
   // confuse 題沿用聽音選字的版面（選項數可變）
@@ -92,6 +118,7 @@ export default function QuizScreen() {
       <Stack.Screen options={{ gestureEnabled: false }} />
       <FlowHeader
         progress={questions.length > 0 ? answeredCount / questions.length : 0}
+        countLabel={`${qIndex + 1}/${questions.length}`}
         onClose={() => confirmExitFlow(router)}
       />
       <QuestionView key={question.id} question={question} onAnswered={onAnswered} onNext={onNext} isLast={isLast} />

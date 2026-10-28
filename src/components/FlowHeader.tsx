@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSessionTimer } from '../hooks/useSessionTimer';
 import { useTopPad } from '../theme/layout';
 import { useTheme } from '../theme/useTheme';
 import { Icon } from './Icon';
@@ -17,6 +18,7 @@ export interface FlowHeaderProps {
 export function FlowHeader({ progress, countLabel, onClose, closeTestID = 'flow-close' }: FlowHeaderProps) {
   const t = useTheme();
   const top = useTopPad(52);
+  useSessionTimer();
   const pct = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
   return (
     <View style={[styles.row, { paddingTop: top }]}>

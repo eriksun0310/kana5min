@@ -142,7 +142,7 @@ export default function SettingsScreen() {
               onPress={() => setSheet('goal')}
               style={rowStyle}
             >
-              <RowText label="每日目標" sub="每天的練習時間" />
+              <RowText label="每日目標" sub="每次練習的時間上限，時間到可選擇結束或再練 5 分鐘" />
               <Value text={`${goal} 分鐘`} />
             </Pressable>
 

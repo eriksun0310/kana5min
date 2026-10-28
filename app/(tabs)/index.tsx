@@ -7,15 +7,17 @@ import { isGraduated } from '../../src/logic/graduate';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
 import { currentScript } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
+import { useSessionStore } from '../../src/store/sessionStore';
 import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
-import { startDailyAndGo } from '../../src/nav/startDaily';
+import { resumeSavedAndGo, startDailyAndGo } from '../../src/nav/startDaily';
 
 /**
  * C2-02 首頁：下一個新字、三個統計、各行進度條、開始今天的練習。
  * 平假名清音學完後（片假名階段）標題與已學、進度條、下一個新字都改算片假名；
  * 解鎖後第一次回到首頁時先顯示片假名開始畫面（C2-18）；
  * 平假名與片假名都學完後，第一次回到首頁時顯示畢業畫面（C2-21）。
+ * 有中途離開存起來的練習時，主按鈕改成「繼續今天的練習」，下方小字「從頭開始」；
  * 已畢業後主按鈕下方多一個「下一步：壽司日檢」文字連結。
  */
 export default function HomeScreen() {
@@ -33,6 +35,14 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       setNow(Date.now());
+    }, []),
+  );
+
+  // 可接續的存檔（隔天作廢：回到首頁時檢查一次日期）
+  const saved = useSessionStore((s) => s.saved);
+  useFocusEffect(
+    useCallback(() => {
+      useSessionStore.getState().refreshSaved(Date.now());
     }, []),
   );
 
@@ -152,10 +162,20 @@ export default function HomeScreen() {
       <View style={styles.cta}>
         <PrimaryButton
           testID="start-today"
-          label={allDone ? '今天完成了' : `開始今天的 ${goal} 分鐘`}
-          disabled={allDone}
-          onPress={() => startDailyAndGo(router, 'push')}
+          label={saved ? '繼續今天的練習' : allDone ? '今天完成了' : `開始今天的 ${goal} 分鐘`}
+          disabled={allDone && !saved}
+          onPress={() => (saved ? resumeSavedAndGo(router, 'push') : startDailyAndGo(router, 'push'))}
         />
+        {saved ? (
+          <Pressable
+            testID="restart-today"
+            accessibilityRole="button"
+            onPress={() => startDailyAndGo(router, 'push')}
+            style={styles.nextLink}
+          >
+            <Text style={{ fontSize: 14, color: t.muted }}>從頭開始</Text>
+          </Pressable>
+        ) : null}
         {graduated ? (
           <Pressable
             testID="home-next-link"

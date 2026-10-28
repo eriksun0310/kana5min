@@ -8,6 +8,7 @@ import { LogBox, View } from 'react-native';
 import { openSqliteRepository } from '../src/db';
 import { initPurchases } from '../src/monetization/purchases';
 import { useProgressStore, waitForSettingsHydration } from '../src/store';
+import { useSessionStore } from '../src/store/sessionStore';
 import { useTheme, useThemeName } from '../src/theme/useTheme';
 
 // 開發版偶爾（JS 重新載入後第一次啟動）會出現 RN 內建的原生動畫警告：
@@ -23,6 +24,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 async function bootstrap() {
   const [repo] = await Promise.all([openSqliteRepository(), waitForSettingsHydration()]);
   await useProgressStore.getState().load(repo);
+  await useSessionStore.getState().loadSaved(Date.now());
   // 設定讀回之後才同步購買狀態（沒有 key 時什麼都不做；不等待結果，不擋啟動）
   initPurchases().catch(() => {});
 }
