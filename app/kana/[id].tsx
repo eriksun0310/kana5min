@@ -56,6 +56,9 @@ export default function KanaDetailScreen() {
             <KanaText size={glyphSize} lineHeightRatio={1} testID="detail-char">
               {kana.char}
             </KanaText>
+            <Text testID="detail-romaji" style={[styles.romaji, { color: t.muted }]}>
+              {kana.romaji}
+            </Text>
           </TianGrid>
 
           <View style={styles.playRow}>
@@ -64,21 +67,20 @@ export default function KanaDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel="播放發音"
               onPress={() => playKana(kana.id)}
-              style={[styles.playBig, { backgroundColor: t.surface, borderColor: t.line }]}
+              style={[styles.playBtn, { backgroundColor: t.surface, borderColor: t.line }]}
             >
-              <Icon name="speaker" size={27} color={t.text} />
+              <Icon name="speakerSmall" size={19} color={t.text} />
+              <Text style={{ fontSize: 14, color: t.text }}>正常</Text>
             </Pressable>
-            <Text style={{ fontSize: 22, letterSpacing: 2, color: t.text }}>{kana.romaji}</Text>
             <Pressable
               testID="play-slow"
               accessibilityRole="button"
               accessibilityLabel="慢速播放"
-              hitSlop={{ top: 2, bottom: 2 }}
               onPress={() => playKana(kana.id, { slow: true })}
-              style={[styles.slow, { borderColor: t.line }]}
+              style={[styles.playBtn, { backgroundColor: t.surface, borderColor: t.line }]}
             >
-              <Icon name="slow" size={16} color={t.muted} />
-              <Text style={{ fontSize: 13, color: t.muted }}>慢速</Text>
+              <Icon name="slow" size={17} color={t.text} />
+              <Text style={{ fontSize: 14, color: t.text }}>慢速</Text>
             </Pressable>
           </View>
         </View>
@@ -150,24 +152,18 @@ const styles = StyleSheet.create({
   missing: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 16 },
   hero: { alignItems: 'center', gap: 14 },
-  playRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  playBig: {
-    width: 60,
-    height: 60,
-    borderRadius: 999,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  slow: {
-    minHeight: 40,
-    paddingHorizontal: 14,
+  playRow: { flexDirection: 'row', gap: 10, width: 260 },
+  playBtn: {
+    width: 125,
+    minHeight: 44,
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
   },
+  romaji: { position: 'absolute', bottom: 10, fontSize: 18, letterSpacing: 2 },
   pair: { flexDirection: 'row', gap: 10, paddingTop: 18 },
   pairCard: { flex: 1 },
   wordCard: {
