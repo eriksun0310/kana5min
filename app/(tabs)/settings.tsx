@@ -161,7 +161,7 @@ export default function SettingsScreen() {
               <Pressable
                 testID="row-reminder-time"
                 accessibilityRole="button"
-                accessibilityLabel={`每日提醒時間，每天 ${reminder.time}`}
+                accessibilityLabel={`每日提醒時間，每天 ${reminder.time}，練過的日子不會打擾你`}
                 onPress={() => setSheet('time')}
                 style={styles.rowTextPress}
               >
