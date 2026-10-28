@@ -46,7 +46,7 @@ appId: com.ptalk.kana5min
       id: punpack-buy
     timeout: 10000
 - assertVisible: 好笑記憶包
-- assertVisible: 解鎖全部 41 句諧音梗（平假名＋片假名）
+- assertVisible: 解鎖全部 42 句諧音梗（平假名＋片假名）
 - assertVisible: 永久免廣告
 - assertVisible: 之後新增的諧音梗自動取得
 - assertVisible:
@@ -102,8 +102,8 @@ appId: com.ptalk.kana5min
     id: puns-cell-ku
 - assertVisible:
     id: pun-card
-- assertVisible: 你是在く（哭）喔？
-- assertVisible: 諧音幫你記，發音還是聽音檔
+- assertVisible: 你是在く（哭）喔？.*
+- assertVisible: 諧音只是幫你記，念法以音檔為準
 - tapOn:
     id: puns-cell-sa
 - extendedWaitUntil:
@@ -161,7 +161,7 @@ appId: com.ptalk.kana5min
     id: pun-card
 - assertNotVisible:
     id: pun-locked
-- assertVisible: さ（殺）小？
+- assertVisible: さ（殺）小？.*
 - runFlow: common/exit-flow.yaml
 - tapOn:
     id: tab-settings
@@ -185,7 +185,7 @@ appId: com.ptalk.kana5min
     id: puns-cell-sa
 - assertVisible:
     id: pun-card
-- assertVisible: さ（殺）小？
+- assertVisible: さ（殺）小？.*
 - tapOn:
     id: back
 - tapOn:
