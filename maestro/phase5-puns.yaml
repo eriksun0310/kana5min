@@ -46,7 +46,7 @@ appId: com.ptalk.kana5min
       id: punpack-buy
     timeout: 10000
 - assertVisible: 好笑記憶包
-- assertVisible: 解鎖全部 42 句諧音梗
+- assertVisible: 解鎖全部 53 句諧音梗
 - assertVisible: 永久免廣告
 - assertVisible: 之後新增的諧音梗自動取得
 - assertVisible:
@@ -263,3 +263,127 @@ appId: com.ptalk.kana5min
     timeout: 10000
 - assertNotVisible:
     id: kata-punpack-link
+
+# ---- F. 濁音・拗音的諧音梗：未買斷鎖住（只能買斷）、買斷後看得到 ----
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-reset
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: kind-dakuon
+- tapOn:
+    id: cell-h-za
+- assertVisible:
+    id: detail-char
+- assertVisible:
+    id: pun-locked
+- assertNotVisible:
+    id: pun-card
+- tapOn:
+    id: pun-locked
+- extendedWaitUntil:
+    visible:
+      id: pun-buy
+    timeout: 10000
+# 濁音／拗音沒有看廣告解鎖，只有買斷
+- assertNotVisible:
+    id: pun-watch-ad
+- assertVisible: 濁音、拗音的諧音梗只能買斷解鎖
+- takeScreenshot: F1-Dakuon-Locked-light
+- tapOn:
+    id: pun-sheet-close
+- tapOn:
+    id: back
+# 沒有句子的濁音（が）不出現諧音卡
+- tapOn:
+    id: kind-dakuon
+- tapOn:
+    id: cell-h-ga
+- assertVisible:
+    id: detail-char
+- assertNotVisible:
+    id: pun-locked
+- assertNotVisible:
+    id: pun-card
+- tapOn:
+    id: back
+- tapOn:
+    id: kind-youon
+- tapOn:
+    id: cell-h-cha
+- assertVisible:
+    id: pun-locked
+- tapOn:
+    id: back
+# 總覽頁的濁音・拗音分頁：未買斷鎖住
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-puns
+- extendedWaitUntil:
+    visible:
+      id: puns-kind-dakuon
+    timeout: 10000
+- tapOn:
+    id: puns-kind-dakuon
+- assertVisible:
+    id: puns-cell-h-za
+- assertNotVisible:
+    id: puns-open-h-za
+- tapOn:
+    id: back
+# 買斷後：詳情頁與總覽都看得到
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: pun-purchased
+- tapOn:
+    id: tab-chart
+- tapOn:
+    id: kind-dakuon
+- tapOn:
+    id: cell-h-za
+- assertVisible:
+    id: pun-card
+- assertVisible: ざ（炸）雞最好吃！.*
+- takeScreenshot: F1-Dakuon-Unlocked-light
+- tapOn:
+    id: back
+- tapOn:
+    id: kind-youon
+- tapOn:
+    id: cell-h-cha
+- assertVisible:
+    id: pun-card
+- assertVisible: ちゃ（茶）來了！.*
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-puns
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: row-puns
+- tapOn:
+    id: puns-kind-youon
+- assertVisible:
+    id: puns-open-h-cha
+- tapOn:
+    id: puns-cell-h-cha
+- assertVisible:
+    id: pun-card
+- assertVisible: ちゃ（茶）來了！.*

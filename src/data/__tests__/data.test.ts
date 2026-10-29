@@ -13,6 +13,7 @@ import {
   punFor,
   PUN_COUNT,
   PUNS,
+  VOICED_PUNS,
   ROW_ORDER,
   seionGrid,
   seionOrder,
@@ -152,9 +153,9 @@ describe('單字與「一行學完」', () => {
 describe('好笑記憶包諧音梗（puns）', () => {
   const sounds = Object.keys(PUNS);
 
-  it('共 42 句：只收 kana-puns.md 標 ✅ 的讀音，け、つ、ひ、へ 不收', () => {
-    expect(PUN_COUNT).toBe(42);
+  it('清音 42 句：只收 kana-puns.md 標 ✅ 的讀音，け、つ、ひ、へ 不收；濁音／拗音另存 VOICED_PUNS', () => {
     expect(sounds).toHaveLength(42);
+    expect(PUN_COUNT).toBe(42 + Object.keys(VOICED_PUNS).length);
     for (const s of ['ke', 'tsu', 'hi', 'he']) expect(PUNS[s]).toBeUndefined();
     expect(PUNS.fu).toBeTruthy();
   });
@@ -201,13 +202,16 @@ describe('好笑記憶包諧音梗（puns）', () => {
     expect(isFreeSound('sa')).toBe(false);
   });
 
-  it('soundOf：清音回傳讀音，濁音、拗音與未知 id 沒有', () => {
+  it('soundOf：清音回傳讀音，濁音、拗音回傳平假名 id（ぢ、づ 不會蓋掉じ、ず），未知 id 沒有', () => {
     expect(soundOf('h-ku')).toBe('ku');
     expect(soundOf('k-ku')).toBe('ku');
     expect(soundOf('h-shi')).toBe('shi');
     expect(soundOf('k-wo')).toBe('wo');
-    expect(soundOf('h-ga')).toBeUndefined();
-    expect(soundOf('h-kya')).toBeUndefined();
+    expect(soundOf('h-ga')).toBe('h-ga');
+    expect(soundOf('k-ga')).toBe('h-ga');
+    expect(soundOf('k-kya')).toBe('h-kya');
+    expect(soundOf('h-di')).toBe('h-di');
+    expect(soundOf('h-ji')).toBe('h-ji');
     expect(soundOf('nope')).toBeUndefined();
   });
 
@@ -216,9 +220,52 @@ describe('好笑記憶包諧音梗（puns）', () => {
     expect(punFor('k-ku')).toBe('你是在ク（哭）喔？ 🥹');
     expect(punFor('k-mo')).toBe('上班不要再 モ（摸）魚了！ 🫳 🐟');
     expect(punFor('k-yu')).toBe('愛老虎ユ！ 🐯');
-    expect(punFor('h-ga')).toBeUndefined();
+    expect(punFor('h-ga')).toBeUndefined(); // が 還沒有句子
     expect(punFor('h-ke')).toBeUndefined();
     expect(punFor('h-tsu')).toBeUndefined();
+  });
+
+  describe('濁音、半濁音、拗音（VOICED_PUNS）', () => {
+    const ids = Object.keys(VOICED_PUNS);
+
+    it('key 是平假名濁音／拗音 id，不會與清音 romaji 衝突，ぢ、づ 沒蓋掉じ、ず', () => {
+      expect(ids.length).toBeGreaterThan(0);
+      for (const id of ids) {
+        expect(id.startsWith('h-')).toBe(true);
+        expect(['dakuon', 'youon']).toContain(byId(id)?.kind);
+        expect(PUNS[id]).toBeUndefined();
+        expect(VOICED_PUNS[id]).toContain(byId(id)!.char);
+      }
+      expect(VOICED_PUNS['h-ji']).toContain('じ（錢）');
+      expect(VOICED_PUNS['h-di']).toBeUndefined();
+      expect(VOICED_PUNS['h-du']).toBeUndefined();
+    });
+
+    it('目前 ✅ 的句子都收進來（ざ じ ぜ ぞ ど び ぶ べ ちゃ ちゅ じゃ）', () => {
+      for (const c of ['za', 'ji', 'ze', 'zo', 'do', 'bi', 'bu', 'be', 'cha', 'chu', 'ja']) {
+        expect(VOICED_PUNS[`h-${c}`]).toBeTruthy();
+      }
+    });
+
+    it('片假名版：單字換單字、拗音兩個字一起換', () => {
+      expect(punFor('h-cha')).toBe('ちゃ（茶）來了！🧋');
+      expect(punFor('k-cha')).toBe('チャ（茶）來了！🧋');
+      expect(punFor('k-chu')).toBe('チュ（啾）～親一下！😘');
+      expect(punFor('k-ja')).toContain('ジャ（');
+      expect(punFor('k-za')).toBe('ザ（炸）雞最好吃！🍗');
+      expect(punFor('k-ji')).toContain('ジ（錢）');
+    });
+
+    it('每句的片假名版含對應片假名、不含殘留的對應平假名，長度不變', () => {
+      for (const id of ids) {
+        const kid = `k-${id.slice(2)}`;
+        const hira = punFor(id)!;
+        const kata = punFor(kid)!;
+        expect(kata).toContain(byId(kid)!.char);
+        expect(kata.replace(byId(kid)!.char, '')).not.toContain(byId(id)!.char);
+        expect([...kata].length).toBe([...hira].length);
+      }
+    });
   });
 
   it('片假名句子只有一個字元不同於平假名句，且沒有殘留的對應平假名', () => {

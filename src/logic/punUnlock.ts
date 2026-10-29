@@ -1,8 +1,9 @@
 // 好笑記憶包的解鎖規則（docs/architecture.md 第 12 節）。純函式。
-// 解鎖的單位是「讀音」（清音的 romaji），平假名與片假名共用。
+// 解鎖的單位是「key」：清音是讀音（romaji），濁音／半濁音／拗音是平假名 id（h-ga），平假名與片假名共用。
+// 濁音、半濁音、拗音的句子只能買斷解鎖（不進看廣告的批次）。
 
 import { seionOrder } from '../data';
-import { isFreeSound, punOfSound, soundOf } from '../data/puns';
+import { isFreeSound, isSeionKey, punOfSound, soundOf } from '../data/puns';
 
 export interface PunAccess {
   /** 是否已買斷 */
@@ -19,7 +20,8 @@ export const PROMPT_AFTER_ADS = 2;
 
 /** 讀音是否已解鎖：買斷、免費讀音、或已用廣告解鎖。 */
 export function isPunUnlocked(sound: string, access: PunAccess): boolean {
-  return access.purchased || isFreeSound(sound) || access.unlocked.includes(sound);
+  if (access.purchased) return true;
+  return isSeionKey(sound) && (isFreeSound(sound) || access.unlocked.includes(sound));
 }
 
 /** 清音順序的讀音清單（有諧音、非免費才會被解鎖流程用到）。 */
@@ -39,6 +41,7 @@ function seionSounds(): string[] {
  * 點到的讀音本身沒有諧音、是免費讀音或已解鎖時，它不算在內（只回傳補上的 2 個）。
  */
 export function nextUnlockBatch(sound: string, unlocked: readonly string[]): string[] {
+  if (!isSeionKey(sound)) return []; // 濁音、拗音只能買斷
   const order = seionSounds();
   const locked = (s: string) => !isFreeSound(s) && !unlocked.includes(s) && punOfSound(s) !== undefined;
   const batch: string[] = [];
@@ -70,6 +73,7 @@ export function punCardState(sound: string | undefined, access: PunAccess): PunC
  * （廣告入口不出現，也不會呼叫 showRewardedAd）。
  */
 export function canWatchRewardedAd(sound: string, access: PunAccess): boolean {
+  if (!isSeionKey(sound)) return false;
   if (access.purchased || isPunUnlocked(sound, access)) return false;
   return nextUnlockBatch(sound, access.unlocked).length > 0;
 }

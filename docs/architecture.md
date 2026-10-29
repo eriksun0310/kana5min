@@ -172,14 +172,16 @@ screenshots/phaseN/      截圖
 商業模式（spec 6.2／6.3 已更新）：あ行、か行諧音免費（10 個讀音）；從さ行起，看一支獎勵廣告永久解鎖 3 個讀音；NT$90 買斷全部解鎖、永久免廣告。App 名稱改為「諧音五十音」。
 
 ### 資料
-- `src/data/puns.ts`：以「讀音」（清音的 romaji，例如 `ku`）為 key，只收 `kana-puns.md` 標 ✅ 的句子（目前 41 句；け、つ、ひ 為 ❌，ふ、へ 未審，都不收）。整理規則：半形括號改全形「（）」、去掉 emoji、去掉多餘空白；文字其餘照原句。
-- `soundOf(kanaId)`：清音的 h-／k- id 回傳 romaji（`h-ku`、`k-ku` → `ku`）；濁音、拗音回傳 undefined（沒有諧音）。
+- `src/data/puns.ts`：以「讀音」（清音的 romaji，例如 `ku`）為 key，只收 `kana-puns.md` 標 ✅ 的句子（清音目前 42 句；け、つ、ひ 為 ❌，ふ、へ 未審，都不收）。整理規則：半形括號改全形「（）」、去掉 emoji、去掉多餘空白；文字其餘照原句。
+- 濁音、半濁音、拗音（2026-10-29）：句子來自 `kana-puns-dakuon-yoon.md`（只收 ✅），存在 `VOICED_PUNS`，key 是平假名 kana id（`h-za`、`h-cha`）而不是 romaji，因為 romaji 會重複（ぢ=ji、づ=zu 與じ、ず同音）。`gen:puns`／`check:puns` 同時讀兩份 markdown。
+- `soundOf(kanaId)`：回傳「key」。清音的 h-／k- id 回傳 romaji（`h-ku`、`k-ku` → `ku`）；濁音、半濁音、拗音回傳平假名 id（`k-za` → `h-za`）；不存在的 id 回傳 undefined。`isSeionKey(key)` 判斷是不是清音 key。
+- `punOfSoundKatakana`：把句中第一個對應平假名「整組」換成片假名（`toKatakana` 逐字元轉換，拗音 ちゃ→チャ）。
 - `punFor(kanaId)`：平假名回傳原句；片假名回傳把句中第一個對應平假名字元換成片假名的句子（く→ク：「你是在ク（哭）喔？」）。沒有句子回傳 undefined。
 - 原本的 `hintFor` 改成從 puns.ts 取資料（保留函式名稱給既有呼叫端），原 HINTS 常數移除。
 - 免費讀音：`a i u e o ka ki ku ke ko`。
 
 ### 解鎖邏輯（純函式，`src/logic/punUnlock.ts`，要有單元測試）
-- `isPunUnlocked(sound, { purchased, unlocked })`：purchased、免費讀音、或在 unlocked 內。
+- `isPunUnlocked(key, { purchased, unlocked })`：purchased、或（清音 key 且為免費讀音／在 unlocked 內）。濁音、半濁音、拗音 key 只有買斷才解鎖；`nextUnlockBatch` 與 `canWatchRewardedAd` 對它們回傳空／false，解鎖面板改顯示「濁音、拗音的諧音梗只能買斷解鎖」（testID `pun-buy-only`）。
 - `nextUnlockBatch(sound, unlocked)`：回傳最多 3 個讀音：點到的讀音，加上照清音順序（`seionOrder`）在它之後、有諧音、尚未解鎖、非免費的 2 個；之後不足就從它之前的同條件讀音補。點到的讀音本身沒有諧音或已解鎖時，它不算在內。
 - `shouldPromptPurchase(adsWatched, alreadyPrompted)`：adsWatched ≥ 2 且還沒提示過。
 - 狀態放 settingsStore（AsyncStorage persist，升 version 並用預設值補欄位）：`punPackPurchased`（已有）、`punUnlocked: string[]`、`punAdsWatched: number`、`punPromptAfterAdsShown: boolean`、`punPromptKataShown: boolean`。
