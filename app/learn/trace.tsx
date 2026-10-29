@@ -4,6 +4,7 @@ import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   BackHeader,
   CoachTip,
+  Icon,
   FlowHeader,
   PrimaryButton,
   Screen,
@@ -24,7 +25,7 @@ import { useTheme } from '../../src/theme/useTheme';
 /** 每個新字要描幾次 */
 const TRACE_ROUNDS = 2;
 /** 通過後「描得很好」顯示多久再進下一步 */
-const PRAISE_MS = 800;
+const PRAISE_MS = 1000;
 
 /** C2-07 學新字・描寫（standalone=1 時只描一次，完成後返回） */
 export default function LearnTrace() {
@@ -134,6 +135,16 @@ export default function LearnTrace() {
         <Text style={[styles.title, { color: t.text }]}>照著淡色的字描一次</Text>
       </View>
       <View style={styles.canvasWrap}>
+        {praise ? (
+          <View style={styles.praiseOverlay} pointerEvents="none" testID="trace-praise-overlay">
+            <View style={[styles.praiseBadge, { backgroundColor: t.surface, borderColor: t.accent }]}>
+              <Icon name="check" size={44} color={t.accentText} strokeWidth={3} />
+              <Text testID="trace-praise" style={{ fontSize: 20, fontWeight: '700', color: t.accentText }}>
+                描得很好
+              </Text>
+            </View>
+          </View>
+        ) : null}
         <TraceCanvas
           key={canvasKey}
           char={kana.char}
@@ -169,11 +180,7 @@ export default function LearnTrace() {
           testID="coach-trace"
           onDismiss={() => useSettingsStore.getState().setLearnTipSeen('trace')}
         />
-        {praise ? (
-          <Text testID="trace-praise" style={[styles.hint, { color: t.accentText }]}>
-            描得很好
-          </Text>
-        ) : hint ? (
+        {hint && !praise ? (
           <Text testID="trace-hint" style={[styles.hint, { color: t.accentText }]}>
             {hint}
           </Text>
@@ -195,6 +202,20 @@ const styles = StyleSheet.create({
   sub: { fontSize: 13 },
   title: { fontSize: 22, fontWeight: '700' },
   canvasWrap: { paddingTop: 18, paddingHorizontal: 24, alignItems: 'center' },
+  praiseOverlay: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  praiseBadge: {
+    paddingVertical: 20,
+    paddingHorizontal: 36,
+    borderRadius: 24,
+    borderWidth: 2,
+    alignItems: 'center',
+    gap: 8,
+  },
   hintBox: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   hint: { fontSize: 15, textAlign: 'center' },
   skip: { marginTop: 12, alignSelf: 'center', paddingHorizontal: 24 },
