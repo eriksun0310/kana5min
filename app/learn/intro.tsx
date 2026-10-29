@@ -81,7 +81,7 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
         onClose={() => confirmExitFlow(router)}
       />
       <View style={styles.center}>
-        <View style={[styles.chip, { backgroundColor: t.accentSoft }]}>
+        <View style={styles.chip}>
           <Text style={[styles.chipText, { color: t.accentText }]}>新字</Text>
         </View>
         <KanaText size={200} testID="learn-kana">
@@ -141,7 +141,7 @@ function KataIntro({ kana, snap }: IntroProps) {
         onClose={() => confirmExitFlow(router)}
       />
       <View style={kataStyles.center}>
-        <View style={[styles.chip, { backgroundColor: t.accentSoft }]}>
+        <View style={styles.chip}>
           <Text testID="kata-chip" style={[styles.chipText, { color: t.accentText }]}>
             片假名新字
           </Text>
@@ -170,7 +170,7 @@ function KataIntro({ kana, snap }: IntroProps) {
       </View>
       {hira || kana.diffNote ? (
         <View style={kataStyles.cardWrapTop}>
-          <Card testID="kata-compare">
+          <Card flat testID="kata-compare">
             <View style={kataStyles.compareRow}>
               {hira ? (
                 <KanaText size={40} lineHeightRatio={1.2} color={t.muted} testID="kata-hira">
@@ -188,7 +188,7 @@ function KataIntro({ kana, snap }: IntroProps) {
       ) : null}
       {word ? (
         <View style={kataStyles.cardWrapBottom}>
-          <Card testID="kata-word">
+          <Card flat testID="kata-word">
             <View style={kataStyles.wordRow}>
               <View style={kataStyles.wordText}>
                 <Text style={{ fontSize: 12, color: t.muted }}>外來語例字</Text>
@@ -257,7 +257,7 @@ const kataStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
+  chip: { paddingHorizontal: 12, paddingVertical: 6 },
   chipText: { fontSize: 13, fontWeight: '700' },
   romaji: { fontSize: 20, letterSpacing: 2, minHeight: 28 },
   playWrap: { marginTop: 10 },

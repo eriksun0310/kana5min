@@ -56,7 +56,7 @@ export default function TourScreen() {
           onPress={finish}
           style={styles.skip}
         >
-          <Text style={{ fontSize: 15, color: t.muted }}>略過</Text>
+          <Text style={{ fontSize: 15, color: t.accentText, textDecorationLine: 'underline' }}>略過</Text>
         </Pressable>
       </View>
 

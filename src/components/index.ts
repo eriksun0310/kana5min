@@ -14,3 +14,4 @@ export { ShareCard, SHARE_CARD_SIZE, type ShareCardProps } from './ShareCard';
 export { PunShareButton } from './PunShareButton';
 export { CoachTip, type CoachTipProps } from './CoachTip';
 export { HomeHelpSheet, type HomeHelpSheetProps } from './HomeHelpSheet';
+export { TextLink, type TextLinkProps } from './TextLink';

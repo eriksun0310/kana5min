@@ -104,7 +104,7 @@ function WordCard({ word }: { word: SpecialWord }) {
   const t = useTheme();
   const w = wordById(word.wordId);
   return (
-    <Card>
+    <Card flat>
       <View style={styles.wordRow}>
         <View style={styles.wordInfo}>
           <MoraBoxes moras={word.moras} />
@@ -133,7 +133,7 @@ function LongNote() {
   const t = useTheme();
   return (
     <View style={styles.note}>
-      <Card>
+      <Card flat>
         <Text style={[styles.noteText, { color: t.muted }]}>
           {'片假名用「ー」表示長音，例如 '}
           <KanaText size={16} lineHeightRatio={1.2} color={t.text}>
@@ -150,7 +150,7 @@ function SokuonNote() {
   const t = useTheme();
   return (
     <View style={styles.note}>
-      <Card>
+      <Card flat>
         <View style={styles.sizeRow}>
           <View style={styles.sizePair}>
             <KanaText size={40} lineHeightRatio={1}>
@@ -174,7 +174,7 @@ function YouonCombine() {
   const t = useTheme();
   return (
     <View style={styles.combineWrap}>
-      <Card>
+      <Card flat>
         <View style={styles.combine}>
           <KanaText size={40} lineHeightRatio={1.15}>
             き
@@ -218,6 +218,9 @@ function YouonGrid() {
             {g.char}
           </KanaText>
           <Text style={[styles.gridRomaji, { color: t.muted }]}>{g.romaji}</Text>
+          <View style={styles.cellIcon}>
+            <Icon name="speakerSmall" size={13} color={t.muted} />
+          </View>
         </Pressable>
       ))}
     </View>
@@ -225,6 +228,7 @@ function YouonGrid() {
 }
 
 const styles = StyleSheet.create({
+  cellIcon: { position: 'absolute', right: 6, top: 6 },
   flex: { flex: 1 },
   segments: { paddingTop: 12, paddingHorizontal: 24, flexDirection: 'row', gap: 6 },
   seg: {

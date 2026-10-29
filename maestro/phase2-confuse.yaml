@@ -129,12 +129,12 @@ appId: com.ptalk.kana5min
     id: result-home
 - assertVisible:
     id: stat-learned
-# 回練習分頁：わねれ 組顯示「錯 1 次」並排到第一（左上，在 ぬ・め 左邊）
+# 回練習分頁：わねれ 組顯示「錯 1 次」並排到第一（清單最上面，在 ぬ・め 上方）
 - tapOn:
     id: tab-practice
 - assertVisible: "わ・ね・れ，錯 1 次"
 - assertVisible:
     id: group-wanere
-    leftOf:
+    above:
       id: group-nume
 - assertVisible: "ぬ・め，錯 0 次"

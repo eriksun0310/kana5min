@@ -156,17 +156,20 @@ export default function SettingsScreen() {
               />
             </View>
 
+            {/* 改時間和開關分兩列：時間列有值與箭頭，一看就知道能點 */}
+            <Pressable
+              testID="row-reminder-time"
+              accessibilityRole="button"
+              accessibilityLabel={`每日提醒時間，每天 ${reminder.time}，練過的日子不會打擾你`}
+              onPress={() => setSheet('time')}
+              style={rowStyle}
+            >
+              <RowText label="每日提醒時間" sub="練過的日子不會打擾你" />
+              <Value text={reminder.time} />
+            </Pressable>
+
             <View style={rowStyle}>
-              {/* 點文字區選時間；右側開關控制是否提醒 */}
-              <Pressable
-                testID="row-reminder-time"
-                accessibilityRole="button"
-                accessibilityLabel={`每日提醒時間，每天 ${reminder.time}，練過的日子不會打擾你`}
-                onPress={() => setSheet('time')}
-                style={styles.rowTextPress}
-              >
-                <RowText label="每日提醒" sub={`每天 ${reminder.time}，練過的日子不會打擾你`} />
-              </Pressable>
+              <RowText label="開啟每日提醒" sub="到時間會用通知提醒你練習" />
               <Toggle
                 testID="toggle-reminder"
                 label="每日提醒"
@@ -398,7 +401,6 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 1,
   },
-  rowTextPress: { flex: 1, minHeight: 44, justifyContent: 'center' },
   value: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   aboutRow: {
     paddingVertical: 12,

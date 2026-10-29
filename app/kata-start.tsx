@@ -53,7 +53,7 @@ export default function KataStartScreen() {
               <View
                 key={id}
                 testID={`kata-sample-${id}`}
-                style={[styles.card, { backgroundColor: t.surface, borderColor: t.line }]}
+                style={[styles.card, { backgroundColor: t.flat, borderWidth: 0 }]}
               >
                 <View style={styles.pair}>
                   <KanaText size={22} lineHeightRatio={1.2} color={t.muted}>

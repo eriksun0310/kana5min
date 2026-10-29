@@ -1,7 +1,7 @@
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Icon, KanaText, PrimaryButton, Screen } from '../src/components';
+import { Icon, KanaText, PrimaryButton, Screen, TextLink } from '../src/components';
 import {
   byRow,
   newlyReadableWords,
@@ -100,12 +100,15 @@ export default function RowDoneScreen() {
               key={k.id}
               style={[
                 styles.cell,
-                { width: cellWidth, backgroundColor: t.accentSoft, borderColor: t.accent },
+                { width: cellWidth, backgroundColor: t.flat },
               ]}
             >
               <KanaText size={32} lineHeightRatio={1.2}>
                 {k.char}
               </KanaText>
+              <View style={styles.cellCheck}>
+                <Icon name="check" size={12} color={t.accentText} strokeWidth={3} />
+              </View>
             </View>
           ))}
         </View>
@@ -116,7 +119,7 @@ export default function RowDoneScreen() {
               {words.map((w) => (
                 <View
                   key={w.id}
-                  style={[styles.word, { backgroundColor: t.surface, borderColor: t.line }]}
+                  style={[styles.word, { backgroundColor: t.flat, borderWidth: 0 }]}
                 >
                   <KanaText size={24} lineHeightRatio={1.2}>
                     {w.text}
@@ -140,20 +143,18 @@ export default function RowDoneScreen() {
         )}
       </View>
       <View style={styles.secondary}>
-        <Pressable
+        <TextLink
           testID="row-review"
-          accessibilityRole="button"
+          label="先複習一下"
           onPress={() => router.replace({ pathname: '/quiz', params: { mode: 'auto' } })}
-          style={styles.review}
-        >
-          <Text style={[styles.reviewLabel, { color: t.muted }]}>先複習一下</Text>
-        </Pressable>
+        />
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  cellCheck: { position: 'absolute', right: 5, top: 4 },
   flex: { flex: 1 },
   content: { flexGrow: 1, paddingHorizontal: 24, justifyContent: 'center', gap: 18, paddingTop: 52 },
   check: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
@@ -164,7 +165,6 @@ const styles = StyleSheet.create({
   cell: {
     height: 62,
     borderRadius: 16,
-    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

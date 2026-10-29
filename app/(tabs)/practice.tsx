@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { KanaText, Screen } from '../../src/components';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Icon, KanaText, Screen } from '../../src/components';
 import { availableGroups, confusionCounts, sortGroupsByMisses } from '../../src/logic/confusion';
 import { isLearned } from '../../src/logic/srs';
 import { progressList, useProgressStore } from '../../src/store';
@@ -9,7 +9,6 @@ import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
 const SIDE = 24;
-const GAP = 8;
 
 const SPECIAL = [
   { key: 'long', kana: 'おばあさん', label: '長音', href: '/special/long' },
@@ -22,7 +21,6 @@ export default function PracticeScreen() {
   const t = useTheme();
   const router = useRouter();
   const top = useTopPad(56);
-  const { width } = useWindowDimensions();
   const progress = useProgressStore((s) => s.progress);
   const confusions = useProgressStore((s) => s.confusions);
   const hasLearned = useMemo(() => Object.values(progress).some(isLearned), [progress]);
@@ -32,10 +30,6 @@ export default function PracticeScreen() {
     () => sortGroupsByMisses(availableGroups(progressList(progress)), counts),
     [progress, counts],
   );
-
-  const gridWidth = width - SIDE * 2;
-  const pairWidth = (gridWidth - GAP) / 2;
-  const specialWidth = (gridWidth - GAP * 2) / 3;
 
   return (
     <Screen>
@@ -58,32 +52,34 @@ export default function PracticeScreen() {
             onPress={() => router.push({ pathname: '/quiz', params: { mode: 'auto' } })}
             style={({ pressed }) => [
               styles.card,
-              { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.9 : 1 },
+              {
+                backgroundColor: t.surface,
+                borderColor: t.line,
+                opacity: pressed ? 0.9 : hasLearned ? 1 : 0.6,
+              },
             ]}
           >
-            <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>自動練習</Text>
-            <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
-              聽音選字、看字選音、易混淆字混合出題，10 題
-            </Text>
-            <View style={[styles.start, { backgroundColor: hasLearned ? t.accent : t.track }]}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: hasLearned ? t.onAccent : t.muted }}>
-                開始
+            <View style={styles.cardText}>
+              <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>自動練習</Text>
+              <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
+                聽音選字、看字選音、易混淆字混合，10 題
               </Text>
             </View>
-            {!hasLearned ? (
-              <Text testID="practice-empty-hint" style={{ fontSize: 13, color: t.muted }}>
-                先學幾個字再來練習
-              </Text>
-            ) : null}
+            <Icon name="chevronRight" size={20} color={hasLearned ? t.accentText : t.muted} />
           </Pressable>
+          {!hasLearned ? (
+            <Text testID="practice-empty-hint" style={{ fontSize: 13, color: t.muted, paddingTop: 8 }}>
+              先學幾個字再來練習
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.sectionHead}>
           <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>最近常搞混</Text>
           <Text style={{ fontSize: 12, color: t.muted }}>點一組單獨練</Text>
         </View>
-        <View style={styles.grid}>
-          {groups.map((g) => {
+        <View style={[styles.list, { backgroundColor: t.surface, borderColor: t.line }]}>
+          {groups.map((g, i) => {
             const n = counts[g.id] ?? 0;
             return (
               <Pressable
@@ -93,27 +89,26 @@ export default function PracticeScreen() {
                 accessibilityLabel={`${g.label}，錯 ${n} 次`}
                 onPress={() => router.push({ pathname: '/confuse/[id]', params: { id: g.id } })}
                 style={({ pressed }) => [
-                  styles.pair,
-                  {
-                    width: pairWidth,
-                    backgroundColor: t.surface,
-                    borderColor: t.line,
-                    opacity: pressed ? 0.9 : 1,
-                  },
+                  styles.listRow,
+                  i > 0 && { borderTopWidth: 1, borderTopColor: t.line },
+                  { opacity: pressed ? 0.7 : 1 },
                 ]}
               >
                 <KanaText size={22} lineHeightRatio={1.2} style={styles.pairKana}>
                   {g.label.replace(/・/g, '')}
                 </KanaText>
-                <Text style={{ fontSize: 12, color: n > 0 ? t.accentText : t.muted }}>錯 {n} 次</Text>
+                <View style={styles.rowRight}>
+                  <Text style={{ fontSize: 12, color: n > 0 ? t.accentText : t.muted }}>錯 {n} 次</Text>
+                  <Icon name="chevronRight" size={16} color={t.muted} />
+                </View>
               </Pressable>
             );
           })}
         </View>
 
         <Text style={[styles.sectionTitle, { color: t.text }]}>特殊音</Text>
-        <View style={styles.grid}>
-          {SPECIAL.map((s) => (
+        <View style={[styles.list, { backgroundColor: t.surface, borderColor: t.line }]}>
+          {SPECIAL.map((s, i) => (
             <Pressable
               key={s.key}
               testID={`special-${s.key}`}
@@ -121,27 +116,18 @@ export default function PracticeScreen() {
               accessibilityLabel={`${s.label}：${s.kana}`}
               onPress={() => router.push(s.href)}
               style={({ pressed }) => [
-                styles.special,
-                {
-                  width: specialWidth,
-                  backgroundColor: t.surface,
-                  borderColor: t.line,
-                  opacity: pressed ? 0.9 : 1,
-                },
+                styles.listRow,
+                i > 0 && { borderTopWidth: 1, borderTopColor: t.line },
+                { opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              {/* おばあさん 5 字在 3 欄格內放不下 22px，單行自動縮小以免折行 */}
-              <KanaText
-                size={22}
-                lineHeightRatio={1.2}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.7}
-                style={styles.specialKana}
-              >
-                {s.kana}
-              </KanaText>
-              <Text style={{ fontSize: 12, color: t.muted }}>{s.label}</Text>
+              <View style={styles.specialLeft}>
+                <KanaText size={22} lineHeightRatio={1.2}>
+                  {s.kana}
+                </KanaText>
+                <Text style={{ fontSize: 13, color: t.muted }}>{s.label}</Text>
+              </View>
+              <Icon name="chevronRight" size={16} color={t.muted} />
             </Pressable>
           ))}
         </View>
@@ -155,15 +141,16 @@ const styles = StyleSheet.create({
   content: { paddingBottom: 24 },
   header: { paddingHorizontal: SIDE, gap: 4 },
   cardWrap: { paddingHorizontal: SIDE, paddingTop: 16 },
-  card: { borderWidth: 1, borderRadius: 22, padding: 20, gap: 12 },
-  start: {
-    alignSelf: 'flex-start',
-    minHeight: 44,
+  card: {
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 18,
     paddingHorizontal: 20,
-    borderRadius: 999,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 12,
   },
+  cardText: { flex: 1, gap: 6 },
   sectionHead: {
     paddingTop: 18,
     paddingBottom: 8,
@@ -179,24 +166,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  grid: { paddingHorizontal: SIDE, flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
-  pair: {
+  list: { marginHorizontal: SIDE, borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
+  listRow: {
     minHeight: 54,
-    borderRadius: 16,
-    borderWidth: 1,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 14,
   },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  specialLeft: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
   pairKana: { letterSpacing: 4 },
-  specialKana: { maxWidth: '100%', paddingHorizontal: 6 },
-  special: {
-    minHeight: 72,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
 });

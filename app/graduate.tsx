@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Icon, PrimaryButton, Screen } from '../src/components';
+import { Icon, PrimaryButton, Screen, TextLink } from '../src/components';
 import { learnedSeionCount, practiceDayCount } from '../src/logic/graduate';
 import { goHomeTab } from '../src/nav/exitToHome';
 import { useProgressStore, useSettingsStore } from '../src/store';
@@ -41,7 +41,7 @@ export default function GraduateScreen() {
           {stats.map((s) => (
             <View
               key={s.key}
-              style={[styles.stat, { backgroundColor: t.surface, borderColor: t.line }]}
+              style={[styles.stat, { backgroundColor: t.flat, borderWidth: 0 }]}
             >
               <Text testID={`graduate-stat-${s.key}`} style={[styles.statValue, { color: t.text }]}>
                 {s.v}
@@ -55,14 +55,7 @@ export default function GraduateScreen() {
         <PrimaryButton testID="graduate-next" label="看看下一步" onPress={() => router.push('/next')} />
       </View>
       <View style={styles.secondary}>
-        <Pressable
-          testID="graduate-home"
-          accessibilityRole="button"
-          onPress={() => goHomeTab(router)}
-          style={styles.link}
-        >
-          <Text style={[styles.linkLabel, { color: t.muted }]}>回首頁繼續複習</Text>
-        </Pressable>
+        <TextLink testID="graduate-home" label="回首頁繼續複習" onPress={() => goHomeTab(router)} />
       </View>
     </Screen>
   );

@@ -371,3 +371,11 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **假設**：(1) 解鎖規則最簡單：濁音／拗音只透過買斷解鎖，不進看廣告的 3 字批次，面板上有說明；免費清單維持あ行、か行；已買斷全部可看。(2) 買斷頁「解鎖全部 N 句」用總句數（含濁拗）。(3) 總覽頁沒句子的格子點了無反應。
 - **尚未完成**：Maestro 流程與亮暗截圖（`screenshots/phase5/`）**沒有跑**——這台機器的 8081 被不相干的 vite（`/Users/jiayu/Desktop/slm-upper`，pid 3178）佔用，Debug App 只連 8081，我沒有去關別人的服務；試過 Metro 8082＋`RCT_jsLocation` 也無效。8081 空出後：`pnpm exec expo start`，再跑 `maestro test maestro/phase5-puns.yaml`（亮暗截圖檔名 `F1-Dakuon-Locked-light` 等需補暗色）。
 - **備註**：用 `--testPathIgnorePatterns '.claude/worktrees'` 在 worktree 內會把自己的測試也排除（顯示 No tests found），在 worktree 內直接 `pnpm exec jest --watchman=false`。
+
+## 介面整理：能按與不能按（2026-10-29）
+
+- 原因：整個 App 用「surface 底＋細邊框」同時畫能按與不能按的東西，使用者分不出來。照使用者逐頁選定的方案整理（預覽頁的選擇清單見對話記錄）。
+- 規則：純資訊的卡片一律用無邊框的 `flat` 底（新 token `flat`，`Card flat`、`StatCard`）；能點的磚塊或列有箭頭或圖示；純文字連結一律用 `TextLink`（主色加底線）。
+- 改動：首頁、五十音表（已學右上角紅勾，說明移到上方）、練習（自動練習、常搞混、特殊音改清單列）、設定（每日提醒拆成「時間」「開關」兩列）、字詳情（「看相似的字」兩塊磚，容易搞混可以點進去）、易混淆組（大卡右上喇叭）、特殊音、學新字、練習結果、完成一行、片假名開始、畢業、下一步、買斷頁、導覽、好笑記法總覽（沒有諧音的格子不顯示）。
+- 假設：字詳情「筆畫」改成大字下方一行小字；特殊音拗音格子放小喇叭（不是箭頭，因為它是播放聲音）。
+- 截圖：`screenshots/ui-affordance/`（亮暗各 7 張，`maestro/screenshots/run-ui-affordance.sh`）。

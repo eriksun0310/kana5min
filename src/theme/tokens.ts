@@ -46,6 +46,8 @@ export interface ThemeTokens {
   onAccent: string;
   /** 設定頁開關的圓鈕 */
   knob: string;
+  /** 不能按的資訊卡底色（無邊框，跟能按的 surface 卡區分） */
+  flat: string;
 }
 
 export const dark: ThemeTokens = {
@@ -70,6 +72,7 @@ export const dark: ThemeTokens = {
   accent: '#E8734F',
   onAccent: '#1C1B18',
   knob: '#FFFFFF',
+  flat: '#23211C',
 };
 
 export const light: ThemeTokens = {
@@ -94,6 +97,7 @@ export const light: ThemeTokens = {
   accent: '#C44830',
   onAccent: '#FFFFFF',
   knob: '#FFFFFF',
+  flat: '#F3F3EF',
 };
 
 export type ThemeName = 'dark' | 'light';

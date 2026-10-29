@@ -45,8 +45,8 @@ export default function KanaDetailScreen() {
   const glyphSize = [...kana.char].length > 1 ? 110 : 190;
   const otherId = counterpartId(kana.id);
 
-  /** 對照：上一頁就是對照字時回上一頁，否則往前進一頁（返回時回到原本的字）。 */
-  const openCounterpart = (target: string) => {
+  /** 開另一個字（對照、容易搞混）：上一頁就是該字時回上一頁，否則往前進一頁（返回時回到原本的字）。 */
+  const openKana = (target: string) => {
     const st = navigation.getState();
     const prev = st?.routes?.[(st.index ?? 0) - 1];
     const prevId = prev && String(prev.name).startsWith('kana/') ? (prev.params as { id?: string } | undefined)?.id : undefined;
@@ -74,22 +74,6 @@ export default function KanaDetailScreen() {
             </Text>
           </TianGrid>
 
-          {otherId && otherChar ? (
-            <Pressable
-              testID="detail-compare"
-              accessibilityRole="button"
-              accessibilityLabel={`對照${kana.script === 'hiragana' ? '片假名' : '平假名'} ${otherChar}`}
-              hitSlop={{ top: 6, bottom: 6, left: 10, right: 10 }}
-              onPress={() => openCounterpart(otherId)}
-              style={[styles.compare, { backgroundColor: t.chip }]}
-            >
-              <Text style={{ fontSize: 13, color: t.muted }}>對照</Text>
-              <KanaText size={16} lineHeightRatio={1.2} color={t.text}>
-                {otherChar}
-              </KanaText>
-            </Pressable>
-          ) : null}
-
           <View style={styles.playRow}>
             <Pressable
               testID="play-audio"
@@ -114,25 +98,60 @@ export default function KanaDetailScreen() {
           </View>
         </View>
 
-        <View style={styles.pair}>
-          <Card style={styles.pairCard}>
-            <Text style={{ fontSize: 12, color: t.muted }}>筆畫</Text>
-            <Text style={{ fontSize: 20, fontWeight: '700', color: t.text, marginTop: 4 }}>
-              {kana.strokes} 畫
-            </Text>
-          </Card>
-          {confusable ? (
-            <Card style={styles.pairCard} testID="detail-confusable">
-              <Text style={{ fontSize: 12, color: t.muted }}>容易搞混</Text>
-              <KanaText size={24} lineHeightRatio={1.3} style={{ marginTop: 2 }}>
-                {confusable.char}
-              </KanaText>
-            </Card>
-          ) : null}
-        </View>
+        <Text testID="detail-strokes" style={[styles.strokes, { color: t.muted }]}>
+          筆畫 {kana.strokes} 畫
+        </Text>
+
+        {otherId && otherChar ? (
+          <>
+            <Text style={[styles.sectionLabel, { color: t.muted }]}>看相似的字</Text>
+            <View style={styles.pair}>
+              <Pressable
+                testID="detail-compare"
+                accessibilityRole="button"
+                accessibilityLabel={`對照${kana.script === 'hiragana' ? '片假名' : '平假名'} ${otherChar}`}
+                onPress={() => openKana(otherId)}
+                style={({ pressed }) => [
+                  styles.tile,
+                  { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.85 : 1 },
+                ]}
+              >
+                <Text style={{ fontSize: 12, color: t.muted }}>
+                  {kana.script === 'hiragana' ? '對照片假名' : '對照平假名'}
+                </Text>
+                <KanaText size={28} lineHeightRatio={1.25}>
+                  {otherChar}
+                </KanaText>
+                <View style={styles.tileArrow}>
+                  <Icon name="chevronRight" size={14} color={t.muted} />
+                </View>
+              </Pressable>
+              {confusable ? (
+                <Pressable
+                  testID="detail-confusable"
+                  accessibilityRole="button"
+                  accessibilityLabel={`容易搞混的字 ${confusable.char}`}
+                  onPress={() => openKana(confusable.id)}
+                  style={({ pressed }) => [
+                    styles.tile,
+                    { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Text style={{ fontSize: 12, color: t.muted }}>容易搞混</Text>
+                  <KanaText size={28} lineHeightRatio={1.25}>
+                    {confusable.char}
+                  </KanaText>
+                  <View style={styles.tileArrow}>
+                    <Icon name="chevronRight" size={14} color={t.muted} />
+                  </View>
+                </Pressable>
+              ) : null}
+            </View>
+          </>
+        ) : null}
 
         {word ? (
-          <Card style={styles.wordCard} testID="detail-word">
+          <Card flat style={styles.wordCard} testID="detail-word">
             <View style={{ gap: 2, flexShrink: 1 }}>
               <Text style={{ fontSize: 12, color: t.muted }}>例字</Text>
               <KanaText size={28} lineHeightRatio={1.2}>
@@ -192,17 +211,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  compare: {
-    minHeight: 36,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
   romaji: { position: 'absolute', bottom: 10, fontSize: 18, letterSpacing: 2 },
-  pair: { flexDirection: 'row', gap: 10, paddingTop: 18 },
-  pairCard: { flex: 1 },
+  strokes: { fontSize: 13, textAlign: 'center', paddingTop: 14 },
+  sectionLabel: { fontSize: 12, paddingTop: 16, paddingBottom: 6, paddingLeft: 2 },
+  pair: { flexDirection: 'row', gap: 10 },
+  tile: {
+    flex: 1,
+    minHeight: 84,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    paddingVertical: 10,
+  },
+  tileArrow: { position: 'absolute', right: 10, top: 10 },
   wordCard: {
     marginTop: 10,
     flexDirection: 'row',

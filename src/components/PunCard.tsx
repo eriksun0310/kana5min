@@ -36,7 +36,7 @@ export function PunCard({ kanaId, style, compact }: PunCardProps) {
 
   if (open) {
     return (
-      <Card testID="pun-card" style={[compact && styles.cardCompact, style]}>
+      <Card flat testID="pun-card" style={[compact && styles.cardCompact, style]}>
         <View style={styles.head}>
           <Text style={[styles.title, { color: t.accentText }]}>好笑記法</Text>
           <PunShareButton kanaId={kanaId} />

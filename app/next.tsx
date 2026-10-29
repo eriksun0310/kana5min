@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Icon, PrimaryButton, Screen } from '../src/components';
+import { Icon, PrimaryButton, Screen, TextLink } from '../src/components';
 import { SUSHI_JP_APP_STORE_URL, SUSHI_JP_PLAY_STORE_URL } from '../src/config';
 import { isHttpUrl, sushiStoreLink } from '../src/logic/links';
 import { goHomeTab } from '../src/nav/exitToHome';
@@ -63,7 +63,7 @@ export default function NextScreen() {
         </Text>
       </View>
       <View style={styles.cardWrap}>
-        <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.line }]}>
+        <View style={[styles.card, { backgroundColor: t.flat, borderWidth: 0 }]}>
           <View style={styles.appRow}>
             <Image
               testID="next-sushi-icon"
@@ -93,14 +93,7 @@ export default function NextScreen() {
         <PrimaryButton testID="next-open-store" label={`到 ${STORE.storeName} 看看`} onPress={openStore} />
       </View>
       <View style={styles.secondary}>
-        <Pressable
-          testID="next-later"
-          accessibilityRole="button"
-          onPress={() => goHomeTab(router)}
-          style={styles.link}
-        >
-          <Text style={[styles.linkLabel, { color: t.muted }]}>之後再說</Text>
-        </Pressable>
+        <TextLink testID="next-later" label="之後再說" onPress={() => goHomeTab(router)} />
       </View>
     </Screen>
   );

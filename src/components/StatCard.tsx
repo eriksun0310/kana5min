@@ -11,13 +11,13 @@ export interface StatCardProps {
   testID?: string;
 }
 
-/** 統計卡（首頁、結果頁）：surface 底、line 邊、radius 16、padding 12/14。 */
+/** 統計卡（首頁、結果頁、畢業頁）：純資訊，不能按，所以用 flat 底、無邊框，radius 16、padding 12/14。 */
 export function StatCard({ value, unit, label, style, testID }: StatCardProps) {
   const t = useTheme();
   return (
     <View
       testID={testID}
-      style={[styles.card, { backgroundColor: t.surface, borderColor: t.line }, style]}
+      style={[styles.card, { backgroundColor: t.flat }, style]}
     >
       <Text style={[styles.value, { color: t.text }]}>
         {value}
@@ -31,7 +31,6 @@ export function StatCard({ value, unit, label, style, testID }: StatCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 14,

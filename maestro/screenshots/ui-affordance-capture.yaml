@@ -1,0 +1,64 @@
+# 能按／不能按整理後的畫面截圖（首頁、五十音表、詳情、練習、設定、易混淆組、特殊音、好笑記法總覽）。
+# 請用 maestro/screenshots/run-ui-affordance.sh 執行（亮色、暗色各一次，THEME 由它傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- assertVisible:
+    id: start-today
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/1-Home-${THEME}
+- tapOn:
+    id: tab-chart
+- assertVisible:
+    id: cell-h-a
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/2-Chart-${THEME}
+- tapOn:
+    id: cell-h-ki
+- assertVisible:
+    id: detail-char
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/3-Detail-${THEME}
+- tapOn:
+    id: detail-confusable
+- assertVisible:
+    id: detail-char
+    text: さ
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/4-Detail-confusable-${THEME}
+- tapOn:
+    id: back
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: start-auto-practice
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/5-Practice-${THEME}
+- tapOn:
+    id: special-youon
+- assertVisible:
+    id: youon-kya
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/6-Youon-${THEME}
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-reminder-time
+    direction: DOWN
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-affordance/7-Settings-${THEME}

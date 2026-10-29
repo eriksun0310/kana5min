@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { HomeHelpSheet, Icon, KanaText, PrimaryButton, Screen, StatCard } from '../../src/components';
+import { HomeHelpSheet, Icon, KanaText, PrimaryButton, Screen, StatCard, TextLink } from '../../src/components';
 import { byId, scriptLabel } from '../../src/data';
 import { isGraduated } from '../../src/logic/graduate';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
@@ -151,13 +151,7 @@ export default function HomeScreen() {
         <View style={styles.rowsBars} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           {stats.rows.map((r) => (
             <View key={r.row} style={styles.rowCell}>
-              <View
-                style={[
-                  styles.rowTrack,
-                  { backgroundColor: t.track },
-                  r.current && { borderWidth: 1.5, borderColor: t.accent },
-                ]}
-              >
+              <View style={[styles.rowTrack, { backgroundColor: t.track }]}>
                 <View
                   style={{
                     width: `${(r.learned / Math.max(1, r.total)) * 100}%`,
@@ -180,24 +174,10 @@ export default function HomeScreen() {
           onPress={() => (saved ? resumeSavedAndGo(router, 'push') : startDailyAndGo(router, 'push'))}
         />
         {saved ? (
-          <Pressable
-            testID="restart-today"
-            accessibilityRole="button"
-            onPress={() => startDailyAndGo(router, 'push')}
-            style={styles.nextLink}
-          >
-            <Text style={{ fontSize: 14, color: t.muted }}>從頭開始</Text>
-          </Pressable>
+          <TextLink testID="restart-today" label="從頭開始" onPress={() => startDailyAndGo(router, 'push')} />
         ) : null}
         {graduated ? (
-          <Pressable
-            testID="home-next-link"
-            accessibilityRole="button"
-            onPress={() => router.push('/next')}
-            style={styles.nextLink}
-          >
-            <Text style={{ fontSize: 14, color: t.muted }}>下一步：壽司日檢</Text>
-          </Pressable>
+          <TextLink testID="home-next-link" label="下一步：壽司日檢" onPress={() => router.push('/next')} />
         ) : null}
       </View>
       <HomeHelpSheet visible={helpOpen} goalMinutes={goal} onClose={() => setHelpOpen(false)} />
@@ -240,5 +220,4 @@ const styles = StyleSheet.create({
   rowCell: { flex: 1, alignItems: 'center' },
   rowTrack: { alignSelf: 'stretch', height: 8, borderRadius: 4, overflow: 'hidden' },
   cta: { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16 },
-  nextLink: { minHeight: 44, marginTop: 4, alignItems: 'center', justifyContent: 'center' },
 });

@@ -97,7 +97,7 @@ export default function PunPackScreen() {
 
         <View style={styles.samples}>
           {SAMPLE_IDS.map((id) => (
-            <Card key={id} testID={`punpack-sample-${id}`}>
+            <Card flat key={id} testID={`punpack-sample-${id}`}>
               <Text style={[styles.sampleTag, { color: t.accentText }]}>免費範例</Text>
               <Text style={[styles.sampleBody, { color: t.text }]}>{punFor(id)}</Text>
             </Card>
@@ -139,7 +139,7 @@ export default function PunPackScreen() {
               onPress={restore}
               style={styles.restore}
             >
-              <Text style={[styles.restoreText, { color: t.muted }]}>恢復購買</Text>
+              <Text style={[styles.restoreText, { color: t.accentText, textDecorationLine: 'underline' }]}>恢復購買</Text>
             </Pressable>
           </View>
         )}

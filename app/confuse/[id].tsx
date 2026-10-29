@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
-import { BackHeader, Card, KanaText, PrimaryButton, Screen } from '../../src/components';
+import { BackHeader, Card, Icon, KanaText, PrimaryButton, Screen } from '../../src/components';
 import { mustById } from '../../src/data';
 import { availableGroups, confusionCounts, resolvedMembers } from '../../src/logic/confusion';
 import { progressList, useProgressStore, useSettingsStore } from '../../src/store';
@@ -98,19 +98,22 @@ export default function ConfuseScreen() {
                 {k.char}
               </KanaText>
               <Text style={{ fontSize: 15, color: t.muted }}>{k.romaji}</Text>
+              <View style={styles.cardSpeaker}>
+                <Icon name="speakerSmall" size={18} color={t.accentText} />
+              </View>
             </Pressable>
           ))}
         </View>
 
         <View style={styles.block}>
-          <Card testID="confuse-tip">
+          <Card flat testID="confuse-tip">
             <Text style={{ fontSize: 12, fontWeight: '700', color: t.accentText }}>差在哪裡</Text>
             <Text style={{ fontSize: 15, lineHeight: 23, color: t.text, marginTop: 4 }}>{group.tip}</Text>
           </Card>
         </View>
 
         <View style={styles.blockSmall}>
-          <Card testID="confuse-misses">
+          <Card flat testID="confuse-misses">
             <View style={styles.missRow}>
               <Text style={{ fontSize: 14, color: t.muted }}>最近在這組答錯</Text>
               <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>{misses} 次</Text>
@@ -131,6 +134,7 @@ export default function ConfuseScreen() {
 }
 
 const styles = StyleSheet.create({
+  cardSpeaker: { position: 'absolute', right: 10, top: 10 },
   flex: { flex: 1 },
   content: { paddingBottom: 12 },
   pills: { paddingTop: 12, paddingHorizontal: SIDE, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

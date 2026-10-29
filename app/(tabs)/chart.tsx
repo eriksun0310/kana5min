@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { KanaText, Screen } from '../../src/components';
+import { Icon, KanaText, Screen } from '../../src/components';
 import { byId, kanaOfKind, seionGrid, type KanaKind, type Script } from '../../src/data';
 import { isKatakanaUnlocked } from '../../src/logic/confusion';
 import { isLearned } from '../../src/logic/srs';
@@ -115,6 +115,10 @@ export default function ChartScreen() {
         })}
       </View>
 
+      <Text testID="chart-hint" style={[styles.topHint, { color: t.muted }]}>
+        點任何一個字看詳情與發音；右上角 <Text style={{ color: t.accentText, fontWeight: '700' }}>✓</Text> 是已學過的
+      </Text>
+
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.grid}>
         {rows.map((row, ri) => (
           <View key={ri} style={styles.row}>
@@ -139,7 +143,9 @@ export default function ChartScreen() {
                     {k.char}
                   </KanaText>
                   {learned ? (
-                    <View testID={`learned-${id}`} style={[styles.dot, { backgroundColor: t.accent }]} />
+                    <View testID={`learned-${id}`} style={styles.check}>
+                      <Icon name="check" size={11} color={t.accentText} strokeWidth={3} />
+                    </View>
                   ) : null}
                 </Pressable>
               );
@@ -147,8 +153,6 @@ export default function ChartScreen() {
           </View>
         ))}
       </ScrollView>
-
-      <Text style={[styles.footer, { color: t.muted }]}>點任何一個字，聽發音、看筆順</Text>
     </Screen>
   );
 }
@@ -188,6 +192,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dot: { position: 'absolute', right: 5, top: 5, width: 6, height: 6, borderRadius: 3 },
-  footer: { fontSize: 12, textAlign: 'center', paddingHorizontal: SIDE, paddingTop: 6, paddingBottom: 10 },
+  check: { position: 'absolute', right: 4, top: 3 },
+  topHint: { fontSize: 12, paddingHorizontal: SIDE, paddingTop: 10, paddingBottom: 10 },
 });

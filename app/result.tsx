@@ -1,7 +1,7 @@
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Icon, KanaText, PrimaryButton, Screen, StatCard } from '../src/components';
+import { Icon, KanaText, PrimaryButton, Screen, StatCard, TextLink } from '../src/components';
 import { mustById } from '../src/data';
 import { exitToHome } from '../src/nav/exitToHome';
 import { shouldAskReminder } from '../src/notifications/reminderPlan';
@@ -87,7 +87,7 @@ export default function ResultScreen() {
           <View
             key={item.kanaId}
             testID={`result-item-${item.kanaId}`}
-            style={[styles.item, { backgroundColor: t.surface, borderColor: t.line }]}
+            style={[styles.item, { backgroundColor: t.flat, borderWidth: 0 }]}
           >
             <KanaText size={28} lineHeightRatio={1.2} style={styles.itemKana}>
               {mustById(item.kanaId).char}
@@ -131,9 +131,9 @@ export default function ResultScreen() {
         <PrimaryButton testID="result-home" label="回首頁" onPress={goHome} />
       </View>
       <View style={styles.secondary}>
-        <Pressable
+        <TextLink
           testID="result-again"
-          accessibilityRole="button"
+          label="再練一輪"
           onPress={() =>
             router.replace(
               result.mode === 'confuse' && result.groupId
@@ -141,10 +141,7 @@ export default function ResultScreen() {
                 : { pathname: '/quiz', params: { mode: 'auto' } },
             )
           }
-          style={styles.again}
-        >
-          <Text style={[styles.againLabel, { color: t.muted }]}>再練一輪</Text>
-        </Pressable>
+        />
       </View>
     </Screen>
   );

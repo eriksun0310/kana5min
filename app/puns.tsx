@@ -62,10 +62,6 @@ export default function PunsScreen() {
   };
 
   const onCell = (sound: string) => {
-    if (punOfSound(sound) === undefined) {
-      setSelected(null);
-      return;
-    }
     if (isPunUnlocked(sound, { purchased, unlocked: unlockedSounds })) setSelected(sound);
     else {
       setSelected(null);
@@ -134,12 +130,14 @@ export default function PunsScreen() {
               const hasPun = punOfSound(sound) !== undefined;
               const open = hasPun && isPunUnlocked(sound, { purchased, unlocked: unlockedSounds });
               const on = selected === sound;
+              // 沒有諧音的格子不顯示（留空位，格子位置不變）
+              if (!hasPun) return <View key={ci} style={{ width: cellWidth, height: 46 }} />;
               return (
                 <Pressable
                   key={ci}
                   testID={`puns-cell-${sound}`}
                   accessibilityRole="button"
-                  accessibilityLabel={`${k.char}，${!hasPun ? '沒有諧音' : open ? '已解鎖' : '未解鎖'}`}
+                  accessibilityLabel={`${k.char}，${open ? '已解鎖' : '未解鎖'}`}
                   onPress={() => onCell(sound)}
                   style={[
                     styles.cell,
@@ -150,12 +148,10 @@ export default function PunsScreen() {
                     },
                   ]}
                 >
-                  <KanaText size={22} lineHeightRatio={1.2} color={hasPun ? t.text : t.muted}>
+                  <KanaText size={22} lineHeightRatio={1.2} color={t.text}>
                     {k.char}
                   </KanaText>
-                  {!hasPun ? (
-                    <Text style={[styles.dash, { color: t.muted }]}>—</Text>
-                  ) : open ? (
+                  {open ? (
                     <View testID={`puns-open-${sound}`} style={[styles.dot, { backgroundColor: t.accent }]} />
                   ) : (
                     <View style={styles.lock}>
@@ -219,7 +215,6 @@ const styles = StyleSheet.create({
   },
   dot: { position: 'absolute', right: 5, top: 5, width: 6, height: 6, borderRadius: 3 },
   lock: { position: 'absolute', right: 4, top: 4 },
-  dash: { position: 'absolute', right: 5, top: 3, fontSize: 11 },
   panel: { paddingHorizontal: SIDE, paddingTop: 8 },
   footer: { fontSize: 12, textAlign: 'center', paddingVertical: 12 },
 });
