@@ -68,7 +68,7 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
-      <View style={styles.root}>
+      <View style={styles.root} accessibilityViewIsModal>
         {/* 遮罩：不分主題都用黑色半透明，不屬於主題 token（同 OptionSheet） */}
         <Pressable
           accessibilityLabel="關閉"

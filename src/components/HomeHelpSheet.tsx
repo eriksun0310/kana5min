@@ -18,7 +18,7 @@ export function HomeHelpSheet({ visible, goalMinutes, onClose }: HomeHelpSheetPr
   const bottom = useBottomPad(24);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.root}>
+      <View style={styles.root} accessibilityViewIsModal>
         {/* 遮罩：不分主題都用黑色半透明，不屬於主題 token（同 PunUnlockSheet） */}
         <Pressable
           accessibilityLabel="關閉"
