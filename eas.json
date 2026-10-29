@@ -24,6 +24,11 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "development-device": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "environment": "production"
     }
   },
   "submit": {

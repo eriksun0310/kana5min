@@ -15,7 +15,8 @@
     "build:android:apk": "eas build --platform android --profile production-apk --local",
     "prebuild": "expo prebuild",
     "gen:puns": "node scripts/gen-puns.mjs",
-    "check:puns": "node scripts/gen-puns.mjs --check"
+    "check:puns": "node scripts/gen-puns.mjs --check",
+    "build:ios:dev": "eas build --platform ios --profile development-device --local"
   },
   "dependencies": {
     "@expo-google-fonts/klee-one": "^0.4.2",
@@ -24,6 +25,7 @@
     "expo-asset": "~58.0.18",
     "expo-audio": "~58.0.10",
     "expo-constants": "~58.0.13",
+    "expo-dev-client": "~58.0.17",
     "expo-font": "~58.0.10",
     "expo-linking": "~58.0.14",
     "expo-notifications": "~58.1.6",
