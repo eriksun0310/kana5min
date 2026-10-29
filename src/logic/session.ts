@@ -90,9 +90,12 @@ export function buildDailySession(
 /**
  * see = 看字選音（C2-08）；hear = 聽音選字（C2-09）；
  * confuse = 易混淆字辨識：播放聲音，選項是該組成員（2～3 個，不補到 4 個）；
- * loanword = 讀外來語（C2-20）：看片假名詞，選中文意思，不屬於任何假名。
+ * loanword = 讀外來語（C2-20）：看片假名詞，選中文意思，不屬於任何假名；
+ * odd = 找不同：9 格裡 8 個同一個字、1 個長得像的字，點出不一樣的那個；
+ * all = 找出所有：12 格裡找出所有指定的字（可多選，確認後才計分）；
+ * seq = 聽音選字串：聽一串 4 個聲音，從 3 個字串裡選出對的。
  */
-export type QuizType = 'see' | 'hear' | 'confuse' | 'loanword';
+export type QuizType = 'see' | 'hear' | 'confuse' | 'loanword' | 'odd' | 'all' | 'seq';
 
 export interface QuizQuestion {
   /** 題目序號 id，例如 'q-0' */
@@ -111,6 +114,16 @@ export interface QuizQuestion {
   groupId?: string;
   /** loanword 題的外來語 id（對應 words.json） */
   wordId?: string;
+  /** odd／all 題的格子（Kana id，依格子順序） */
+  cells?: string[];
+  /** odd 題不一樣的那一格、all 題所有目標格的索引 */
+  targetIndexes?: number[];
+  /** seq 題播放的聲音順序（Kana id） */
+  sequence?: string[];
+  /** seq 題的 3 個候選字串（Kana id 陣列） */
+  seqOptions?: string[][];
+  /** seq 題正確候選字串的索引 */
+  answerIndex?: number;
 }
 
 /** 是否為讀外來語題（不屬於任何假名）。 */

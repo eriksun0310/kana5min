@@ -41,7 +41,7 @@ export default function GraduateScreen() {
           {stats.map((s) => (
             <View
               key={s.key}
-              style={[styles.stat, { backgroundColor: t.flat, borderWidth: 0 }]}
+              style={styles.stat}
             >
               <Text testID={`graduate-stat-${s.key}`} style={[styles.statValue, { color: t.text }]}>
                 {s.v}
@@ -81,8 +81,6 @@ const styles = StyleSheet.create({
   stats: { width: '100%', flexDirection: 'row', gap: 10, marginTop: 8 },
   stat: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 8,
     gap: 2,

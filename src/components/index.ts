@@ -15,3 +15,4 @@ export { PunShareButton } from './PunShareButton';
 export { CoachTip, type CoachTipProps } from './CoachTip';
 export { HomeHelpSheet, type HomeHelpSheetProps } from './HomeHelpSheet';
 export { TextLink, type TextLinkProps } from './TextLink';
+export { KanaListSheet, type KanaListItem, type KanaListSheetProps } from './KanaListSheet';

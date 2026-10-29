@@ -17,7 +17,7 @@ appId: com.ptalk.kana5min
     id: practice-empty-hint
 - tapOn:
     id: start-auto-practice
-# 10 題，全部選正確答案（see 要按 quiz-confirm；hear／confuse 點了就確定）
+# 10 題，全部選正確答案（see 要按 quiz-confirm；hear 點了就確定；找不同點了就確定；找出所有、聽音選字串要再按 quiz-confirm）
 - repeat:
     while:
       notVisible:
@@ -40,6 +40,31 @@ appId: com.ptalk.kana5min
           commands:
             - tapOn:
                 id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-odd
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-all
+          commands:
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-seq
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
       - runFlow:
           when:
             visible:

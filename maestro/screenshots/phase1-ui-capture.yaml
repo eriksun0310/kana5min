@@ -27,7 +27,7 @@ tags:
 - tapOn:
     id: script-katakana
 - assertVisible:
-    id: katakana-locked-hint
+    id: cell-k-a
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/phase1/C2-03-Chart-katakana-locked-${THEME}
 - tapOn:

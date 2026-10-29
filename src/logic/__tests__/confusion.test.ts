@@ -155,6 +155,9 @@ describe('buildConfuseQuestion', () => {
   });
 });
 
+const GAME_TYPES = ['odd', 'all', 'seq'];
+const isGame = (q: { type: string }) => GAME_TYPES.includes(q.type);
+
 describe('buildAutoPractice10', () => {
   it('沒有已學字：null', () => {
     expect(buildAutoPractice10([], {}, seededRng(1))).toBeNull();
@@ -180,26 +183,28 @@ describe('buildAutoPractice10', () => {
     }
   });
 
-  it('有可用的組：混入 confuse 題，三種題型都可能出現，confuse 選項限該組成員', () => {
+  it('有可用的組：混入找不同系列題，看字選音、聽音選字也會出現，題目只用該組成員', () => {
     const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-ka', 'h-ki', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
     const progress = ids.map((i) => prog(i));
     const seen = new Set<string>();
     for (let seed = 1; seed <= 40; seed++) {
       const qs = buildAutoPractice10(progress, {}, seededRng(seed))!;
       expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
-      const confuse = qs.filter((q) => q.type === 'confuse');
-      expect(confuse.length).toBeGreaterThanOrEqual(2);
-      expect(confuse.length).toBeLessThanOrEqual(4);
-      for (const q of confuse) {
+      const games = qs.filter(isGame);
+      expect(games.length).toBeGreaterThanOrEqual(2);
+      expect(games.length).toBeLessThanOrEqual(4);
+      for (const q of games) {
         const g = group(q.groupId!);
-        expect([...q.options].sort()).toEqual([...g.members].sort());
-        expect(q.options).toContain(q.answerId);
+        expect(g.members).toContain(q.answerId);
+        for (const o of q.options) expect(g.members).toContain(o);
+        for (const c of q.cells ?? []) expect(g.members).toContain(c);
+        for (const id of q.sequence ?? []) expect(g.members).toContain(id);
       }
       qs.forEach((q) => seen.add(q.type));
       // 同一個字不相鄰
       for (let i = 1; i < qs.length; i++) expect(qs[i].kanaId).not.toBe(qs[i - 1].kanaId);
     }
-    expect([...seen].sort()).toEqual(['confuse', 'hear', 'see']);
+    expect([...seen].sort()).toEqual(['all', 'hear', 'odd', 'see', 'seq']);
   });
 
   it('片假名組在解鎖前不會出現在任何題目（即使答錯紀錄很多）', () => {
@@ -219,7 +224,7 @@ describe('buildAutoPractice10', () => {
     const hits: Record<string, number> = { nume: 0, ruro: 0, wanere: 0 };
     for (let seed = 1; seed <= 300; seed++) {
       for (const q of buildAutoPractice10(progress, { nume: 12 }, seededRng(seed))!) {
-        if (q.type === 'confuse') hits[q.groupId!] += 1;
+        if (isGame(q)) hits[q.groupId!] += 1;
       }
     }
     expect(hits.nume).toBeGreaterThan(hits.ruro * 2);
@@ -228,20 +233,19 @@ describe('buildAutoPractice10', () => {
 });
 
 describe('buildQuickConfuse10', () => {
-  it('10 題，只有 confuse 與 see 兩種題型，選項限該組成員、答案在選項裡', () => {
+  it('10 題，只有找不同、找出所有、聽音選字串三種題型，用到的字限該組成員', () => {
     for (const id of ['nume', 'wanere']) {
       const g = group(id);
       const qs = buildQuickConfuse10(g, seededRng(11));
       expect(qs).toHaveLength(10);
       expect(qs.map((q) => q.id)).toEqual(Array.from({ length: 10 }, (_, i) => `q-${i}`));
       for (const q of qs) {
-        expect(['confuse', 'see']).toContain(q.type);
-        expect([...q.options].sort()).toEqual([...g.members].sort());
-        expect(q.options).toContain(q.answerId);
+        expect(GAME_TYPES).toContain(q.type);
+        for (const o of q.options) expect(g.members).toContain(o);
+        expect(g.members).toContain(q.answerId);
         expect(q.groupId).toBe(id);
       }
-      expect(qs.some((q) => q.type === 'confuse')).toBe(true);
-      expect(qs.some((q) => q.type === 'see')).toBe(true);
+      for (const type of GAME_TYPES) expect(qs.some((q) => q.type === type)).toBe(true);
     }
   });
 
@@ -294,10 +298,10 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
     const groupsSeen = new Set<string>();
     for (let seed = 1; seed <= 80; seed++) {
       for (const q of buildAutoPractice10(progress, { shitsu: 5, son: 5 }, seededRng(seed))!) {
-        if (q.type !== 'confuse') continue;
+        if (!isGame(q)) continue;
         const g = group(q.groupId!);
         groupsSeen.add(g.id);
-        expect([...q.options].sort()).toEqual([...g.members].sort());
+        for (const o of q.options) expect(g.members).toContain(o);
         expect(g.members).toContain(q.answerId);
       }
     }

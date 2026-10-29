@@ -61,7 +61,7 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: confuse-card-h-wa
 - assertVisible: "0 次"
-# 快速辨識（わねれ 組）：第一題故意答錯（看字選音要再按 quiz-confirm），其餘答對
+# 快速辨識（わねれ 組）：第一題故意答錯（找不同、找出所有、聽音選字串輪流出；找出所有與字串題要再按 quiz-confirm），其餘答對
 - tapOn:
     id: quick-confuse
 # wrongDone：0 = 還沒答錯過，1 = 這題剛故意答錯，2 = 之後都答對
@@ -110,6 +110,64 @@ appId: com.ptalk.kana5min
                 commands:
                   - tapOn:
                       id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-odd
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 0}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - evalScript: ${output.wrongDone = 1}
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-all
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 0}
+                commands:
+                  - tapOn:
+                      id: all-wrong-.*
+                  - evalScript: ${output.wrongDone = 1}
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 2}
+                commands:
+                  - tapOn:
+                      id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-seq
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 0}
+                commands:
+                  - tapOn:
+                      id: opt-wrong-0
+                  - evalScript: ${output.wrongDone = 1}
+            - runFlow:
+                when:
+                  true: ${output.wrongDone == 2}
+                commands:
+                  - tapOn:
+                      id: opt-correct
+            - tapOn:
+                id: quiz-confirm
       - runFlow:
           when:
             visible:

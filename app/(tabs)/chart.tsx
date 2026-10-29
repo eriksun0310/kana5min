@@ -3,7 +3,6 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Icon, KanaText, Screen } from '../../src/components';
 import { byId, kanaOfKind, seionGrid, type KanaKind, type Script } from '../../src/data';
-import { isKatakanaUnlocked } from '../../src/logic/confusion';
 import { isLearned } from '../../src/logic/srs';
 import { useProgressStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
@@ -41,8 +40,7 @@ export default function ChartScreen() {
   const progress = useProgressStore((s) => s.progress);
   const [kind, setKind] = useState<KanaKind>('seion');
   const [script, setScript] = useState<Script>('hiragana');
-  const unlocked = useMemo(() => isKatakanaUnlocked(Object.values(progress)), [progress]);
-  const shownScript = script;
+  const shownScript = script; // 片假名分頁一直可以瀏覽（沒有未解鎖的限制）
 
   const cols = kind === 'youon' ? 3 : 5;
   const cells = useMemo(() => cellsFor(kind, shownScript), [kind, shownScript]);
@@ -84,14 +82,6 @@ export default function ChartScreen() {
           })}
         </View>
       </View>
-
-      {shownScript === 'katakana' && !unlocked ? (
-        <View style={styles.hintWrap}>
-          <View style={[styles.hint, { backgroundColor: t.accentSoft }]} testID="katakana-locked-hint">
-            <Text style={{ fontSize: 13, color: t.accentText }}>可以先瀏覽，平假名學完後開始學片假名</Text>
-          </View>
-        </View>
-      ) : null}
 
       <View style={styles.kinds}>
         {KINDS.map((k) => {
@@ -172,8 +162,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  hintWrap: { paddingHorizontal: SIDE, paddingTop: 10, alignItems: 'flex-end' },
-  hint: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
   kinds: { paddingHorizontal: SIDE, paddingTop: 14, flexDirection: 'row', gap: 8 },
   kindBtn: {
     minHeight: 38,

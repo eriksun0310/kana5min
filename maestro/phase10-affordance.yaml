@@ -1,0 +1,73 @@
+# 能按與不能按整理：首頁統計可點（待複習／今天新字面板、已學到五十音表）、五十音表已學紅勾、
+# 字詳情「容易搞混」可點、自動練習鎖定說明（還沒學任何字）、易混淆快速辨識（找不同系列題型）整輪答完。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+# 還沒有任何已學的字：自動練習鎖住，直接寫出解鎖條件
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: practice-empty-hint
+- assertVisible: 完成今天第一輪練習後解鎖
+- tapOn:
+    id: tab-home
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- assertVisible:
+    id: start-today
+# 今天新字面板：さ し す
+- tapOn:
+    id: stat-new
+- assertVisible:
+    id: new-sheet
+- assertVisible: 今天要學的 3 個字
+- assertVisible: sa
+- tapOn:
+    id: new-sheet-close
+- assertNotVisible:
+    id: new-sheet
+# 待複習面板（preset 沒有到期字時顯示空狀態文字）
+- tapOn:
+    id: stat-due
+- assertVisible:
+    id: due-sheet
+- tapOn:
+    id: due-sheet-close
+# 已學 → 五十音表，已學的字右上角有紅勾，說明在格子上方
+- tapOn:
+    id: stat-learned
+- assertVisible:
+    id: cell-h-a
+- assertVisible:
+    id: learned-h-a
+- assertNotVisible:
+    id: learned-h-sa
+- assertVisible:
+    id: chart-hint
+# 片假名分頁一直可以瀏覽，沒有未解鎖的說明列
+- tapOn:
+    id: script-katakana
+- assertVisible:
+    id: cell-k-a
+- tapOn:
+    id: script-hiragana
+# 字詳情：き 的「容易搞混」是さ，點下去進到さ的詳情
+- tapOn:
+    id: cell-h-ki
+- assertVisible:
+    id: detail-confusable
+- tapOn:
+    id: detail-confusable
+- assertVisible:
+    id: detail-char
+    text: さ
+- tapOn:
+    id: back
+- assertVisible:
+    id: detail-char
+    text: き

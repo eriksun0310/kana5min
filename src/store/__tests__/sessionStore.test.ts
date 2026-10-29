@@ -134,13 +134,13 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(result.summary.items.find((i) => i.kanaId === 'h-a')?.tone).toBe('wrong');
   });
 
-  it('自動練習含 confuse 題：答錯當下就寫入該組答錯次數，不等一輪結束', async () => {
+  it('自動練習含易混淆字題：答錯當下就寫入該組答錯次數，不等一輪結束', async () => {
     const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
     await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
     expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(8))).toBe(true);
     const s = useSessionStore.getState();
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.some((q) => q.type === 'confuse')).toBe(true);
+    expect(s.questions.some((q) => ['odd', 'all', 'seq'].includes(q.type))).toBe(true);
 
     useSessionStore.getState().recordAnswer('h-nu', false);
     // 還沒 finish，confusion 已經寫進 store 與 repository
@@ -163,7 +163,7 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(s.mode).toBe('confuse');
     expect(s.groupId).toBe('nume');
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.every((q) => q.type === 'confuse' || q.type === 'see')).toBe(true);
+    expect(s.questions.every((q) => ['odd', 'all', 'seq'].includes(q.type))).toBe(true);
 
     const result = await playQuiz(['h-me']); // め 全錯，ぬ 全對
     const progress = useProgressStore.getState().progress;

@@ -1,11 +1,22 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { HomeHelpSheet, Icon, KanaText, PrimaryButton, Screen, StatCard, TextLink } from '../../src/components';
+import {
+  HomeHelpSheet,
+  Icon,
+  KanaListSheet,
+  KanaText,
+  PrimaryButton,
+  Screen,
+  StatCard,
+  TextLink,
+  type KanaListItem,
+} from '../../src/components';
 import { byId, scriptLabel } from '../../src/data';
 import { isGraduated } from '../../src/logic/graduate';
+import { DAY_MS } from '../../src/logic/srs';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
-import { currentScript } from '../../src/logic/session';
+import { currentScript, defaultLearningOrder, dueKanaIds, NEW_PER_SESSION, nextNewKanaIds } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useSessionStore } from '../../src/store/sessionStore';
 import { useTopPad } from '../../src/theme/layout';
@@ -32,6 +43,7 @@ export default function HomeScreen() {
 
   // 回到前景（切回分頁、練習結束返回）時重算「現在」，到期數與連續天數才會更新
   const [helpOpen, setHelpOpen] = useState(false);
+  const [sheet, setSheet] = useState<'due' | 'new' | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useFocusEffect(
     useCallback(() => {
@@ -74,6 +86,31 @@ export default function HomeScreen() {
     }, [showGraduate, router]),
   );
   const streak = useMemo(() => computeStreak(practiceDates, now), [practiceDates, now]);
+
+  // 統計點開的面板：待複習是哪幾個字、今天要學哪 3 個字
+  const dueItems = useMemo<KanaListItem[]>(
+    () =>
+      dueKanaIds(list, now).flatMap((id) => {
+        const k = byId(id);
+        if (!k) return [];
+        const days = Math.floor((now - (progress[id]?.nextReviewAt ?? now)) / DAY_MS);
+        return [{ id, char: k.char, caption: days <= 0 ? '今天' : `${days} 天前`, accent: days <= 0 }];
+      }),
+    [list, now, progress],
+  );
+  const newItems = useMemo<KanaListItem[]>(
+    () =>
+      nextNewKanaIds(list, NEW_PER_SESSION, defaultLearningOrder(script)).flatMap((id) => {
+        const k = byId(id);
+        return k ? [{ id, char: k.char, caption: k.romaji }] : [];
+      }),
+    [list, script],
+  );
+  const startFromSheet = () => {
+    setSheet(null);
+    if (saved) resumeSavedAndGo(router, 'push');
+    else startDailyAndGo(router, 'push');
+  };
 
   const next = stats.nextKanaId ? byId(stats.nextKanaId) : undefined;
   // 沒有新字、也沒有到期複習 = 今天完成
@@ -136,9 +173,22 @@ export default function HomeScreen() {
           value={String(stats.learnedCount)}
           unit={` / ${stats.total}`}
           label="已學"
+          onPress={() => router.push('/chart')}
         />
-        <StatCard style={styles.stat} testID="stat-due" value={String(stats.dueCount)} label="待複習" />
-        <StatCard style={styles.stat} testID="stat-new" value={String(stats.newTodayCount)} label="今天新字" />
+        <StatCard
+          style={styles.stat}
+          testID="stat-due"
+          value={String(stats.dueCount)}
+          label="待複習"
+          onPress={() => setSheet('due')}
+        />
+        <StatCard
+          style={styles.stat}
+          testID="stat-new"
+          value={String(stats.newTodayCount)}
+          label="今天新字"
+          onPress={() => setSheet('new')}
+        />
       </View>
 
       <View style={styles.rows} testID="home-rows">
@@ -181,6 +231,26 @@ export default function HomeScreen() {
         ) : null}
       </View>
       <HomeHelpSheet visible={helpOpen} goalMinutes={goal} onClose={() => setHelpOpen(false)} />
+      <KanaListSheet
+        testID="due-sheet"
+        visible={sheet === 'due'}
+        title={`待複習　${dueItems.length} 個字`}
+        subtitle={dueItems.length > 0 ? '這些字今天要複習，隔太久會忘' : '今天沒有要複習的字'}
+        items={dueItems}
+        actionLabel={dueItems.length > 0 ? '開始今天的練習' : '知道了'}
+        onAction={dueItems.length > 0 ? startFromSheet : () => setSheet(null)}
+        onClose={() => setSheet(null)}
+      />
+      <KanaListSheet
+        testID="new-sheet"
+        visible={sheet === 'new'}
+        title={`今天要學的 ${newItems.length} 個字`}
+        subtitle={newItems.length > 0 ? '先看字、聽音，再練筆順和描寫' : '平假名和片假名都學完了'}
+        items={newItems}
+        actionLabel={newItems.length > 0 ? '開始學新字' : '知道了'}
+        onAction={newItems.length > 0 ? startFromSheet : () => setSheet(null)}
+        onClose={() => setSheet(null)}
+      />
     </Screen>
   );
 }

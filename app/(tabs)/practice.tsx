@@ -44,34 +44,44 @@ export default function PracticeScreen() {
         </View>
 
         <View style={styles.cardWrap}>
-          <Pressable
-            testID="start-auto-practice"
-            accessibilityRole="button"
-            accessibilityState={{ disabled: !hasLearned }}
-            disabled={!hasLearned}
-            onPress={() => router.push({ pathname: '/quiz', params: { mode: 'auto' } })}
-            style={({ pressed }) => [
-              styles.card,
-              {
-                backgroundColor: t.surface,
-                borderColor: t.line,
-                opacity: pressed ? 0.9 : hasLearned ? 1 : 0.6,
-              },
-            ]}
-          >
-            <View style={styles.cardText}>
-              <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>自動練習</Text>
-              <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
-                聽音選字、看字選音、易混淆字混合，10 題
-              </Text>
+          {hasLearned ? (
+            <Pressable
+              testID="start-auto-practice"
+              accessibilityRole="button"
+              onPress={() => router.push({ pathname: '/quiz', params: { mode: 'auto' } })}
+              style={({ pressed }) => [
+                styles.card,
+                { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.9 : 1 },
+              ]}
+            >
+              <View style={styles.cardText}>
+                <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>自動練習</Text>
+                <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
+                  聽音選字、看字選音、找不同，10 題
+                </Text>
+              </View>
+              <Icon name="chevronRight" size={20} color={t.accentText} />
+            </Pressable>
+          ) : (
+            // 還沒有任何已學的字：鎖住，直接寫出解鎖條件（不是點了沒反應的灰卡）
+            <View
+              testID="start-auto-practice"
+              accessibilityRole="button"
+              accessibilityState={{ disabled: true }}
+              accessibilityLabel="自動練習，完成今天第一輪練習後解鎖"
+              style={[styles.card, { backgroundColor: t.flat, borderWidth: 0 }]}
+            >
+              <View style={[styles.lockBadge, { backgroundColor: t.surface }]}>
+                <Icon name="lock" size={18} color={t.muted} />
+              </View>
+              <View style={styles.cardText}>
+                <Text style={{ fontSize: 19, fontWeight: '700', color: t.muted }}>自動練習</Text>
+                <Text testID="practice-empty-hint" style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
+                  完成今天第一輪練習後解鎖
+                </Text>
+              </View>
             </View>
-            <Icon name="chevronRight" size={20} color={hasLearned ? t.accentText : t.muted} />
-          </Pressable>
-          {!hasLearned ? (
-            <Text testID="practice-empty-hint" style={{ fontSize: 13, color: t.muted, paddingTop: 8 }}>
-              先學幾個字再來練習
-            </Text>
-          ) : null}
+          )}
         </View>
 
         <View style={styles.sectionHead}>
@@ -151,6 +161,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardText: { flex: 1, gap: 6 },
+  lockBadge: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   sectionHead: {
     paddingTop: 18,
     paddingBottom: 8,

@@ -6,6 +6,7 @@ import { confusableGroups, type ConfusableGroup } from '../data/confusables';
 import type { Progress } from '../data/types';
 import type { ConfusionRecord } from '../db/types';
 import { mixLoanwordDrafts, pickLoanwordDrafts } from './loanword';
+import { buildGroupGameQuestion, GROUP_GAME_TYPES } from './groupGames';
 import {
   arrange,
   isSeionLearned,
@@ -183,11 +184,14 @@ export function buildAutoPractice10(
     if (d) drafts.push(d);
   }
 
+  // 易混淆字題：找不同／找出所有／聽音選字串輪流出（起點隨機），答錯多的組出現機率較高
   const used = new Set<string>();
+  const typeStart = Math.floor(rng() * GROUP_GAME_TYPES.length);
   for (let i = 0; i < confuseCount; i++) {
     const g = pickConfuseGroup(groups, counts, learned, rng);
     if (!g) break;
-    const d = buildConfuseQuestion(g, learned, rng, used);
+    const type = GROUP_GAME_TYPES[(typeStart + i) % GROUP_GAME_TYPES.length];
+    const d = buildGroupGameQuestion(type, g, learned, rng, used);
     used.add(d.kanaId);
     drafts.push(d);
   }
@@ -198,8 +202,8 @@ export function buildAutoPractice10(
 }
 
 /**
- * 易混淆字對比頁的「快速辨識 10 題」：只出該組的 confuse 題與看字選音題，選項限該組成員。
- * 目標字在組內輪流（次數相差最多 1、不相鄰），每個目標的題型交替，所以 confuse 與 see 各約一半。
+ * 易混淆字對比頁的「快速辨識 10 題」：找不同、找出所有、聽音選字串輪流出（起點隨機），
+ * 每題的目標字在組內輪流（次數相差最多 1、不相鄰）。
  * 組成員不足 2 個（資料查不到）時回傳空陣列。
  */
 export function buildQuickConfuse10(
@@ -220,15 +224,11 @@ export function buildQuickConfuse10(
     targets.push(...chunk.slice(0, size - targets.length));
   }
 
-  const startType = new Map<string, 'confuse' | 'see'>();
-  const seen = new Map<string, number>();
-  const drafts = targets.map((id) => {
-    if (!startType.has(id)) startType.set(id, rng() < 0.5 ? 'confuse' : 'see');
-    const n = seen.get(id) ?? 0;
-    seen.set(id, n + 1);
-    const first = startType.get(id)!;
-    const type = n % 2 === 0 ? first : first === 'confuse' ? 'see' : 'confuse';
-    return buildGroupQuestion(group, id, type, rng);
+  const typeStart = Math.floor(rng() * GROUP_GAME_TYPES.length);
+  const drafts = targets.map((id, i) => {
+    const type = GROUP_GAME_TYPES[(typeStart + i) % GROUP_GAME_TYPES.length];
+    // 目標字固定為這一題輪到的 id：只把它放進 learned，buildXxx 就一定挑它
+    return buildGroupGameQuestion(type, group, new Set([id]), rng);
   });
 
   return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
