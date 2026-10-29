@@ -1,4 +1,4 @@
-import { FREE_SOUNDS, PUNS } from '../../data/puns';
+import { FREE_SOUNDS, PUNS, VOICED_PUNS } from '../../data/puns';
 import {
   canWatchRewardedAd,
   isPunUnlocked,
@@ -124,5 +124,31 @@ describe('已購買時沒有廣告入口（punPackPurchased = true）', () => {
   it('沒有諧音的讀音不顯示卡片', () => {
     expect(punCardState(undefined, PAID)).toBe('none');
     expect(punCardState('gya', PAID)).toBe('none');
+  });
+});
+
+describe('濁音、半濁音、拗音：只能買斷解鎖', () => {
+  const ids = Object.keys(VOICED_PUNS);
+  const NONE_ACCESS = { purchased: false, unlocked: [] as string[] };
+  const PAID = { purchased: true, unlocked: [] as string[] };
+
+  it('未買斷：鎖定卡、不能看廣告、沒有批次；廣告解鎖清單不會讓它們變成已解鎖', () => {
+    for (const id of ids) {
+      expect(punCardState(id, NONE_ACCESS)).toBe('locked');
+      expect(canWatchRewardedAd(id, NONE_ACCESS)).toBe(false);
+      expect(nextUnlockBatch(id, [])).toEqual([]);
+      expect(isPunUnlocked(id, { purchased: false, unlocked: [id] })).toBe(false);
+    }
+  });
+
+  it('已買斷：全部已解鎖', () => {
+    for (const id of ids) expect(punCardState(id, PAID)).toBe('unlocked');
+  });
+
+  it('沒有句子的濁音／拗音不顯示卡片；清音的看廣告批次不會混入濁音／拗音', () => {
+    expect(punCardState('h-ga', PAID)).toBe('none');
+    for (const s of Object.keys(PUNS)) {
+      for (const b of nextUnlockBatch(s, [])) expect(b.startsWith('h-')).toBe(false);
+    }
   });
 });

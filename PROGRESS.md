@@ -362,3 +362,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **測試**：`traceShape.test.ts` 用真實 KanjiVG 資料做屬性測試（142 個假名 × 20 種子正例 100% 通過；反例 20022 組失敗率 98.03%；亂塗、漏筆、反向、多畫皆符合），閾值與理由寫在 docs/architecture.md 第 8 節。新增 `maestro/phase9-trace.yaml`。
 - **假設**：(1) 平均距離閾值定 18（建議值 16 在 ±8 平移加 ±5 雜訊的極端組合下偶爾失敗）；(2) 長度比例上限加固定寬容量 20，且標準只有 1～2 筆的字多畫上限為 1 筆（否則 く 之類會被多筆字蓋過）；(3) 誤通過的不逐對列白名單（形近字 115 組、多畫容許 280 組），改在測試印出並檢查易混淆組；(4) 失敗後補畫時即時重新比對、亮起的線只剩還沒描到的；(5) 開發版長按通過也會顯示「描得很好」0.8 秒。
 - **尚未完成**：Maestro 流程（含既有 trace 相關流程）與亮暗兩種主題的截圖（`screenshots/phase9/`）尚未跑，等 8081 可用。
+
+## 濁音、半濁音、拗音諧音梗接進 App（2026-10-29，分支 claude/puns-dakuon-yoon-856add）
+
+- **做了什麼**：`scripts/gen-puns.mjs` 同時讀 `kana-puns.md` 與 `kana-puns-dakuon-yoon.md`（只收 ✅），產生 `PUNS`（清音，romaji 為 key）與新的 `VOICED_PUNS`（濁音／半濁音／拗音，平假名 kana id 為 key，如 `h-za`、`h-cha`；ぢ、づ 不會蓋掉じ、ず）。`--check`、`--list`、`pnpm gen:puns`、`pnpm check:puns` 都涵蓋兩份檔；目前 53 句（清音 42＋濁拗 11：ざ じ ぜ ぞ ど び ぶ べ ちゃ ちゅ じゃ）。之後使用者在 md 填更多句子，重跑 `pnpm gen:puns` 即更新。
+- **App**：`soundOf` 對濁拗回傳 `h-xxx` key；片假名版 `toKatakana` 改成整串轉換（拗音整組換）。字詳情頁、學新字、分享卡、買斷頁範例都經 `punFor`，自動涵蓋；沒句子的字不顯示卡片。好笑記法總覽頁（F4）新增「清音／濁音・半濁音／拗音」分頁（沒句子的格子標「—」）。
+- **測試**：jest 400 個全過、`tsc --noEmit` 通過（含解析 key 衝突、拗音片假名轉換、濁拗只能買斷的解鎖判斷、md 同步檢查）。`maestro/phase5-puns.yaml` 新增 F 段（未買斷鎖住且面板無看廣告、が 無卡片、買斷後詳情與總覽看得到；買斷頁斷言改為「53 句」）。
+- **假設**：(1) 解鎖規則最簡單：濁音／拗音只透過買斷解鎖，不進看廣告的 3 字批次，面板上有說明；免費清單維持あ行、か行；已買斷全部可看。(2) 買斷頁「解鎖全部 N 句」用總句數（含濁拗）。(3) 總覽頁沒句子的格子點了無反應。
+- **尚未完成**：Maestro 流程與亮暗截圖（`screenshots/phase5/`）**沒有跑**——這台機器的 8081 被不相干的 vite（`/Users/jiayu/Desktop/slm-upper`，pid 3178）佔用，Debug App 只連 8081，我沒有去關別人的服務；試過 Metro 8082＋`RCT_jsLocation` 也無效。8081 空出後：`pnpm exec expo start`，再跑 `maestro test maestro/phase5-puns.yaml`（亮暗截圖檔名 `F1-Dakuon-Locked-light` 等需補暗色）。
+- **備註**：用 `--testPathIgnorePatterns '.claude/worktrees'` 在 worktree 內會把自己的測試也排除（顯示 No tests found），在 worktree 內直接 `pnpm exec jest --watchman=false`。

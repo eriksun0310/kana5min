@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { mustById, type Script } from '../data';
+import { isSeionKey } from '../data/puns';
 import { canWatchRewardedAd, nextUnlockBatch, shouldPromptPurchase } from '../logic/punUnlock';
 import { showRewardedAd } from '../monetization/ads';
 import { usePunPackPrice } from '../monetization/usePunPackPrice';
@@ -13,7 +14,7 @@ import { Icon } from './Icon';
 
 export interface PunUnlockSheetProps {
   visible: boolean;
-  /** 點到的讀音（romaji，例如 'sa'） */
+  /** 點到的 key：清音是讀音（romaji，例如 'sa'），濁音／拗音是平假名 id（例如 'h-ga'） */
   sound: string;
   /** 目前畫面的文字，決定「這次會解鎖的字」用平假名或片假名顯示 */
   script: Script;
@@ -22,7 +23,7 @@ export interface PunUnlockSheetProps {
 
 type AdStatus = 'idle' | 'loading' | 'unavailable';
 
-/** 解鎖面板：看廣告解鎖 3 個字，或買斷全部解鎖。 */
+/** 解鎖面板：看廣告解鎖 3 個字（僅清音），或買斷全部解鎖；濁音、拗音只能買斷。 */
 export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockSheetProps) {
   const t = useTheme();
   const router = useRouter();
@@ -111,6 +112,11 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
           {canWatch ? (
             <Text testID="pun-batch" style={[styles.batch, { color: t.muted }]}>
               這次會解鎖：{chars}
+            </Text>
+          ) : null}
+          {!isSeionKey(sound) ? (
+            <Text testID="pun-buy-only" style={[styles.batch, { color: t.muted }]}>
+              濁音、拗音的諧音梗只能買斷解鎖
             </Text>
           ) : null}
           {status === 'unavailable' ? (
