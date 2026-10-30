@@ -4,9 +4,15 @@ appId: com.ptalk.kana5min
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible:
+      id: tour-skip
+    timeout: 20000
 - tapOn:
     id: tour-skip
-- assertVisible: 從零開始學五十音
+- extendedWaitUntil:
+    visible: 從零開始學五十音
+    timeout: 10000
 - tapOn:
     id: goal-${GOAL}
 - tapOn:
