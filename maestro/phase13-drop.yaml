@@ -46,7 +46,7 @@ appId: com.ptalk.kana5min
     id: drop-start
 - assertVisible:
     id: drop-stage
-- assertVisible: ".*階段 1/4.*片假名 → 平假名.*"
+- assertVisible: ".*階段 1/6.*平假名 → 拼音.*"
 # 暫停 → 繼續
 - tapOn:
     id: drop-pause
@@ -64,14 +64,14 @@ appId: com.ptalk.kana5min
 - assertVisible: "過關！"
 - tapOn:
     id: drop-next
-- assertVisible: ".*階段 2/4.*平假名 → 片假名.*"
+- assertVisible: ".*階段 2/6.*拼音 → 平假名.*"
 # 沒過關 → 再試這一階段
 - tapOn:
     id: dev-drop-fail
 - assertVisible: "差一點"
 - tapOn:
     id: drop-retry
-- assertVisible: ".*階段 2/4.*"
+- assertVisible: ".*階段 2/6.*"
 # 暫停後離開，回到選字畫面（不計分）
 - tapOn:
     id: drop-pause
@@ -124,3 +124,88 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: row-drop-control
     text: ".*點籃子.*"
+# 片假名還沒解鎖（平假名只差 ん）：只有平假名的兩關，過完第二關就全部過關
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+- tapOn:
+    id: drop-pick-h-a
+- tapOn:
+    id: drop-pick-h-i
+- tapOn:
+    id: drop-pick-h-u
+- tapOn:
+    id: drop-start-custom
+- assertVisible: ".*階段 1/2.*平假名 → 拼音.*"
+- tapOn:
+    id: dev-drop-pass
+- assertVisible: "過關！"
+- tapOn:
+    id: drop-next
+- assertVisible: ".*階段 2/2.*拼音 → 平假名.*"
+- tapOn:
+    id: dev-drop-pass
+- assertVisible: "全部過關！"
+- tapOn:
+    id: drop-done
+- tapOn:
+    id: back
+# 點籃子模式（上面已在設定改成「點籃子」）：真的玩一關。字掉下來時輪流點四個籃子，
+# 每點一下最早掉下來的字就放進那個籃子；打完 12 個要能走到結果頁並顯示分數。
+# Maestro 點的速度不穩定（沒字的時候點了沒作用），所以只驗證「點籃子能把一關玩完」，不要求答對幾個
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+- tapOn:
+    id: drop-preset-ruro-nume
+- extendedWaitUntil:
+    visible:
+      id: drop-stage
+    timeout: 5000
+- repeat:
+    while:
+      notVisible:
+        id: drop-end
+    times: 60
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: drop-end
+          commands:
+            - tapOn:
+                id: drop-basket-0
+      - runFlow:
+          when:
+            notVisible:
+              id: drop-end
+          commands:
+            - tapOn:
+                id: drop-basket-1
+      - runFlow:
+          when:
+            notVisible:
+              id: drop-end
+          commands:
+            - tapOn:
+                id: drop-basket-2
+      - runFlow:
+          when:
+            notVisible:
+              id: drop-end
+          commands:
+            - tapOn:
+                id: drop-basket-3
+- assertVisible:
+    id: drop-end-score
+- assertVisible: "答對 [0-9]+ / 12.*"

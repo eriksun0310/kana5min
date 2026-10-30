@@ -18,26 +18,36 @@ export const MAX_PICK = 6;
 export type DropFace = 'hiragana' | 'katakana' | 'romaji';
 
 export interface DropStage {
-  id: 'kata-hira' | 'hira-kata' | 'kata-romaji' | 'hira-romaji';
-  /** 掉下來的字用哪種文字 */
-  fall: 'hiragana' | 'katakana';
+  id: 'hira-romaji' | 'romaji-hira' | 'kata-romaji' | 'romaji-kata' | 'kata-hira' | 'hira-kata';
+  /** 掉下來的是什麼（假名或拼音） */
+  fall: DropFace;
   /** 籃子上寫什麼 */
   basket: DropFace;
   /** 例如「片假名 → 平假名」 */
   title: string;
 }
 
-/** 四個階段，依序進階。 */
+/** 六個階段，由簡單到難依序進階（單一種文字、對拼音在前，兩種文字互相對照在最後）。 */
 export const DROP_STAGES: readonly DropStage[] = [
+  { id: 'hira-romaji', fall: 'hiragana', basket: 'romaji', title: '平假名 → 拼音' },
+  { id: 'romaji-hira', fall: 'romaji', basket: 'hiragana', title: '拼音 → 平假名' },
+  { id: 'kata-romaji', fall: 'katakana', basket: 'romaji', title: '片假名 → 拼音' },
+  { id: 'romaji-kata', fall: 'romaji', basket: 'katakana', title: '拼音 → 片假名' },
   { id: 'kata-hira', fall: 'katakana', basket: 'hiragana', title: '片假名 → 平假名' },
   { id: 'hira-kata', fall: 'hiragana', basket: 'katakana', title: '平假名 → 片假名' },
-  { id: 'kata-romaji', fall: 'katakana', basket: 'romaji', title: '片假名 → 拼音' },
-  { id: 'hira-romaji', fall: 'hiragana', basket: 'romaji', title: '平假名 → 拼音' },
 ];
 
-/** 片假名還沒解鎖時只玩「平假名 → 拼音」。 */
+/** 片假名還沒解鎖（或選的字沒有片假名）時只玩平假名的兩關：平假名 → 拼音、拼音 → 平假名。 */
 export function stagesFor(katakanaReady: boolean): DropStage[] {
-  return katakanaReady ? [...DROP_STAGES] : DROP_STAGES.filter((s) => s.id === 'hira-romaji');
+  return katakanaReady
+    ? [...DROP_STAGES]
+    : DROP_STAGES.filter((s) => s.id === 'hira-romaji' || s.id === 'romaji-hira');
+}
+
+/** 這一關考的是哪種文字的字形：掉下來是假名就是它，掉下來是拼音就看籃子（計分用）。 */
+export function stageScript(stage: DropStage): 'hiragana' | 'katakana' {
+  if (stage.fall !== 'romaji') return stage.fall;
+  return stage.basket === 'katakana' ? 'katakana' : 'hiragana';
 }
 
 /**
@@ -191,7 +201,7 @@ export interface DropEvent {
   picked?: string;
 }
 
-/** 把一關的事件轉成要記錄的計分：每個字各自對錯，歸錯的記「把 X 當成 Y」（用掉下來的那種文字）。 */
+/** 把一關的事件轉成要記錄的計分：每個字各自對錯，歸錯的記「把 X 當成 Y」（用這一關考的那種文字，見 stageScript）。 */
 export function scoreEvents(
   events: readonly DropEvent[],
   stage: DropStage,
@@ -199,12 +209,12 @@ export function scoreEvents(
   const results: { kanaId: string; correct: boolean }[] = [];
   const confusions: { truth: string; picked: string }[] = [];
   for (const e of events) {
-    const truth = idIn(e.syllable, stage.fall);
+    const truth = idIn(e.syllable, stageScript(stage));
     if (!truth) continue;
     const correct = e.picked === e.syllable;
     results.push({ kanaId: truth, correct });
     if (e.picked && !correct) {
-      const picked = idIn(e.picked, stage.fall);
+      const picked = idIn(e.picked, stageScript(stage));
       if (picked) confusions.push({ truth, picked });
     }
   }

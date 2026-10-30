@@ -497,3 +497,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 「差在哪裡」說明每句一行（`tipLines`）。
 - 描寫判定收緊多畫見上一節。
 - 測試：單元 495 個；Maestro 重跑 phase2-confuse、phase8、phase9、phase11、phase12、phase2-auto-practice 通過；截圖 `screenshots/ui-fixes/`（`maestro/screenshots/run-ui-fixes.sh`）。
+
+## 掉字歸類加「拼音 → 平假名」「拼音 → 片假名」（2026-10-30 晚）
+
+- 原因：片假名要平假名清音全部學完才解鎖，剛學的人只玩得到「平假名 → 拼音」一種，每次都一樣（畫面「階段 1/1」）。
+- 現在六個階段，由簡單到難：平假名 → 拼音、拼音 → 平假名、片假名 → 拼音、拼音 → 片假名、片假名 → 平假名、平假名 → 片假名。片假名沒解鎖（或選的字沒有片假名）只玩前兩關。
+- 拼音掉下來時，計分記的是籃子上那種字（拼音 → 平假名記平假名的字、拼音 → 片假名記片假名的字），歸錯的「把 X 當成 Y」也用那種字（`stageScript`）。
+- 每一關仍是 12 個字、錯 1 個以內過關才換下一關；沒有關內混著出。
+- 驗證：單元測試 497 個；`phase13-drop.yaml` 加了「只有平假名兩關」和「點籃子模式真的玩完一關」（拖曳仍無法在 Maestro 驗證）；截圖 `screenshots/ui-drop-stage2/`。
+- 提示文字改成「按住掉下來的，拖到對的籃子」。

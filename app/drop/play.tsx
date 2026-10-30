@@ -470,7 +470,7 @@ export default function DropPlay() {
 
   const cols = basketColumns(selection.length);
   const isLast = stageIdx >= stages.length - 1;
-  const hint = drag ? '按住字，拖到對的籃子' : '點對的籃子，最下面的字會放進去';
+  const hint = drag ? '按住掉下來的，拖到對的籃子' : '點對的籃子，最下面的會放進去';
 
   return (
     <Screen>

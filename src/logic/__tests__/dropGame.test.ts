@@ -25,11 +25,18 @@ import { seededRng } from './testUtils';
 const ORDER = seionOrder('hiragana').map((k) => k.id);
 
 describe('dropGame', () => {
-  it('階段：片假名準備好有四個，沒解鎖只有平假名 → 拼音', () => {
-    expect(stagesFor(true).map((s) => s.id)).toEqual(['kata-hira', 'hira-kata', 'kata-romaji', 'hira-romaji']);
-    expect(stagesFor(false).map((s) => s.id)).toEqual(['hira-romaji']);
-    expect(availableStages(['h-shi', 'h-tsu', 'h-so'], true)).toHaveLength(4);
-    expect(availableStages(['h-shi', 'h-tsu', 'h-so'], false)).toHaveLength(1);
+  it('階段：片假名準備好有六個（由簡單到難），沒解鎖只有平假名的兩關', () => {
+    expect(stagesFor(true).map((s) => s.id)).toEqual([
+      'hira-romaji',
+      'romaji-hira',
+      'kata-romaji',
+      'romaji-kata',
+      'kata-hira',
+      'hira-kata',
+    ]);
+    expect(stagesFor(false).map((s) => s.id)).toEqual(['hira-romaji', 'romaji-hira']);
+    expect(availableStages(['h-shi', 'h-tsu', 'h-so'], true)).toHaveLength(6);
+    expect(availableStages(['h-shi', 'h-tsu', 'h-so'], false)).toHaveLength(2);
   });
 
   it('faceOf：同一個音的平假名、片假名、拼音', () => {
@@ -107,7 +114,7 @@ describe('dropGame', () => {
   });
 
   it('計分：每個字各自對錯，歸錯的記「把 X 當成 Y」，掉到底只記錯', () => {
-    const stage = stagesFor(true)[0]; // 片假名 → 平假名：掉下來的是片假名
+    const stage = stagesFor(true).find((s) => s.id === 'kata-hira')!; // 片假名 → 平假名：掉下來的是片假名
     const { results, confusions } = scoreEvents(
       [
         { syllable: 'h-tsu', picked: 'h-tsu' },
@@ -135,5 +142,29 @@ describe('dropGame', () => {
 
   it('basketColumns：6 個以內排版', () => {
     expect([3, 4, 5, 6].map(basketColumns)).toEqual([3, 4, 3, 3]);
+  });
+
+  it('拼音掉下來的階段：計分用籃子上那種文字的字形（拼音 → 平假名記平假名的字）', () => {
+    const toHira = stagesFor(true).find((s) => s.id === 'romaji-hira')!;
+    const toKata = stagesFor(true).find((s) => s.id === 'romaji-kata')!;
+    const events = [
+      { syllable: 'h-tsu', picked: 'h-tsu' },
+      { syllable: 'h-shi', picked: 'h-tsu' },
+    ];
+    expect(scoreEvents(events, toHira).results).toEqual([
+      { kanaId: 'h-tsu', correct: true },
+      { kanaId: 'h-shi', correct: false },
+    ]);
+    expect(scoreEvents(events, toHira).confusions).toEqual([{ truth: 'h-shi', picked: 'h-tsu' }]);
+    expect(scoreEvents(events, toKata).confusions).toEqual([{ truth: 'k-shi', picked: 'k-tsu' }]);
+  });
+
+  it('各階段掉下來的字與籃子的字', () => {
+    const byId = Object.fromEntries(stagesFor(true).map((s) => [s.id, s]));
+    expect(faceOf('h-ka', byId['hira-romaji'].fall)).toBe('か');
+    expect(faceOf('h-ka', byId['hira-romaji'].basket)).toBe('ka');
+    expect(faceOf('h-ka', byId['romaji-hira'].fall)).toBe('ka');
+    expect(faceOf('h-ka', byId['romaji-hira'].basket)).toBe('か');
+    expect(faceOf('h-ka', byId['romaji-kata'].basket)).toBe('カ');
   });
 });

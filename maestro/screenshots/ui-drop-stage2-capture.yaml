@@ -1,0 +1,61 @@
+# 掉字歸類第 2 關（拼音 → 平假名）：掉下來的是拼音、籃子是平假名；再切成「點籃子」模式實際點。
+# 用 maestro/screenshots/run-ui-drop-stage2.sh 執行。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+- tapOn:
+    id: drop-preset-ruro-nume
+- extendedWaitUntil:
+    visible:
+      id: drop-tutorial
+    timeout: 5000
+- tapOn:
+    id: drop-start
+- tapOn:
+    id: dev-drop-pass
+- tapOn:
+    id: drop-next
+- waitForAnimationToEnd:
+    timeout: 4500
+- takeScreenshot: screenshots/ui-drop-stage2/1-Romaji-to-Hira-${THEME}
+- tapOn:
+    id: drop-pause
+- tapOn:
+    id: drop-leave
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-drop-control
+- tapOn:
+    id: row-drop-control
+- tapOn:
+    id: option-drop-tap
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+- tapOn:
+    id: drop-preset-ruro-nume
+- waitForAnimationToEnd:
+    timeout: 4500
+- tapOn:
+    id: drop-basket-0
+- tapOn:
+    id: drop-basket-1
+- takeScreenshot: screenshots/ui-drop-stage2/2-TapMode-${THEME}
