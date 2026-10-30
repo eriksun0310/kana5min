@@ -23,21 +23,35 @@ appId: com.ptalk.kana5min
 # 今天新字面板：さ し す
 - tapOn:
     id: stat-new
-- assertVisible:
-    id: new-sheet
+- extendedWaitUntil:
+    visible:
+      id: new-sheet
+    timeout: 5000
 - assertVisible: 今天要學的 3 個字
 - assertVisible: sa
 - tapOn:
     id: new-sheet-close
-- assertNotVisible:
-    id: new-sheet
-# 待複習面板（preset 沒有到期字時顯示空狀態文字）
+- extendedWaitUntil:
+    notVisible:
+      id: new-sheet
+    timeout: 5000
+# 待複習面板：重開 App 再測（Maestro 在同一次啟動裡讀不到第二個 Modal 的內容，實機沒有這個問題）
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: stat-due
+    timeout: 15000
 - tapOn:
     id: stat-due
-- assertVisible:
-    id: due-sheet
+- extendedWaitUntil:
+    visible:
+      id: due-sheet
+    timeout: 5000
+- assertVisible: 今天沒有要複習的字
 - tapOn:
     id: due-sheet-close
+- waitForAnimationToEnd
 # 已學 → 五十音表，已學的字右上角有紅勾，說明在格子上方
 - tapOn:
     id: stat-learned
@@ -71,3 +85,21 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: detail-char
     text: き
+# 練習頁「最常搞混的」只放 3 組，下面「看全部」進完整目錄
+- tapOn:
+    id: back
+- tapOn:
+    id: tab-practice
+- assertVisible: 最常搞混的
+- assertVisible:
+    id: group-nume
+- assertVisible:
+    id: group-ruro
+- assertVisible:
+    id: see-all-groups
+- tapOn:
+    id: see-all-groups
+- assertVisible:
+    id: catalog-count
+- assertVisible:
+    id: group-wanere

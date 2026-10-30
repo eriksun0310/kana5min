@@ -12,7 +12,9 @@ import {
   isConfuseEligible,
   isKatakanaUnlocked,
   pickConfuseGroup,
+  groupsByTab,
   sortGroupsByMisses,
+  topConfusionGroups,
 } from '../confusion';
 import { prog, seededRng } from './testUtils';
 
@@ -341,5 +343,42 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
     for (let seed = 1; seed <= 20; seed++) {
       expect(buildAutoPractice10(base, {}, seededRng(seed))!.some((q) => q.type === 'loanword')).toBe(false);
     }
+  });
+});
+
+describe('topConfusionGroups（練習頁只放最常搞混的 3 組）', () => {
+  const hira = () => availableGroups(hiraganaAll().slice(0, 10));
+  const all = () => availableGroups(hiraganaAll());
+
+  it('沒有答錯紀錄：預設 ぬ・め、る・ろ、シ・ツ', () => {
+    expect(topConfusionGroups(all(), {}).map((g) => g.id)).toEqual(['nume', 'ruro', 'shitsu']);
+  });
+
+  it('片假名還沒解鎖時沒有 シ・ツ，用 わ・ね・れ 補上', () => {
+    expect(topConfusionGroups(hira(), {}).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+  });
+
+  it('答錯多的組排前面；同分依預設順序', () => {
+    expect(topConfusionGroups(all(), { son: 5, wanere: 2 }).map((g) => g.id)).toEqual(['son', 'wanere', 'nume']);
+    expect(topConfusionGroups(all(), { shitsu: 1, ruro: 1 }).map((g) => g.id)).toEqual(['ruro', 'shitsu', 'nume']);
+  });
+
+  it('數量參數；不改動傳入的陣列', () => {
+    const groups = all();
+    const before = groups.map((g) => g.id);
+    expect(topConfusionGroups(groups, {}, 2)).toHaveLength(2);
+    expect(topConfusionGroups(groups, {}, 99)).toHaveLength(groups.length);
+    expect(groups.map((g) => g.id)).toEqual(before);
+  });
+});
+
+describe('groupsByTab（完整目錄的分類）', () => {
+  it('依文字分成平假名、片假名；沒有組的分類不出現', () => {
+    const tabs = groupsByTab(availableGroups(hiraganaAll()));
+    expect(tabs.map((t) => t.tab)).toEqual(['hiragana', 'katakana']);
+    expect(tabs[0].groups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(tabs[1].groups.map((g) => g.id)).toEqual(['shitsu', 'son']);
+    // 片假名還沒解鎖：只有平假名分類
+    expect(groupsByTab(availableGroups(hiraganaAll().slice(0, 10))).map((t) => t.tab)).toEqual(['hiragana']);
   });
 });

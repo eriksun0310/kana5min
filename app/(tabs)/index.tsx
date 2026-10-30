@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   HomeHelpSheet,
@@ -44,6 +44,11 @@ export default function HomeScreen() {
   // 回到前景（切回分頁、練習結束返回）時重算「現在」，到期數與連續天數才會更新
   const [helpOpen, setHelpOpen] = useState(false);
   const [sheet, setSheet] = useState<'due' | 'new' | null>(null);
+  // 面板收起來的動畫期間內容不能馬上變空：記住最後一次開的是哪一個。兩個面板共用同一個 Modal，
+  // 避免 iOS 上「前一個還在收起、後一個又要開」開不起來。
+  const lastSheet = useRef<'due' | 'new'>('due');
+  if (sheet) lastSheet.current = sheet;
+  const shown = sheet ?? lastSheet.current;
   const [now, setNow] = useState(() => Date.now());
   useFocusEffect(
     useCallback(() => {
@@ -232,23 +237,29 @@ export default function HomeScreen() {
       </View>
       <HomeHelpSheet visible={helpOpen} goalMinutes={goal} onClose={() => setHelpOpen(false)} />
       <KanaListSheet
-        testID="due-sheet"
-        visible={sheet === 'due'}
-        title={`待複習　${dueItems.length} 個字`}
-        subtitle={dueItems.length > 0 ? '這些字今天要複習，隔太久會忘' : '今天沒有要複習的字'}
-        items={dueItems}
-        actionLabel={dueItems.length > 0 ? '開始今天的練習' : '知道了'}
-        onAction={dueItems.length > 0 ? startFromSheet : () => setSheet(null)}
-        onClose={() => setSheet(null)}
-      />
-      <KanaListSheet
-        testID="new-sheet"
-        visible={sheet === 'new'}
-        title={`今天要學的 ${newItems.length} 個字`}
-        subtitle={newItems.length > 0 ? '先看字、聽音，再練筆順和描寫' : '平假名和片假名都學完了'}
-        items={newItems}
-        actionLabel={newItems.length > 0 ? '開始學新字' : '知道了'}
-        onAction={newItems.length > 0 ? startFromSheet : () => setSheet(null)}
+        testID={shown === 'new' ? 'new-sheet' : 'due-sheet'}
+        visible={sheet !== null}
+        title={shown === 'new' ? `今天要學的 ${newItems.length} 個字` : `待複習　${dueItems.length} 個字`}
+        subtitle={
+          shown === 'new'
+            ? newItems.length > 0
+              ? '先看字、聽音，再練筆順和描寫'
+              : '平假名和片假名都學完了'
+            : dueItems.length > 0
+              ? '這些字今天要複習，隔太久會忘'
+              : '今天沒有要複習的字'
+        }
+        items={shown === 'new' ? newItems : dueItems}
+        actionLabel={
+          shown === 'new'
+            ? newItems.length > 0
+              ? '開始學新字'
+              : '知道了'
+            : dueItems.length > 0
+              ? '開始今天的練習'
+              : '知道了'
+        }
+        onAction={(shown === 'new' ? newItems.length : dueItems.length) > 0 ? startFromSheet : () => setSheet(null)}
         onClose={() => setSheet(null)}
       />
     </Screen>

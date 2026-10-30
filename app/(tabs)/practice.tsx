@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Icon, KanaText, Screen } from '../../src/components';
-import { availableGroups, confusionCounts, sortGroupsByMisses } from '../../src/logic/confusion';
+import { availableGroups, confusionCounts, topConfusionGroups } from '../../src/logic/confusion';
 import { isLearned } from '../../src/logic/srs';
 import { progressList, useProgressStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
@@ -26,10 +26,9 @@ export default function PracticeScreen() {
   const hasLearned = useMemo(() => Object.values(progress).some(isLearned), [progress]);
 
   const counts = useMemo(() => confusionCounts(confusions), [confusions]);
-  const groups = useMemo(
-    () => sortGroupsByMisses(availableGroups(progressList(progress)), counts),
-    [progress, counts],
-  );
+  const allGroups = useMemo(() => availableGroups(progressList(progress)), [progress]);
+  // 練習頁只放最常搞混的前 3 組（沒有答錯紀錄時預設 ぬ・め、る・ろ、シ・ツ）；其餘在「看全部」
+  const groups = useMemo(() => topConfusionGroups(allGroups, counts, 3), [allGroups, counts]);
 
   return (
     <Screen>
@@ -84,9 +83,30 @@ export default function PracticeScreen() {
           )}
         </View>
 
+        {__DEV__ ? (
+          // 開發版專用：掉字歸類的拖曳手感實驗（正式版不會出現）
+          <View style={styles.cardWrap}>
+            <Pressable
+              testID="open-drop-lab"
+              accessibilityRole="button"
+              onPress={() => router.push('/drop-lab')}
+              style={({ pressed }) => [
+                styles.card,
+                { backgroundColor: t.surface, borderColor: t.accent, opacity: pressed ? 0.9 : 1 },
+              ]}
+            >
+              <View style={styles.cardText}>
+                <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>掉字歸類（手感實驗）</Text>
+                <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>開發版專用：把掉下來的字拖到對的籃子</Text>
+              </View>
+              <Icon name="chevronRight" size={20} color={t.accentText} />
+            </Pressable>
+          </View>
+        ) : null}
+
         <View style={styles.sectionHead}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>最近常搞混</Text>
-          <Text style={{ fontSize: 12, color: t.muted }}>點一組單獨練</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>最常搞混的</Text>
+          <Text style={{ fontSize: 12, color: t.muted }}>依你的答錯紀錄</Text>
         </View>
         <View style={[styles.list, { backgroundColor: t.surface, borderColor: t.line }]}>
           {groups.map((g, i) => {
@@ -115,6 +135,19 @@ export default function PracticeScreen() {
             );
           })}
         </View>
+
+        <Pressable
+          testID="see-all-groups"
+          accessibilityRole="button"
+          onPress={() => router.push('/confuse')}
+          style={({ pressed }) => [
+            styles.seeAll,
+            { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.85 : 1 },
+          ]}
+        >
+          <Text style={{ fontSize: 14, fontWeight: '700', color: t.accentText }}>看全部 {allGroups.length} 組</Text>
+          <Icon name="chevronRight" size={16} color={t.accentText} />
+        </Pressable>
 
         <Text style={[styles.sectionTitle, { color: t.text }]}>特殊音</Text>
         <View style={[styles.list, { backgroundColor: t.surface, borderColor: t.line }]}>
@@ -180,6 +213,17 @@ const styles = StyleSheet.create({
   list: { marginHorizontal: SIDE, borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   listRow: {
     minHeight: 54,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  seeAll: {
+    marginHorizontal: SIDE,
+    marginTop: 8,
+    minHeight: 48,
+    borderWidth: 1,
+    borderRadius: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',

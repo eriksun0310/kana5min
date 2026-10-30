@@ -105,10 +105,19 @@ appId: com.ptalk.kana5min
     id: tab-practice
 - assertVisible:
     id: group-shitsu
+- assertVisible: "シ・ツ，錯 0 次"
+# 練習頁只放最常搞混的 3 組（預設 ぬ・め、る・ろ、シ・ツ），其餘在「看全部」的片假名分頁
+- assertNotVisible:
+    id: group-son
+- tapOn:
+    id: see-all-groups
+- tapOn:
+    id: catalog-tab-katakana
 - assertVisible:
     id: group-son
-- assertVisible: "シ・ツ，錯 0 次"
 - assertVisible: "ソ・ン，錯 0 次"
+- tapOn:
+    id: back
 # 五十音表片假名分頁：清音／濁音／拗音
 - tapOn:
     id: tab-chart

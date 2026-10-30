@@ -65,6 +65,39 @@ export function sortGroupsByMisses(
     .map((x) => x.g);
 }
 
+/** 沒有答錯紀錄（或同分）時，練習頁「最常搞混的」優先放哪幾組：ぬ・め、る・ろ、シ・ツ（再來才是其他）。 */
+export const DEFAULT_TOP_ORDER = ['nume', 'ruro', 'shitsu', 'wanere', 'son'] as const;
+
+/** 練習頁只放最常搞混的前 n 組（預設 3）：答錯次數多的在前，同分依 DEFAULT_TOP_ORDER。不改動原陣列。 */
+export function topConfusionGroups(
+  groups: readonly ConfusableGroup[],
+  counts: ConfusionCounts,
+  n: number = 3,
+): ConfusableGroup[] {
+  const rank = (id: string) => {
+    const i = (DEFAULT_TOP_ORDER as readonly string[]).indexOf(id);
+    return i < 0 ? DEFAULT_TOP_ORDER.length : i;
+  };
+  const base = [...groups].sort((a, b) => rank(a.id) - rank(b.id));
+  return sortGroupsByMisses(base, counts).slice(0, n);
+}
+
+/** 完整目錄的分類（目前只有平假名、片假名兩類；之後補濁點、發音等再加）。 */
+export type CatalogTab = 'hiragana' | 'katakana';
+export const CATALOG_TABS: readonly { tab: CatalogTab; label: string }[] = [
+  { tab: 'hiragana', label: '平假名' },
+  { tab: 'katakana', label: '片假名' },
+];
+
+/** 目錄裡每個分類各有哪些組（沒有組的分類不會出現在結果裡），順序維持傳入順序。 */
+export function groupsByTab(
+  groups: readonly ConfusableGroup[],
+): { tab: CatalogTab; label: string; groups: ConfusableGroup[] }[] {
+  return CATALOG_TABS.map((t) => ({ ...t, groups: groups.filter((g) => g.script === t.tab) })).filter(
+    (t) => t.groups.length > 0,
+  );
+}
+
 /** 某個字答錯時要累計答錯次數的字組（通常 0 或 1 組）。 */
 export function groupsForWrongAnswer(
   targetKanaId: string,

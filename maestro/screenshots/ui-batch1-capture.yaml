@@ -1,0 +1,34 @@
+# 批 1 截圖：練習頁（最常搞混的只放 3 組＋看全部）與完整目錄頁（平假名／片假名標籤）。
+# 請用 maestro/screenshots/run-ui-batch1.sh 執行（亮色、暗色各一次，THEME 由它傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: katakana-started
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: see-all-groups
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch1/1-Practice-${THEME}
+- tapOn:
+    id: see-all-groups
+- assertVisible:
+    id: catalog-count
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch1/2-Catalog-hiragana-${THEME}
+- tapOn:
+    id: catalog-tab-katakana
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch1/3-Catalog-katakana-${THEME}

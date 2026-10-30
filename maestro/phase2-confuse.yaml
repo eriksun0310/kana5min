@@ -18,7 +18,17 @@ appId: com.ptalk.kana5min
     id: group-ruro
 - assertVisible:
     id: group-wanere
-- assertVisible: 最近常搞混
+- assertVisible: 最常搞混的
+# 平假名階段只有 3 組：全放在練習頁，「看全部」顯示 3 組
+- tapOn:
+    id: see-all-groups
+- assertVisible:
+    id: catalog-count
+    text: "3 組.*"
+- assertVisible:
+    id: group-wanere
+- tapOn:
+    id: back
 # 平假名還沒學完（hiragana-almost：只差 ん）時片假名組不會出現；
 # 平假名學完（hiragana-done）會解鎖片假名並先跳出 C2-18，所以這支流程不用它（見 phase3-unlock.yaml）
 - assertNotVisible: "(シツ|シ・ツ).*"

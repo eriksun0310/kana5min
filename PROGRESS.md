@@ -388,3 +388,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 新題型 odd／all／seq（`src/logic/groupGames.ts`），取代易混淆字的兩選一：快速辨識 10 題與自動練習的易混淆字題都改用。元件 `QuizOdd`、`QuizAll`、`QuizSeq`、`QuizGridCell`；`app/quiz.tsx` 依題型切換。
 - 假設：待複習面板的主按鈕沿用「開始今天的練習」（每日練習本來就會帶出所有到期字，不另做只複習的流程）；字串題（seq）只記目標字的對錯，避免一題答錯被算成兩次答錯。
 - 測試：單元測試 409 個、Maestro 19 個流程全過；新增 `maestro/phase10-affordance.yaml`；截圖 `screenshots/ui-new/`（`maestro/screenshots/run-ui-new.sh`）。
+
+## 批 0、批 1：最常搞混的目錄（2026-10-30）
+
+- 練習頁「最近常搞混」改名「最常搞混的」，只放最常錯的 3 組（沒有答錯紀錄時預設 ぬ・め、る・ろ、シ・ツ；片假名未解鎖時用 わ・ね・れ 補上），下面「看全部 N 組」進完整目錄頁 `app/confuse/index.tsx`（平假名／片假名標籤，目前共 5 組，之後補組再加分類）。純函式 `topConfusionGroups`、`groupsByTab`（`src/logic/confusion.ts`）有單元測試。
+- 首頁待複習／今天新字兩個面板改成共用同一個 Modal，避免 iOS 上前一個還在收起時下一個開不起來。
+- 掉字歸類手感實驗 `app/drop-lab.tsx`（只有開發版在練習頁看得到入口）：手指拖字到籃子、5.5 秒掉到底、同時最多 2 個、第一次的教學動畫。正式版要做的事見實作計畫（批 5）。
+- 還原了舊的「找出所有」改一半的修改；題型引擎整個之後在批 3 重寫。
+- 假設：phase10 的 Maestro 流程中，「待複習」面板要重開 App 再測，因為同一次啟動裡 Maestro 讀不到第二個 Modal 的內容（畫面實際有開，截圖確認過）。
+- 截圖：`screenshots/ui-batch1/`（`maestro/screenshots/run-ui-batch1.sh`）。
