@@ -109,7 +109,8 @@ appId: com.ptalk.kana5min
 - assertVisible: 今天完成了
 - assertVisible:
     id: stat-correct
-- assertVisible: "10 / 10"
+# 新題型每個假名各自計分，總數不固定（例如 18 / 18），所以只確認有答對統計
+- assertVisible: ".* / .*"
 - tapOn:
     id: result-home
 # 結果頁的「回首頁」回到首頁分頁
