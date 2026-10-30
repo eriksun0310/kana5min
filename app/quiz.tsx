@@ -2,12 +2,20 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { FlowHeader, Screen } from '../src/components';
-import { QuizAll } from '../src/components/QuizAll';
+import { QuizFindAll } from '../src/components/QuizFindAll';
 import { QuizHear } from '../src/components/QuizHear';
 import { QuizLoanword } from '../src/components/QuizLoanword';
-import { QuizOdd } from '../src/components/QuizOdd';
+import { QuizMaskHalf } from '../src/components/QuizMaskHalf';
+import { QuizReadSeq } from '../src/components/QuizReadSeq';
 import { QuizSee } from '../src/components/QuizSee';
+import { QuizRecall } from '../src/components/QuizRecall';
 import { QuizSeq } from '../src/components/QuizSeq';
+import { QuizSpotError } from '../src/components/QuizSpotError';
+import { QuizWordRead } from '../src/components/QuizWordRead';
+import { DEV_PLACEHOLDER_WORDS } from '../src/data/spotErrorWords';
+import { buildDevSpotQuestions } from '../src/logic/spotError';
+import { isLoanwordQuestion, type AnswerDetail } from '../src/logic/session';
+import { recordConfusion } from '../src/scoring';
 import { elapsedMinutes, elapsedMs, EXTEND_MINUTES } from '../src/logic/practiceTimer';
 import { confirmExitFlow } from '../src/nav/exitToHome';
 import { currentProgressList, useSessionStore } from '../src/store/sessionStore';
@@ -15,10 +23,10 @@ import { currentProgressList, useSessionStore } from '../src/store/sessionStore'
 /**
  * 測驗（C2-08 看字選音／C2-09 聽音選字，依題型切換）。
  * - 預設（每日練習）：session 已由 /learn 建好，這裡只負責出題與作答。
- * - mode=auto：自動練習，see／hear 與易混淆字的找不同系列（odd／all／seq）混合 10 題（片假名有可讀外來語時含 1～2 題 loanword）；
+ * - mode=auto：自動練習，看字選音、聽音選字與易混淆字題型（找出所有、念出一串、聽音選字串）混合 10 題，同一題型最多 2 題（片假名有可讀外來語時含看詞選拼音）；
  *   進畫面時建立新的一輪。
- * - loanword 題（C2-20 讀外來語）不屬於任何假名：作答只計入答對數，不更新 SRS。
- * - mode=confuse&group=<id>：易混淆字組快速辨識 10 題（找不同、找出所有、聽音選字串輪流，字限該組）。
+ * - loanword／wordread 題（讀外來語、看詞選拼音）不屬於任何假名：作答只計入答對數，不更新 SRS。
+ * - mode=confuse&group=<id>：易混淆字組快速辨識 10 題（找出所有、念出一串、聽音選字串、看字選音、聽音選字，字限該組）。
  * 最後一題按「完成，看結果」→ 提交 SRS → 到結果頁。
  * 每日練習有時間上限：時間到時不打斷作答，答完當下那題後詢問「結束這一輪」或「再練 5 分鐘」；
  * 選結束 = 部分提交（只提交已作答的字，沒做到的複習字維持原狀）。
@@ -73,6 +81,13 @@ export default function QuizScreen() {
         return;
       }
       setOwnedSid(useSessionStore.getState().sid);
+    } else if (__DEV__ && mode === 'dev-spot') {
+      // 開發版專用：用佔位詞出抓錯字題，看介面（kana5min://quiz?mode=dev-spot）
+      if (!store.startQuestions(buildDevSpotQuestions(DEV_PLACEHOLDER_WORDS, Math.random), Date.now())) {
+        router.replace('/');
+        return;
+      }
+      setOwnedSid(useSessionStore.getState().sid);
     } else if (mode === 'confuse') {
       if (!group || !store.startConfuse(group, currentProgressList(), Date.now())) {
         router.replace('/');
@@ -97,10 +112,14 @@ export default function QuizScreen() {
   const answeredCount = qIndex + (qAnswered ? 1 : 0);
   const isLast = qIndex + 1 >= questions.length;
 
-  const onAnswered = (correct: boolean) => {
+  const onAnswered = (correct: boolean, detail?: AnswerDetail) => {
     const store = useSessionStore.getState();
-    if (question.type === 'loanword') store.recordLoanwordAnswer(correct);
+    if (isLoanwordQuestion(question)) store.recordLoanwordAnswer(correct);
+    else if (detail?.perKana) store.recordAnswers(detail.perKana);
     else store.recordAnswer(question.kanaId, correct);
+    // 把 X 當成 Y：選擇題答錯時記「把正確的字當成選到的字」；多字題由元件給整組混淆對
+    if (!correct && detail?.picked && question.kanaId) void recordConfusion(question.kanaId, detail.picked);
+    for (const c of detail?.confusions ?? []) void recordConfusion(c.truth, c.picked);
   };
 
   const onNext = async () => {
@@ -111,19 +130,20 @@ export default function QuizScreen() {
     else await finishRound();
   };
 
-  // confuse 題沿用聽音選字的版面（選項數可變）；odd／all／seq 是易混淆字的找不同系列題型
-  const QuestionView =
-    question.type === 'see'
-      ? QuizSee
-      : question.type === 'loanword'
-        ? QuizLoanword
-        : question.type === 'odd'
-          ? QuizOdd
-          : question.type === 'all'
-            ? QuizAll
-            : question.type === 'seq'
-              ? QuizSeq
-              : QuizHear;
+  // confuse 題沿用聽音選字的版面（選項數可變）；其餘題型各有各的畫面
+  const QuestionView = (
+    {
+      see: QuizSee,
+      loanword: QuizLoanword,
+      wordread: QuizWordRead,
+      findall: QuizFindAll,
+      readseq: QuizReadSeq,
+      seq: QuizSeq,
+      maskhalf: QuizMaskHalf,
+      recall: QuizRecall,
+      spoterr: QuizSpotError,
+    } as Partial<Record<typeof question.type, typeof QuizHear>>
+  )[question.type] ?? QuizHear;
 
   return (
     <Screen>

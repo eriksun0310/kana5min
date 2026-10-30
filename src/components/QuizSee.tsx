@@ -4,7 +4,7 @@ import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
 import { pressSeeOption, revealTag } from '../logic/quizSee';
 import { shouldShowRomaji } from '../logic/romaji';
-import type { QuizQuestion } from '../logic/session';
+import type { AnswerDetail, QuizQuestion } from '../logic/session';
 import { useProgressStore } from '../store/progressStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { useTheme } from '../theme/useTheme';
@@ -15,7 +15,7 @@ import { optionTestIds, QuizSoundOption, type OptionStatus } from './QuizOption'
 export interface QuizSeeProps {
   question: QuizQuestion;
   /** 確定作答時呼叫一次 */
-  onAnswered: (correct: boolean) => void;
+  onAnswered: (correct: boolean, detail?: AnswerDetail) => void;
   /** 按「下一題」／「完成，看結果」 */
   onNext: () => void;
   isLast: boolean;
@@ -44,7 +44,7 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
   const confirm = (index: number) => {
     if (answered) return;
     setPicked(index);
-    onAnswered(question.options[index] === question.answerId);
+    onAnswered(question.options[index] === question.answerId, { picked: question.options[index] });
   };
 
   const press = (index: number) => {

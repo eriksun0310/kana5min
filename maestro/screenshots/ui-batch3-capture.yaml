@@ -13,7 +13,7 @@ tags:
 - assertVisible:
     id: practice-empty-hint
 - waitForAnimationToEnd
-- takeScreenshot: screenshots/ui-new/1-Practice-locked-${THEME}
+- takeScreenshot: screenshots/ui-batch3/1-Practice-locked-${THEME}
 - tapOn:
     id: tab-home
 - runFlow:
@@ -23,13 +23,13 @@ tags:
 - assertVisible:
     id: start-today
 - waitForAnimationToEnd
-- takeScreenshot: screenshots/ui-new/2-Home-${THEME}
+- takeScreenshot: screenshots/ui-batch3/2-Home-${THEME}
 - tapOn:
     id: stat-new
 - assertVisible:
     id: new-sheet
 - waitForAnimationToEnd
-- takeScreenshot: screenshots/ui-new/3-Home-new-sheet-${THEME}
+- takeScreenshot: screenshots/ui-batch3/3-Home-new-sheet-${THEME}
 - tapOn:
     id: new-sheet-close
 - tapOn:
@@ -50,23 +50,50 @@ tags:
       - runFlow:
           when:
             visible:
-              id: quiz-odd
+              id: quiz-maskhalf
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-recall
+          commands:
+            - tapOn:
+                id: recall-flip
+            - tapOn:
+                id: recall-yes
+      - runFlow:
+          when:
+            visible:
+              id: quiz-spoterr
+          commands:
+            - tapOn:
+                id: spot-target
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-readseq
           commands:
             - runFlow:
                 when:
                   true: ${output.odd == 0}
                 commands:
                   - waitForAnimationToEnd
-                  - takeScreenshot: screenshots/ui-new/4-Odd-wait-${THEME}
+                  - takeScreenshot: screenshots/ui-batch3/4-ReadSeq-wait-${THEME}
             - tapOn:
-                id: opt-correct
+                id: dev-solve
             - runFlow:
                 when:
                   true: ${output.odd == 0}
                 commands:
                   - waitForAnimationToEnd
-                  - takeScreenshot: screenshots/ui-new/5-Odd-correct-${THEME}
+                  - takeScreenshot: screenshots/ui-batch3/5-ReadSeq-filled-${THEME}
                   - evalScript: ${output.odd = 1}
+            - tapOn:
+                id: quiz-confirm
       - runFlow:
           when:
             visible:
@@ -79,7 +106,7 @@ tags:
                   true: ${output.all == 0}
                 commands:
                   - waitForAnimationToEnd
-                  - takeScreenshot: screenshots/ui-new/6-All-selected-${THEME}
+                  - takeScreenshot: screenshots/ui-batch3/6-All-selected-${THEME}
                   - evalScript: ${output.all = 1}
             - tapOn:
                 id: quiz-confirm
@@ -93,7 +120,7 @@ tags:
                   true: ${output.seq == 0}
                 commands:
                   - waitForAnimationToEnd
-                  - takeScreenshot: screenshots/ui-new/7-Seq-wait-${THEME}
+                  - takeScreenshot: screenshots/ui-batch3/7-Seq-wait-${THEME}
                   - evalScript: ${output.seq = 1}
             - tapOn:
                 id: opt-correct

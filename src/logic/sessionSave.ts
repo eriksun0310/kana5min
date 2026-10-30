@@ -4,7 +4,7 @@
 import type { QuizQuestion } from './session';
 import { toDateKey } from './progressStats';
 
-export const SESSION_SAVE_VERSION = 1;
+export const SESSION_SAVE_VERSION = 2;
 
 export interface SavedSession {
   version: number;

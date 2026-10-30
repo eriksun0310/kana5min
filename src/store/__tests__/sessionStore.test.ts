@@ -107,8 +107,8 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(s.phase).toBe('quiz');
     expect(s.newKanaIds).toEqual([]);
     // 片假名清音已全部學過：複習題之外，再加 1～2 題讀外來語
-    expect(s.questions.filter((q) => q.type !== 'loanword')).toHaveLength(MAX_REVIEW_PER_ROUND);
-    const loanwords = s.questions.filter((q) => q.type === 'loanword');
+    expect(s.questions.filter((q) => q.type !== 'wordread')).toHaveLength(MAX_REVIEW_PER_ROUND);
+    const loanwords = s.questions.filter((q) => q.type === 'wordread');
     expect(loanwords.length).toBeGreaterThanOrEqual(1);
     expect(loanwords.length).toBeLessThanOrEqual(2);
 
@@ -134,13 +134,28 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(result.summary.items.find((i) => i.kanaId === 'h-a')?.tone).toBe('wrong');
   });
 
+  it('recordAnswers：一題多個假名各記一筆（kana_stat 與本輪答案），整題只算作答一次', async () => {
+    const ids = ['h-nu', 'h-me'];
+    await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
+    expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(2))).toBe(true);
+    useSessionStore.getState().recordAnswers({ 'h-nu': false, 'h-me': true });
+    await new Promise((r) => setTimeout(r, 0));
+    const s = useSessionStore.getState();
+    expect(s.answers['h-nu']).toEqual([false]);
+    expect(s.answers['h-me']).toEqual([true]);
+    expect(s.qAnswered).toBe(true);
+    const stats = useProgressStore.getState().kanaStats;
+    expect(stats['h-nu']).toMatchObject({ correctCount: 0, wrongCount: 1 });
+    expect(stats['h-me']).toMatchObject({ correctCount: 1, wrongCount: 0 });
+  });
+
   it('自動練習含易混淆字題：答錯當下就寫入該組答錯次數，不等一輪結束', async () => {
     const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
     await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
     expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(8))).toBe(true);
     const s = useSessionStore.getState();
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.some((q) => ['odd', 'all', 'seq'].includes(q.type))).toBe(true);
+    expect(s.questions.some((q) => ['findall', 'readseq', 'seq', 'maskhalf', 'see', 'confuse'].includes(q.type))).toBe(true);
 
     useSessionStore.getState().recordAnswer('h-nu', false);
     // 還沒 finish，confusion 已經寫進 store 與 repository
@@ -163,7 +178,7 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(s.mode).toBe('confuse');
     expect(s.groupId).toBe('nume');
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.every((q) => ['odd', 'all', 'seq'].includes(q.type))).toBe(true);
+    expect(s.questions.every((q) => ['findall', 'readseq', 'seq', 'maskhalf', 'see', 'confuse'].includes(q.type))).toBe(true);
 
     const result = await playQuiz(['h-me']); // め 全錯，ぬ 全對
     const progress = useProgressStore.getState().progress;
@@ -210,7 +225,7 @@ describe('sessionStore（片假名階段）', () => {
   /** 整輪答完：kana 題全對；讀外來語題依 loanwordCorrect 作答（用 answerId 判斷對錯）。回傳提交結果。 */
   async function playAll(loanwordCorrect: boolean) {
     for (const q of useSessionStore.getState().questions) {
-      if (q.type === 'loanword') useSessionStore.getState().recordLoanwordAnswer(loanwordCorrect);
+      if (q.type === 'wordread') useSessionStore.getState().recordLoanwordAnswer(loanwordCorrect);
       else useSessionStore.getState().recordAnswer(q.kanaId, true);
     }
     return useSessionStore.getState().finish(NOW + 4 * MINUTE_MS);
@@ -224,7 +239,7 @@ describe('sessionStore（片假名階段）', () => {
     for (let i = 0; i < 3; i++) useSessionStore.getState().advanceNew(seededRng(2));
     const qs = useSessionStore.getState().questions;
     // 新字 3×2 題 + 到期的平假名複習題（最多 20）
-    expect(qs.some((q) => q.type === 'loanword')).toBe(false);
+    expect(qs.some((q) => q.type === 'wordread')).toBe(false);
     expect(qs.filter((q) => q.kanaId.startsWith('k-'))).toHaveLength(6);
   });
 
@@ -238,7 +253,7 @@ describe('sessionStore（片假名階段）', () => {
       expect(s.newKanaIds).toEqual(['k-sa', 'k-shi', 'k-su']);
       for (let i = 0; i < 3; i++) useSessionStore.getState().advanceNew(seededRng(seed + 100));
       const qs = useSessionStore.getState().questions;
-      const lw = qs.filter((q) => q.type === 'loanword');
+      const lw = qs.filter((q) => q.type === 'wordread');
       expect(lw.length).toBeGreaterThanOrEqual(1);
       expect(lw.length).toBeLessThanOrEqual(2);
       // 可讀 = 已學 ア～コ + 今天的新字 サシス
@@ -248,7 +263,7 @@ describe('sessionStore（片假名階段）', () => {
         expect(readable.has(q.wordId!)).toBe(true);
         expect(q.options).toHaveLength(4);
         expect(new Set(q.options).size).toBe(4);
-        expect(q.options[q.options.indexOf(q.answerId)]).toBe(wordById(q.wordId!)!.meaning);
+        expect(q.answerId).toBe(wordById(q.wordId!)!.romaji);
       }
       // 題目 id 連續、新字的題目仍是 2 題一個字
       expect(qs.map((q) => q.id)).toEqual(qs.map((_, i) => `q-${i}`));
@@ -262,7 +277,7 @@ describe('sessionStore（片假名階段）', () => {
     useSessionStore.getState().startDaily(currentProgressList(), NOW, seededRng(3));
     for (let i = 0; i < 3; i++) useSessionStore.getState().advanceNew(seededRng(4));
     const qs = useSessionStore.getState().questions;
-    const loanwordCount = qs.filter((q) => q.type === 'loanword').length;
+    const loanwordCount = qs.filter((q) => q.type === 'wordread').length;
     expect(loanwordCount).toBeGreaterThan(0);
     const before = { ...useProgressStore.getState().progress };
 
@@ -328,7 +343,7 @@ describe('sessionStore（片假名階段）', () => {
       expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(seed))).toBe(true);
       const s = useSessionStore.getState();
       expect(s.questions).toHaveLength(10);
-      const lw = s.questions.filter((q) => q.type === 'loanword');
+      const lw = s.questions.filter((q) => q.type === 'wordread');
       expect(lw.length).toBeGreaterThanOrEqual(1);
       expect(lw.length).toBeLessThanOrEqual(2);
       for (const q of lw) expect(readable.has(q.wordId!)).toBe(true);
@@ -341,7 +356,7 @@ describe('sessionStore（片假名階段）', () => {
       .getState()
       .commitRound({ 'h-a': [true], 'h-i': [true], 'h-u': [true], 'h-e': [true], 'h-o': [true] }, NOW - DAY_MS);
     useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(1));
-    expect(useSessionStore.getState().questions.some((q) => q.type === 'loanword')).toBe(false);
+    expect(useSessionStore.getState().questions.some((q) => q.type === 'wordread')).toBe(false);
   });
 
   it('clear 之後 loanwordAnswers 歸零', () => {

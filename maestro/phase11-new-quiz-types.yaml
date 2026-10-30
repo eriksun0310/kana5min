@@ -1,0 +1,132 @@
+# 批 3、4 新題型：易混淆字快速辨識（る・ろ 組）10 題，找出所有、念出一串、聽音選字串、遮一半猜字、看字選音、聽音選字，同一題型最多 2 題。
+# 檢查：找出所有只給拼音、不顯示答案數量；念出一串用固定拼音鍵盤輸入；聽音選字串先暫選再確認；
+# 念出一串故意打錯一次，確認會顯示正確拼音。整輪答完，三種新題型都要看過。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- assertVisible:
+    id: quick-confuse
+- tapOn:
+    id: quick-confuse
+- evalScript: ${output.all = 0; output.rs = 0; output.seq = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-maskhalf
+          commands:
+            - assertVisible: 被遮住一半，這是哪個字？
+            - tapOn:
+                id: opt-correct
+            - assertVisible: ".*答對了.*"
+      - runFlow:
+          when:
+            visible:
+              id: quiz-all
+          commands:
+            - assertVisible: 找出所有讀作
+            - assertNotVisible: ".*有 [0-9]+ 個.*"
+            - assertVisible:
+                id: all-play
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+            - assertVisible: ".*全部找到了.*"
+            - evalScript: ${output.all = 1}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-readseq
+          commands:
+            - assertVisible:
+                id: readseq-text
+            # 固定鍵盤：る・ろ 組已學（hiragana-almost）時鍵盤上一定有 ru、ro
+            - assertVisible:
+                id: key-ru
+            - assertVisible:
+                id: key-ro
+            # 第一次：故意全按 a，確認顯示正確拼音；之後全部答對
+            - runFlow:
+                when:
+                  true: ${output.rs == 0}
+                commands:
+                  - tapOn:
+                      id: key-a
+                  - tapOn:
+                      id: key-a
+                  - tapOn:
+                      id: key-a
+                  - tapOn:
+                      id: key-a
+                  - tapOn:
+                      id: key-a
+                  - tapOn:
+                      id: quiz-confirm
+                  - assertVisible:
+                      id: quiz-feedback
+                  - assertVisible: ".*再看一次.*"
+            - runFlow:
+                when:
+                  true: ${output.rs != 0}
+                commands:
+                  - tapOn:
+                      id: dev-solve
+                  - tapOn:
+                      id: quiz-confirm
+                  - assertVisible: ".*答對了.*"
+            - evalScript: ${output.rs = output.rs + 1}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-seq
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+            - evalScript: ${output.seq = 1}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible:
+    id: result-home
+- assertTrue: ${output.all == 1 && output.rs >= 1 && output.seq == 1}
+- tapOn:
+    id: result-home

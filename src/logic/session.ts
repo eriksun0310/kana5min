@@ -90,45 +90,90 @@ export function buildDailySession(
 /**
  * see = 看字選音（C2-08）；hear = 聽音選字（C2-09）；
  * confuse = 易混淆字辨識：播放聲音，選項是該組成員（2～3 個，不補到 4 個）；
- * loanword = 讀外來語（C2-20）：看片假名詞，選中文意思，不屬於任何假名；
- * odd = 找不同：9 格裡 8 個同一個字、1 個長得像的字，點出不一樣的那個；
- * all = 找出所有：12 格裡找出所有指定的字（可多選，確認後才計分）；
- * seq = 聽音選字串：聽一串 4 個聲音，從 3 個字串裡選出對的。
+ * loanword = 讀外來語（C2-20，舊題型，只為相容舊存檔）：看片假名詞，選中文意思；
+ * wordread = 看詞選拼音：看片假名詞，選拼音，答完才顯示意思（不屬於任何假名）；
+ * findall = 找出所有：給拼音與聲音，從格子裡勾出所有符合的字（全對才算對）；
+ * readseq = 念出一串：給一串假名，從固定的拼音鍵盤依序輸入；
+ * seq = 聽音選字串：聽一串 4 個聲音，從 3 個字串裡選出對的；
+ * maskhalf = 遮一半猜字：字被遮住一半，選拼音；
+ * recall = 默寫自我檢查：看拼音與聲音，自己默寫後翻面核對、自評；
+ * spoterr = 抓錯字：一串詞裡有一個字被換成易混淆字，點出來。
  */
-export type QuizType = 'see' | 'hear' | 'confuse' | 'loanword' | 'odd' | 'all' | 'seq';
+export type QuizType =
+  | 'see'
+  | 'hear'
+  | 'confuse'
+  | 'loanword'
+  | 'wordread'
+  | 'findall'
+  | 'readseq'
+  | 'seq'
+  | 'maskhalf'
+  | 'recall'
+  | 'spoterr';
+
+/** 抓錯字題的內容（見 logic/spotError.ts）。 */
+export interface SpotErrorPayload {
+  /** 每個詞的字元（已換掉其中一個字）的 Kana id 或原字元（非假名字元不會被換） */
+  words: { wordId: string; shown: string[] }[];
+  /** 被換的詞與字的位置 */
+  wordIndex: number;
+  charIndex: number;
+  /** 原本的字與換上去的字（Kana id） */
+  originalId: string;
+  replacementId: string;
+}
 
 export interface QuizQuestion {
   /** 題目序號 id，例如 'q-0' */
   id: string;
-  /** 題目對應的假名；loanword 題沒有對應假名，固定為空字串（不更新任何 SRS） */
+  /** 題目對應的假名；wordread／loanword 題沒有對應假名，固定為空字串（不更新 SRS） */
   kanaId: string;
   type: QuizType;
   /**
-   * 選項。see／hear 為 Kana id（看字選音的選項以聲音呈現，聽音選字以字呈現），4 個；
-   * confuse 為 Kana id，2～3 個；loanword 為 4 個中文意思。
+   * 選項。see／hear／confuse／maskhalf 為 Kana id，2～4 個；
+   * loanword 為 4 個中文意思；wordread 為 4 個拼音。
    */
   options: string[];
-  /** 正確選項（Kana id；loanword 為正確的中文意思）。see／hear／confuse 時等於 kanaId */
+  /** 正確選項（Kana id；loanword 為正確的中文意思；wordread 為正確的拼音）。 */
   answerId: string;
-  /** confuse 題（以及易混淆字組快速辨識的 see 題）所屬的字組 id */
+  /** confuse 題（以及易混淆字組快速辨識的題目）所屬的字組 id */
   groupId?: string;
-  /** loanword 題的外來語 id（對應 words.json） */
+  /** loanword／wordread 題的外來語 id（對應 words.json） */
   wordId?: string;
-  /** odd／all 題的格子（Kana id，依格子順序） */
+  /** wordread 題被替換的音節位置 */
+  diffIndex?: number;
+  /** findall 題的格子（Kana id，依格子順序）與所有目標格的索引 */
   cells?: string[];
-  /** odd 題不一樣的那一格、all 題所有目標格的索引 */
   targetIndexes?: number[];
-  /** seq 題播放的聲音順序（Kana id） */
+  /** findall 題的成對字（每對是易混淆字） */
+  clusters?: string[][];
+  /** readseq／seq 題的字串（Kana id，依順序） */
   sequence?: string[];
-  /** seq 題的 3 個候選字串（Kana id 陣列） */
+  /** readseq 題鍵盤上有哪些鍵（Kana id） */
+  keyIds?: string[];
+  /** seq 題的 3 個候選字串與正確的索引 */
   seqOptions?: string[][];
-  /** seq 題正確候選字串的索引 */
   answerIndex?: number;
+  /** maskhalf 題遮住字的哪一半 */
+  mask?: 'left' | 'right' | 'top' | 'bottom';
+  /** spoterr 題 */
+  spot?: SpotErrorPayload;
 }
 
-/** 是否為讀外來語題（不屬於任何假名）。 */
+/** 作答後回報給計分的細節（每個假名各自計分、混淆對）。 */
+export interface AnswerDetail {
+  /** 選擇題：選到的選項（Kana id）；答錯時記成「把 kanaId 當成 picked」 */
+  picked?: string;
+  /** 一題有好幾個假名時，每個假名各自的對錯（沒給就只記 kanaId 一個） */
+  perKana?: Record<string, boolean>;
+  /** 「把 truth 當成 picked」的混淆對 */
+  confusions?: { truth: string; picked: string }[];
+}
+
+/** 是否為不屬於任何假名的詞題（只計入答對數，不更新 SRS）。 */
 export function isLoanwordQuestion(q: Pick<QuizQuestion, 'type'>): boolean {
-  return q.type === 'loanword';
+  return q.type === 'loanword' || q.type === 'wordread';
 }
 
 export const QUIZ_OPTION_COUNT = 4;

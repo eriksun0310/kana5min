@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playSequence, stopSequence } from '../audio/playSequence';
 import { mustById } from '../data';
-import type { QuizQuestion } from '../logic/session';
+import { scoreSeq } from '../logic/groupGames';
+import type { AnswerDetail, QuizQuestion } from '../logic/session';
 import { useSettingsStore } from '../store/settingsStore';
 import { useTheme } from '../theme/useTheme';
 import { PrimaryButton } from './Buttons';
@@ -12,7 +13,7 @@ import { optionColors, optionTestId, type OptionStatus } from './QuizOption';
 
 export interface QuizSeqProps {
   question: QuizQuestion;
-  onAnswered: (correct: boolean) => void;
+  onAnswered: (correct: boolean, detail?: AnswerDetail) => void;
   onNext: () => void;
   isLast: boolean;
 }
@@ -44,7 +45,8 @@ export function QuizSeq({ question, onAnswered, onNext, isLast }: QuizSeqProps) 
   const confirm = () => {
     if (answered || selected === null) return;
     setPicked(selected);
-    onAnswered(selected === answerIndex);
+    const r = scoreSeq(sequence, options[selected]);
+    onAnswered(r.correct, { perKana: r.perKana, confusions: r.confusions });
   };
 
   const statusOf = (index: number): OptionStatus => {

@@ -5,8 +5,11 @@ import { byId } from '../data';
 import { confusableGroups, type ConfusableGroup } from '../data/confusables';
 import type { Progress } from '../data/types';
 import type { ConfusionRecord } from '../db/types';
-import { mixLoanwordDrafts, pickLoanwordDrafts } from './loanword';
-import { buildGroupGameQuestion, GROUP_GAME_TYPES } from './groupGames';
+import { mixLoanwordDrafts } from './loanword';
+import { buildGroupGameQuestion, GROUP_GAME_TYPES, type GroupGameType } from './groupGames';
+import { buildMaskHalfQuestion } from './maskHalf';
+import { approvedSpotWords, buildSpotErrorQuestion, spotErrorAvailable, spotPoolReady } from './spotError';
+import { pickWordReadDraftsExact, wordReadPool } from './wordRead';
 import {
   arrange,
   isSeionLearned,
@@ -172,15 +175,43 @@ export function buildConfuseQuestion(
   return buildGroupQuestion(group, target, 'confuse', rng);
 }
 
+/** 一輪 10 題裡，同一種題型最多幾題（可用的題型太少時會自動放寬，見 planTypes）。 */
+export const MAX_PER_TYPE = 2;
+
 /**
- * 自動練習 10 題：see／hear／confuse 混合。
- * - 有「至少 2 個成員已學」的組時，confuse 約 2～4 題（組依權重抽，答錯多的組出現機率較高）；
- *   沒有時不出 confuse。
- * - 其餘為看字選音／聽音選字：從已學字各出 1 題；已學字不足時同一個字最多 2 題（兩種題型），
- *   此時不足的題數由 confuse 補滿（可補時），否則總題數少於 10。
- * - 打散順序，同一個字不相鄰（可行時）。
- * - 片假名已學到有「可讀外來語」時，另外抽 1～2 題讀外來語（loanword，不屬於任何假名），
- *   這時其餘題數相應減少，總題數仍為 size；沒有可讀詞時行為與之前完全相同。
+ * 把 size 題分配給可用的題型：洗牌後輪流分配，各題型題數最多差 1；
+ * 上限 cap 在題型夠多時一定成立（可用題型數 × cap >= size），不夠時放寬成剛好分得完。
+ */
+export function planTypes<T extends string>(
+  available: readonly T[],
+  size: number,
+  rng: Rng,
+  cap: number = MAX_PER_TYPE,
+): T[] {
+  if (available.length === 0) return [];
+  const limit = Math.max(cap, Math.ceil(size / available.length));
+  const order = shuffle(available, rng);
+  const counts = new Map<T, number>();
+  const out: T[] = [];
+  for (let i = 0; out.length < size && i < size * available.length; i++) {
+    const type = order[i % order.length];
+    if ((counts.get(type) ?? 0) >= limit) continue;
+    counts.set(type, (counts.get(type) ?? 0) + 1);
+    out.push(type);
+  }
+  return out;
+}
+
+type AutoType = 'see' | 'hear' | 'findall' | 'readseq' | 'seq' | 'maskhalf' | 'recall' | 'wordread' | 'spoterr';
+
+/**
+ * 自動練習 10 題：看字選音、聽音選字、找出所有、念出一串、聽音選字串、遮一半猜字、默寫自我檢查、看詞選拼音混合
+ *（抓錯字等詞庫核可後才會加入，見 data/spotErrorWords.ts）。
+ * - 同一種題型最多 2 題（可用題型數 × 2 >= 10 時；題型比較少時平均分配）。
+ * - 易混淆字題（找出所有／念出一串／聽音選字串）需要「至少 2 個成員已學」的組；組依權重抽
+ *   （答錯多的組出現機率較高）。看詞選拼音需要有可讀的外來語（片假名已學到能讀）。
+ * - 看字選音／聽音選字：從已學字各出 1 題。
+ * - 打散順序，同一個字不相鄰（可行時）；看詞選拼音插在隨機位置。
  * 沒有任何已學字時回傳 null。
  */
 export function buildAutoPractice10(
@@ -193,50 +224,85 @@ export function buildAutoPractice10(
   const learnedIds = [...learned].filter((id) => byId(id) !== undefined);
   if (learnedIds.length === 0) return null;
 
-  // 讀外來語題先抽（沒有可讀詞時不消耗 rng），其餘題數 = size - 外來語題數
-  const loanwordDrafts = pickLoanwordDrafts(learned, rng).slice(0, Math.max(0, size - 1));
-  size -= loanwordDrafts.length;
-
   const groups = availableGroups(allProgress).filter((g) => isConfuseEligible(g, learned));
-  const hasConfuse = groups.length > 0;
-  const wantConfuse = hasConfuse ? Math.min(size, 2 + Math.floor(rng() * 3)) : 0;
-  const choiceCount = Math.min(size - wantConfuse, 2 * learnedIds.length);
-  const confuseCount = hasConfuse ? size - choiceCount : 0;
+  const hasWord = wordReadPool(learned).length > 0;
+  const available: AutoType[] = ['see', 'hear'];
+  // 沒有易混淆字組可用（剛開始學）時維持單純的看字選音／聽音選字
+  if (groups.length > 0) available.push(...GROUP_GAME_TYPES, 'maskhalf', 'recall');
+  if (hasWord) available.push('wordread');
+  const spotPool = approvedSpotWords();
+  const spotScript = (['hiragana', 'katakana'] as const).find((sc) => spotPoolReady(spotPool, sc));
+  if (spotErrorAvailable(spotPool) && spotScript) available.push('spoterr');
+  const plan = planTypes(available, size, rng);
 
   const drafts: QuizDraft[] = [];
-
-  // 看字選音／聽音選字：已學字洗牌後依序取；超過一輪的字改出另一種題型
   const order = shuffle(learnedIds, rng);
+  let nextKana = 0;
   const firstType = new Map<string, 'see' | 'hear'>();
-  for (let i = 0; i < choiceCount; i++) {
-    const id = order[i % order.length];
-    const prev = firstType.get(id);
-    const type: 'see' | 'hear' = prev ? (prev === 'see' ? 'hear' : 'see') : rng() < 0.5 ? 'see' : 'hear';
-    if (!prev) firstType.set(id, type);
-    const d = makeChoiceQuestion(id, type, learned, rng);
-    if (d) drafts.push(d);
-  }
-
-  // 易混淆字題：找不同／找出所有／聽音選字串輪流出（起點隨機），答錯多的組出現機率較高
   const used = new Set<string>();
-  const typeStart = Math.floor(rng() * GROUP_GAME_TYPES.length);
-  for (let i = 0; i < confuseCount; i++) {
+  // 看字選音／聽音選字每個已學字最多 2 題（兩種題型各 1）；超出的名額有易混淆字組就改出組題，否則不出
+  let choiceLeft = 2 * learnedIds.length;
+  const choice = (type: 'see' | 'hear'): boolean => {
+    if (choiceLeft <= 0) return false;
+    choiceLeft--;
+    const id = order[nextKana++ % order.length];
+    const prev = firstType.get(id);
+    const t: 'see' | 'hear' = prev ? (prev === 'see' ? 'hear' : 'see') : type;
+    if (!prev) firstType.set(id, t);
+    const d = makeChoiceQuestion(id, t, learned, rng);
+    if (d) drafts.push(d);
+    return true;
+  };
+
+  const game = (type: GroupGameType): boolean => {
     const g = pickConfuseGroup(groups, counts, learned, rng);
-    if (!g) break;
-    const type = GROUP_GAME_TYPES[(typeStart + i) % GROUP_GAME_TYPES.length];
-    const d = buildGroupGameQuestion(type, g, learned, rng, used);
+    const d = g ? buildGroupGameQuestion(type, g, learned, rng, used) : undefined;
+    if (!d) return false;
     used.add(d.kanaId);
     drafts.push(d);
+    return true;
+  };
+
+  const extra = (type: 'maskhalf' | 'spoterr'): boolean => {
+    let d: QuizDraft | undefined;
+    if (type === 'maskhalf') {
+      const g = pickConfuseGroup(groups, counts, learned, rng);
+      d = g ? buildMaskHalfQuestion(g, learned, rng, used) : undefined;
+    } else if (spotScript) {
+      d = buildSpotErrorQuestion(spotPool, spotScript, rng, used);
+    }
+    if (!d) return false;
+    used.add(d.kanaId);
+    drafts.push(d);
+    return true;
+  };
+
+  let wordCount = 0;
+  for (const type of plan) {
+    if (type === 'wordread') wordCount++;
+    else if (type === 'maskhalf' || type === 'spoterr') {
+      if (!extra(type)) choice('see');
+    } else if (type === 'recall') {
+      // 默寫自我檢查：從已學字挑一個（占用看字選音／聽音選字的名額）
+      if (choiceLeft > 0) {
+        choiceLeft--;
+        drafts.push({ kanaId: order[nextKana++ % order.length], type: 'recall', options: [], answerId: '' });
+        drafts[drafts.length - 1].answerId = drafts[drafts.length - 1].kanaId;
+      }
+    } else if (type === 'see' || type === 'hear') {
+      if (!choice(type) && groups.length > 0) game(GROUP_GAME_TYPES[Math.floor(rng() * GROUP_GAME_TYPES.length)]);
+    } else if (!game(type)) choice(type === 'findall' ? 'see' : 'hear');
   }
 
   const arranged = arrange(drafts, rng);
-  if (loanwordDrafts.length === 0) return arranged.map((d, i) => ({ id: `q-${i}`, ...d }));
-  return mixLoanwordDrafts(arranged, loanwordDrafts, rng);
+  const wordDrafts = pickWordReadDraftsExact(learned, rng, wordCount);
+  if (wordDrafts.length === 0) return arranged.map((d, i) => ({ id: `q-${i}`, ...d }));
+  return mixLoanwordDrafts(arranged, wordDrafts, rng);
 }
 
 /**
- * 易混淆字對比頁的「快速辨識 10 題」：找不同、找出所有、聽音選字串輪流出（起點隨機），
- * 每題的目標字在組內輪流（次數相差最多 1、不相鄰）。
+ * 易混淆字對比頁的「快速辨識 10 題」：找出所有、念出一串、聽音選字串、看字選音、聽音選字（組內）輪流出，
+ * 同一種題型最多 2 題；每題的目標字在組內輪流（次數相差最多 1、不相鄰）。
  * 組成員不足 2 個（資料查不到）時回傳空陣列。
  */
 export function buildQuickConfuse10(
@@ -257,11 +323,27 @@ export function buildQuickConfuse10(
     targets.push(...chunk.slice(0, size - targets.length));
   }
 
-  const typeStart = Math.floor(rng() * GROUP_GAME_TYPES.length);
+  // 這一組都視為「看過」：目標字固定為這一題輪到的 id
+  const known = new Set(members);
+  const probe = GROUP_GAME_TYPES.filter(
+    (type) => buildGroupGameQuestion(type, group, known, rng, new Set(), { target: members[0] }) !== undefined,
+  );
+  const maskOk = buildMaskHalfQuestion(group, known, rng, new Set(), { target: members[0] }) !== undefined;
+  const plan = planTypes<GroupGameType | 'maskhalf' | 'see' | 'confuse'>(
+    [...probe, ...(maskOk ? (['maskhalf'] as const) : []), 'see', 'confuse'],
+    size,
+    rng,
+  );
   const drafts = targets.map((id, i) => {
-    const type = GROUP_GAME_TYPES[(typeStart + i) % GROUP_GAME_TYPES.length];
-    // 目標字固定為這一題輪到的 id：只把它放進 learned，buildXxx 就一定挑它
-    return buildGroupGameQuestion(type, group, new Set([id]), rng);
+    const type = plan[i];
+    if (type === 'see' || type === 'confuse') return buildGroupQuestion(group, id, type, rng);
+    if (type === 'maskhalf') {
+      return (
+        buildMaskHalfQuestion(group, known, rng, new Set(), { target: id }) ??
+        buildGroupQuestion(group, id, 'confuse', rng)
+      );
+    }
+    return buildGroupGameQuestion(type, group, known, rng, new Set(), { target: id }) ?? buildGroupQuestion(group, id, 'confuse', rng);
   });
 
   return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
