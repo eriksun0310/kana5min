@@ -5,7 +5,7 @@ import { playKana } from '../../src/audio/playKana';
 import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, PunUnlockSheet, Screen, SecondaryButton } from '../../src/components';
 import { mustById, seionOrder, soundOf } from '../../src/data';
 import { mnemonicOf } from '../../src/data/mnemonics';
-import { availableGroups, confusionCounts, resolvedMembers } from '../../src/logic/confusion';
+import { availableGroups, confusionCounts, resolvedMembers, tipLines } from '../../src/logic/confusion';
 import { learnedSyllables, presetForGroup } from '../../src/logic/dropGame';
 import { isLearned } from '../../src/logic/srs';
 import { progressList, useProgressStore, useSettingsStore } from '../../src/store';
@@ -141,7 +141,14 @@ export default function ConfuseScreen() {
         <View style={styles.block}>
           <Card flat testID="confuse-tip">
             <Text style={{ fontSize: 12, fontWeight: '700', color: t.accentText }}>差在哪裡</Text>
-            <Text style={{ fontSize: 15, lineHeight: 23, color: t.text, marginTop: 4 }}>{group.tip}</Text>
+            {/* 每個句子一行（斷在「。」「；」後面），一長段擠在一起很難讀 */}
+            <View style={{ marginTop: 4 }}>
+              {tipLines(group.tip).map((line, i) => (
+                <Text key={i} style={{ fontSize: 15, lineHeight: 23, color: t.text }}>
+                  {line}
+                </Text>
+              ))}
+            </View>
           </Card>
         </View>
 

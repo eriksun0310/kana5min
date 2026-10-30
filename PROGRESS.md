@@ -486,3 +486,14 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 改成：標準 1～2 筆 → 0 筆多畫、3～4 筆 → 1 筆、5 筆以上 → 2 筆（`src/logic/traceShape.ts`）。對應地 `traceShape.test.ts` 的 Z 字形不再讓 ニ 通過，並新增使用者案例的回歸測試（3 筆畫 い 失敗 `too-many`、只畫 2 筆仍通過）。
 - 沒改距離門檻：平均誤差 18（約 5 毫米量級）與端點限制是依手指抖動模型校準的，收到 16 就會讓「標準筆畫加抖動」的測試掉到不是 100% 通過；使用者那兩筆的誤差還在範圍內，需要的話之後再調。
 - 同時要知道：「描得很好」顯示位置（標題位置）是使用者自己改的 `app/learn/trace.tsx`，還沒 commit。
+
+## 實機回報修正（2026-10-30 晚）
+
+- 念出一串的鍵盤縮成細線：上一輪修正把鍵盤的 JSX 放進「刪除一個」那一列裡，已改回獨立區塊（`QuizReadSeq.tsx`）。
+- 描寫、掉字、測驗被往右滑就返回（iOS 26 的全螢幕滑動返回）：`app/_layout.tsx` 對 `learn/trace`、`drop/play`、`quiz`、`special-quiz` 設 `gestureEnabled: false`、`fullScreenGestureEnabled: false`。
+- 默寫自我檢查：改成真的可以用手指寫（`TraceCanvas` 新增 `guide` 屬性；翻面才顯示淡色標準字，仍是自評，不比對筆畫）。
+- 看字選音揭曉格式改成「い (i)」（`revealTag`）；結果頁標題「下次複習」、每列「10 分鐘後再練」。
+- 發音偶爾第一下沒聲音：`playKana` 加「載入完成後還沒開始播就再 play 一次」，**只在實機能確認**。
+- 「差在哪裡」說明每句一行（`tipLines`）。
+- 描寫判定收緊多畫見上一節。
+- 測試：單元 495 個；Maestro 重跑 phase2-confuse、phase8、phase9、phase11、phase12、phase2-auto-practice 通過；截圖 `screenshots/ui-fixes/`（`maestro/screenshots/run-ui-fixes.sh`）。

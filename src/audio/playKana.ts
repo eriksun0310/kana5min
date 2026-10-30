@@ -8,6 +8,8 @@ export interface PlayOptions {
 
 /** 目前正在播的播放器；新的一次播放開始前會先停掉並釋放它。 */
 let current: AudioPlayer | null = null;
+/** 目前播放器的狀態監聽，釋放播放器時一起移除。 */
+let currentSub: { remove: () => void } | null = null;
 /** 每次呼叫遞增；await 之後若發現已被更新的一次呼叫取代，就放棄這次（連點時以最後一次為準）。 */
 let latestCall = 0;
 let modeReady = false;
@@ -26,6 +28,12 @@ async function ensureAudioMode() {
 function releaseCurrent() {
   const p = current;
   current = null;
+  try {
+    currentSub?.remove();
+  } catch {
+    // 已經移除過就略過
+  }
+  currentSub = null;
   if (!p) return;
   try {
     p.pause();
@@ -57,6 +65,21 @@ export async function playKana(id: string, options: PlayOptions = {}): Promise<v
     const player = createAudioPlayer(source);
     current = player;
     player.play();
+    // 真機上偶爾 play() 剛好發生在音檔載入完成之前，結果沒有聲音（要換點別的再點回來才有）：
+    // 還沒開始播的話，等音檔載入完成再叫一次 play()；開始播或播完就不再管。
+    let started = false;
+    try {
+      currentSub = player.addListener('playbackStatusUpdate', (st) => {
+        if (current !== player) return;
+        if (st.playing || st.didJustFinish) {
+          started = true;
+          return;
+        }
+        if (st.isLoaded && !started) player.play();
+      });
+    } catch {
+      // 監聽失敗就維持原本的行為
+    }
   } catch (err) {
     if (__DEV__) console.warn(`playKana(${id}) 播放失敗`, err);
   }

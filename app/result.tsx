@@ -77,7 +77,7 @@ export default function ResultScreen() {
         <StatCard testID="stat-new" value={`${summary.newCount}`} label="新字" />
         <StatCard testID="stat-time" value={minutesLabel(summary.elapsedMs)} label="用時" />
       </View>
-      <Text style={[styles.listTitle, { color: t.text }]}>接下來的複習</Text>
+      <Text style={[styles.listTitle, { color: t.text }]}>下次複習</Text>
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.list}
@@ -97,7 +97,7 @@ export default function ResultScreen() {
             >
               {item.label}
             </Text>
-            <Text style={[styles.itemWhen, { color: t.muted }]}>{item.when}</Text>
+            <Text style={[styles.itemWhen, { color: t.muted }]}>{item.when}再練</Text>
           </View>
         ))}
       </ScrollView>

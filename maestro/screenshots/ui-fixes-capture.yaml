@@ -1,0 +1,69 @@
+# 實機回報修正後的截圖：念出一串的鍵盤（完整鍵盤）、默寫自我檢查（可以用手指寫、翻面顯示淡色標準字）。
+# 用 maestro/screenshots/run-ui-fixes.sh 執行（亮色、暗色各一次）。題型是隨機抽的，所以反覆答到出現為止。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: start-auto-practice
+- repeat:
+    while:
+      notVisible:
+        id: quiz-readseq
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: quiz-readseq
+          file: ../common/answer-one.yaml
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-fixes/1-ReadSeq-${THEME}
+- tapOn:
+    id: dev-solve
+- tapOn:
+    id: quiz-confirm
+- tapOn:
+    id: quiz-next
+- repeat:
+    while:
+      notVisible:
+        id: quiz-recall
+    times: 120
+    commands:
+      # 一輪答完還沒抽到默寫題：按「再練一輪」重新抽
+      - runFlow:
+          when:
+            visible:
+              id: result-again
+          commands:
+            - tapOn:
+                id: result-again
+      - runFlow:
+          when:
+            notVisible:
+              id: quiz-recall
+          file: ../common/answer-one.yaml
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-fixes/2-Recall-${THEME}
+- swipe:
+    start: 30%, 38%
+    end: 60%, 46%
+- swipe:
+    start: 55%, 36%
+    end: 40%, 50%
+- takeScreenshot: screenshots/ui-fixes/3-RecallWritten-${THEME}
+- tapOn:
+    id: recall-flip
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-fixes/4-RecallFlipped-${THEME}

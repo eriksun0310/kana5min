@@ -15,6 +15,7 @@ import {
   planTypes,
   groupsByTab,
   sortGroupsByMisses,
+  tipLines,
   topConfusionGroups,
 } from '../confusion';
 import { prog, seededRng } from './testUtils';
@@ -33,6 +34,22 @@ describe('易混淆字組資料', () => {
     expect(group('shitsu').members).toEqual(['k-shi', 'k-tsu']);
     expect(group('son').members).toEqual(['k-so', 'k-n']);
     for (const g of confusableGroups) expect(g.tip.length).toBeGreaterThan(10);
+  });
+});
+
+describe('tipLines（差在哪裡斷行）', () => {
+  it('斷在「。」「；」後面，每句一行', () => {
+    expect(tipLines('兩個字都是 3 筆。お 的右上角多一點；あ 沒有那一點。')).toEqual([
+      '兩個字都是 3 筆。',
+      'お 的右上角多一點；',
+      'あ 沒有那一點。',
+    ]);
+    expect(tipLines('只有一句')).toEqual(['只有一句']);
+    expect(tipLines('')).toEqual([]);
+  });
+
+  it('每一組的說明都至少一行', () => {
+    for (const g of confusableGroups) expect(tipLines(g.tip).length).toBeGreaterThan(0);
   });
 });
 

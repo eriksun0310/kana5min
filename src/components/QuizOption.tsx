@@ -65,7 +65,7 @@ export function QuizSoundOption({ n, status, tag, tagKana, onPress, disabled, te
     <Pressable
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={`聲音 ${n}${tagKana ? ` ${tagKana}${tag ?? ''}` : ''}`}
+      accessibilityLabel={`聲音 ${n}${tagKana ? ` ${tagKana}${tag ?? ''}${status === 'correct' ? '，正確' : ''}` : ''}`}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [

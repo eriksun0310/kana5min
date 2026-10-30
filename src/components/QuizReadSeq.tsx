@@ -96,6 +96,7 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
           </View>
         </View>
         {!confirmed ? (
+          <>
           <View style={styles.tools}>
             <Pressable
               testID="readseq-back"
@@ -112,6 +113,7 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
                 <Text style={{ fontSize: 10, color: t.muted }}>dev</Text>
               </Pressable>
             ) : null}
+          </View>
         <View style={styles.keyboard}>
           {rows.map((row, r) => (
             <View key={r} style={styles.keyRow}>
@@ -138,7 +140,7 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
             </View>
           ))}
         </View>
-          </View>
+          </>
         ) : null}
       </ScrollView>
       <View style={styles.bottom}>

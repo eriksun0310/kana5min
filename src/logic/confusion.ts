@@ -348,3 +348,11 @@ export function buildQuickConfuse10(
 
   return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
 }
+
+/** 把「差在哪裡」的說明斷成一句一行：斷在「。」「；」後面，保留標點，去掉空白。 */
+export function tipLines(tip: string): string[] {
+  return tip
+    .split(/(?<=[。；])/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}

@@ -11,7 +11,7 @@ appId: com.ptalk.kana5min
 - runFlow: common/learn-one-kana.yaml
 - runFlow: common/learn-one-kana.yaml
 - runFlow: common/learn-one-kana.yaml
-# 測驗：全選正確；看字選音揭曉後正確選項要有「假名 拼音・正確」（新字還沒熟，拼音不淡出）
+# 測驗：全選正確；看字選音揭曉後正確選項要有「假名 (拼音)」並標示正確（新字還沒熟，拼音不淡出）
 - repeat:
     while:
       notVisible:
@@ -27,7 +27,7 @@ appId: com.ptalk.kana5min
                 id: opt-correct
             - tapOn:
                 id: quiz-confirm
-            - assertVisible: ".*聲音 . .+ .*・正確"
+            - assertVisible: ".*聲音 . .+ \\(.+\\)，正確"
       - runFlow:
           when:
             visible:

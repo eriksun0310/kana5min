@@ -8,7 +8,7 @@ import { useTheme } from '../theme/useTheme';
 import { PrimaryButton, SecondaryButton } from './Buttons';
 import { Icon } from './Icon';
 import { KanaText } from './KanaText';
-import { TianGrid } from './TianGrid';
+import { TraceCanvas } from './TraceCanvas';
 
 export interface QuizRecallProps {
   question: QuizQuestion;
@@ -18,8 +18,9 @@ export interface QuizRecallProps {
 }
 
 /**
- * 默寫自我檢查：看拼音與聽聲音，在腦中或紙上寫出那個字，按「翻面核對」看答案，再自己評「寫對了」或「沒寫出來」。
- * 這一題沒有標準答案可以判斷，對錯完全由使用者自評，所以記入複習排程的是自評結果。
+ * 默寫自我檢查：看拼音與聽聲音，用手指在框裡寫出那個字（也可以在紙上或腦中），按「翻面核對」才顯示正確的字
+ * （淡色疊在你寫的字底下，方便比對），再自己評「寫對了」或「沒寫出來」。
+ * 這一題沒有標準答案可以判斷（不比對筆畫），對錯完全由使用者自評，所以記入複習排程的是自評結果。
  */
 export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallProps) {
   const t = useTheme();
@@ -45,12 +46,13 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.content}
+        scrollEnabled={false}
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.prompt}>
           <Text testID="quiz-recall" style={[styles.title, { color: t.muted }]}>
-            在紙上或腦中寫出這個音的字
+            寫出這個音的字
           </Text>
           <View style={styles.row}>
             <Text style={[styles.romaji, { color: t.text }]}>{target.romaji}</Text>
@@ -67,15 +69,17 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
               <Icon name="speaker" size={22} color={t.text} />
             </Pressable>
           </View>
-          <TianGrid size={200}>
-            {flipped ? (
-              <KanaText size={120} lineHeightRatio={1.1} testID="recall-char">
-                {target.char}
-              </KanaText>
-            ) : (
-              <Text style={[styles.hidden, { color: t.muted }]}>？</Text>
-            )}
-          </TianGrid>
+          <TraceCanvas
+            // 換題就重新掛載，清掉上一題寫的字
+            key={question.id}
+            char={target.char}
+            size={280}
+            guide={flipped}
+            testID="recall-canvas"
+          />
+          <Text testID={flipped ? 'recall-char' : 'recall-hint'} style={[styles.hint, { color: t.muted }]}>
+            {flipped ? `正確的字：${target.char}（淡色的就是標準寫法）` : '用手指在框裡寫寫看，寫完再翻面核對'}
+          </Text>
           {rated !== null ? (
             <Text
               testID="quiz-feedback"
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  hidden: { fontSize: 72 },
+  hint: { fontSize: 13, textAlign: 'center' },
   feedback: { fontSize: 15, textAlign: 'center' },
   bottom: { paddingHorizontal: 24, paddingBottom: 44, paddingTop: 12 },
   rate: { flexDirection: 'row', gap: 10 },

@@ -73,6 +73,12 @@ export default function RootLayout() {
         {/* 歡迎頁是從 (tabs) 的 Redirect 導過來的，不要有推入動畫，否則啟動時會看到畫面從右邊滑進來 */}
         <Stack.Screen name="welcome" options={{ animation: 'none', gestureEnabled: false }} />
         <Stack.Screen name="tour" options={{ animation: 'fade', gestureEnabled: false }} />
+        {/* 要在畫面上用手指畫、拖、連續作答的頁面：關掉「滑動返回」。iOS 26 的滑動返回可以從畫面任何地方往右滑觸發，
+            描寫、拖字時會一直被當成返回而跳回上一頁；要離開用左上角的 ✕ 或返回鈕 */}
+        <Stack.Screen name="learn/trace" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
+        <Stack.Screen name="drop/play" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
+        <Stack.Screen name="quiz" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
+        <Stack.Screen name="special-quiz" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
       </Stack>
     </View>
   );

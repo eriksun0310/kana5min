@@ -24,6 +24,8 @@ export interface TraceCanvasProps {
   onDevPass?: () => void;
   /** 要用強調色亮起來的標準筆畫索引（漏掉的筆），亮起時閃爍約 2 秒後持續亮著 */
   highlight?: number[];
+  /** 是否畫出淡色的標準字（描寫用 true；默寫自我檢查先不給看，翻面後才打開）；預設 true */
+  guide?: boolean;
   testID?: string;
 }
 
@@ -44,7 +46,7 @@ function toPathD(points: Point[]): string {
  * 手指軌跡（PanResponder）畫成 text 色 16px 圓頭線。
  * 重寫＝父層換 key 重新掛載。內部座標是畫布像素，回報時轉成 viewBox 座標。
  */
-export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, highlight, testID = 'trace-canvas' }: TraceCanvasProps) {
+export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, highlight, guide = true, testID = 'trace-canvas' }: TraceCanvasProps) {
   const t = useTheme();
   const data = strokesOf(char);
   const inner = size - 2; // TianGrid 的 1px 邊框
@@ -142,7 +144,7 @@ export function TraceCanvas({ char, size = 342, onStrokesChange, onDevPass, high
         {...pan.panHandlers}
       >
         <Svg width={inner} height={inner} pointerEvents="none">
-          {data ? (
+          {data && guide ? (
             <G transform={`translate(${tf.offset} ${tf.offset}) scale(${tf.scale})`}>
               {data.strokes.map((d, i) => (
                 <Path
