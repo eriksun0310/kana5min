@@ -2,8 +2,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
-import { BackHeader, Card, Icon, KanaText, PrimaryButton, Screen } from '../../src/components';
+import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, Screen } from '../../src/components';
 import { mustById } from '../../src/data';
+import { mnemonicOf } from '../../src/data/mnemonics';
 import { availableGroups, confusionCounts, resolvedMembers } from '../../src/logic/confusion';
 import { progressList, useProgressStore, useSettingsStore } from '../../src/store';
 import { useBottomPad } from '../../src/theme/layout';
@@ -28,6 +29,7 @@ export default function ConfuseScreen() {
   const groups = useMemo(() => availableGroups(progressList(progress)), [progress]);
   // 切換用本地狀態；路由帶進來的組不可用（例如片假名還沒解鎖）就退回第一個可用組
   const [picked, setPicked] = useState<string | undefined>(id);
+  const [mnemonicOpen, setMnemonicOpen] = useState(false);
   const group =
     groups.find((g) => g.id === picked) ?? groups.find((g) => g.id === id) ?? groups[0];
 
@@ -113,6 +115,21 @@ export default function ConfuseScreen() {
         </View>
 
         <View style={styles.blockSmall}>
+          <Pressable
+            testID="open-mnemonic"
+            accessibilityRole="button"
+            onPress={() => setMnemonicOpen(true)}
+            style={({ pressed }) => [
+              styles.mnemonicRow,
+              { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.9 : 1 },
+            ]}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>你可以這樣記</Text>
+            <Icon name="chevronRight" size={16} color={t.muted} />
+          </Pressable>
+        </View>
+
+        <View style={styles.blockSmall}>
           <Card flat testID="confuse-misses">
             <View style={styles.missRow}>
               <Text style={{ fontSize: 14, color: t.muted }}>最近在這組答錯</Text>
@@ -121,6 +138,13 @@ export default function ConfuseScreen() {
           </Card>
         </View>
       </ScrollView>
+
+      <MnemonicSheet
+        testID="mnemonic-sheet"
+        visible={mnemonicOpen}
+        mnemonic={mnemonicOf(group.id)}
+        onClose={() => setMnemonicOpen(false)}
+      />
 
       <View style={[styles.bottom, { paddingBottom: bottom }]}>
         <PrimaryButton
@@ -157,6 +181,15 @@ const styles = StyleSheet.create({
   },
   block: { paddingTop: 12, paddingHorizontal: SIDE },
   blockSmall: { paddingTop: 10, paddingHorizontal: SIDE },
+  mnemonicRow: {
+    minHeight: 52,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   missRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   bottom: { paddingHorizontal: SIDE, paddingTop: 12 },
 });

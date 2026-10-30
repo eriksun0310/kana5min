@@ -397,3 +397,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 還原了舊的「找出所有」改一半的修改；題型引擎整個之後在批 3 重寫。
 - 假設：phase10 的 Maestro 流程中，「待複習」面板要重開 App 再測，因為同一次啟動裡 Maestro 讀不到第二個 Modal 的內容（畫面實際有開，截圖確認過）。
 - 截圖：`screenshots/ui-batch1/`（`maestro/screenshots/run-ui-batch1.sh`）。
+
+## 批 2：「你可以這樣記」（2026-10-30）
+
+- 對比頁（`app/confuse/[id].tsx`）在「差在哪裡」下面加一列「你可以這樣記」（有箭頭，點開底部面板 `MnemonicSheet`）。面板每個字一張卡：左邊是用筆畫資料畫的字（`MnemonicGlyph`），要提醒的地方用紅色疊上去並重複播放（る、ぬ、ね 圈出尾巴的圈；シ、ツ 依序描出兩點和長筆，看得到筆畫方向），右邊一句話；最下面一句話講怎麼分。
+- 資料在 `src/data/mnemonics.ts`；審核表 `mnemonics-batch2.md`（使用者審核後再改句子）。ソ・ン 先標 `pending`，面板顯示「這組的記法還在整理中」。單元測試 `src/data/__tests__/mnemonics.test.ts`（每組都有、成員一致、筆畫編號存在）。
+- 紅色用 `wrong` token；紅圈座標用 KanjiVG viewBox 估的，有偏差之後在 `mnemonics.ts` 調。
+- 假設：句子是用使用者先前同意的關鍵字（滷肉飯、路、麵、眼、碗、貓、腳）重寫的草稿；わ・ね・れ 的わ、れ、ぬ・め 的め、ろ 沒有紅色標記（用文字說明）。
+- `package.json` 的 jest 加上 `testPathIgnorePatterns`（忽略 `/.claude/`），避免 worktree 裡的測試被主專案一起跑。
+- Maestro：`maestro/phase10-mnemonic.yaml`（面板內容；ソ・ン 重開 App 再測，同批 1 的原因）；截圖 `screenshots/ui-batch2/`（`maestro/screenshots/run-ui-batch2.sh`）。

@@ -64,6 +64,10 @@
     "testMatch": [
       "**/__tests__/**/*.test.[jt]s?(x)"
     ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/\\.claude/"
+    ],
     "setupFiles": [
       "./jest.setup.js"
     ]

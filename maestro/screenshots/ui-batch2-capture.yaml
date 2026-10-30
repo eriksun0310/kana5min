@@ -1,0 +1,31 @@
+# 批 2 截圖：對比頁與「你可以這樣記」面板。請用 maestro/screenshots/run-ui-batch2.sh 執行。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: katakana-started
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch2/1-Confuse-${THEME}
+- tapOn:
+    id: open-mnemonic
+- extendedWaitUntil:
+    visible:
+      id: mnemonic-h-ru
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch2/2-Mnemonic-ruro-${THEME}

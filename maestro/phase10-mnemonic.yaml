@@ -1,0 +1,60 @@
+# 對比頁「你可以這樣記」：る・ろ 有一句話與怎麼分；ソ・ン 還沒定，顯示整理中。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: katakana-started
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- assertVisible:
+    id: open-mnemonic
+- tapOn:
+    id: open-mnemonic
+- extendedWaitUntil:
+    visible:
+      id: mnemonic-h-ru
+    timeout: 5000
+- assertVisible:
+    id: mnemonic-h-ro
+- assertVisible:
+    id: mnemonic-how
+- assertVisible: ".*滷肉飯.*"
+- tapOn:
+    id: mnemonic-sheet-close
+- extendedWaitUntil:
+    notVisible:
+      id: mnemonic-sheet
+    timeout: 5000
+# 重開 App 再測 ソ・ン（同一次啟動內第二次開彈出層，Maestro 讀不到內容）
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 15000
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: see-all-groups
+- tapOn:
+    id: catalog-tab-katakana
+- tapOn:
+    id: group-son
+- tapOn:
+    id: open-mnemonic
+- extendedWaitUntil:
+    visible:
+      id: mnemonic-pending
+    timeout: 5000
+- assertVisible: ".*還在整理中.*"
