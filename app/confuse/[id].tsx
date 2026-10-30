@@ -2,8 +2,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
-import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, Screen, SecondaryButton } from '../../src/components';
-import { mustById, seionOrder } from '../../src/data';
+import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, PunUnlockSheet, Screen, SecondaryButton } from '../../src/components';
+import { mustById, seionOrder, soundOf } from '../../src/data';
 import { mnemonicOf } from '../../src/data/mnemonics';
 import { availableGroups, confusionCounts, resolvedMembers } from '../../src/logic/confusion';
 import { learnedSyllables, presetForGroup } from '../../src/logic/dropGame';
@@ -42,6 +42,8 @@ export default function ConfuseScreen() {
   // 切換用本地狀態；路由帶進來的組不可用（例如片假名還沒解鎖）就退回第一個可用組
   const [picked, setPicked] = useState<string | undefined>(id);
   const [mnemonicOpen, setMnemonicOpen] = useState(false);
+  // 面板裡點未解鎖的諧音：先關面板，過一下再開解鎖面板（iOS 上同時有兩個彈出層會開不起來）
+  const [unlockFor, setUnlockFor] = useState<string | null>(null);
   const group =
     groups.find((g) => g.id === picked) ?? groups.find((g) => g.id === id) ?? groups[0];
 
@@ -155,9 +157,22 @@ export default function ConfuseScreen() {
       <MnemonicSheet
         testID="mnemonic-sheet"
         visible={mnemonicOpen}
+        memberIds={members.map((k) => k.id)}
         mnemonic={mnemonicOf(group.id)}
+        onUnlock={(kanaId) => {
+          setMnemonicOpen(false);
+          setTimeout(() => setUnlockFor(kanaId), 400);
+        }}
         onClose={() => setMnemonicOpen(false)}
       />
+      {unlockFor && soundOf(unlockFor) ? (
+        <PunUnlockSheet
+          visible
+          sound={soundOf(unlockFor) as string}
+          script={mustById(unlockFor).script}
+          onClose={() => setUnlockFor(null)}
+        />
+      ) : null}
 
       <View style={[styles.bottom, { paddingBottom: bottom }]}>
         {dropPlay ? (

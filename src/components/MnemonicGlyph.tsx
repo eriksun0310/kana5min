@@ -42,6 +42,20 @@ export function MnemonicGlyph({ char, size = 120, marks, testID }: MnemonicGlyph
   }, [hasMarks, char]);
 
   const lens = useMemo(() => (data ? data.strokes.map((d) => pathLength(d)) : []), [data]);
+  // 把所有標記攤平成一步一步的動畫：描一筆、畫一個圈、畫一段路徑，依序播放
+  const steps = useMemo(() => {
+    const out: (
+      | { kind: 'stroke'; index: number }
+      | { kind: 'ellipse'; m: Extract<MnemonicMark, { kind: 'ellipse' }> }
+      | { kind: 'path'; d: string; len: number }
+    )[] = [];
+    for (const m of marks ?? []) {
+      if (m.kind === 'strokes') m.indexes.forEach((index) => out.push({ kind: 'stroke', index }));
+      else if (m.kind === 'ellipse') out.push({ kind: 'ellipse', m });
+      else out.push({ kind: 'path', d: m.d, len: pathLength(m.d) });
+    }
+    return out;
+  }, [marks]);
   if (!data) return <View style={{ width: size, height: size }} />;
 
   const scale = size / data.viewBox;
@@ -60,47 +74,44 @@ export function MnemonicGlyph({ char, size = 120, marks, testID }: MnemonicGlyph
               strokeLinejoin="round"
             />
           ))}
-          {marks?.map((m, mi) => {
-            if (m.kind === 'ellipse') {
+          {steps.map((st, k) => {
+            const local = Math.min(1, Math.max(0, p * steps.length - k));
+            if (local <= 0) return null;
+            if (st.kind === 'ellipse') {
               // 橢圓用 strokeDasharray 沿圓周畫出來
-              const circ = 2 * Math.PI * ((m.rx + m.ry) / 2);
+              const circ = 2 * Math.PI * ((st.m.rx + st.m.ry) / 2);
               return (
                 <Ellipse
-                  key={`m-${mi}`}
-                  cx={m.cx}
-                  cy={m.cy}
-                  rx={m.rx}
-                  ry={m.ry}
+                  key={`m-${k}`}
+                  cx={st.m.cx}
+                  cy={st.m.cy}
+                  rx={st.m.rx}
+                  ry={st.m.ry}
                   fill="none"
                   stroke={t.wrong}
                   strokeWidth={3.5}
                   strokeLinecap="round"
                   strokeDasharray={`${circ + 1} ${circ + 1}`}
-                  strokeDashoffset={(1 - p) * (circ + 1)}
-                  transform={`rotate(-90 ${m.cx} ${m.cy})`}
+                  strokeDashoffset={(1 - local) * (circ + 1)}
+                  transform={`rotate(-90 ${st.m.cx} ${st.m.cy})`}
                 />
               );
             }
-            // 描筆畫：依序一筆一筆畫紅色
-            const n = m.indexes.length;
-            return m.indexes.map((si, k) => {
-              const local = Math.min(1, Math.max(0, p * n - k));
-              if (local <= 0) return null;
-              const len = lens[si] ?? 0;
-              return (
-                <Path
-                  key={`m-${mi}-${si}`}
-                  d={data.strokes[si]}
-                  fill="none"
-                  stroke={t.wrong}
-                  strokeWidth={STROKE_WIDTH + 1}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeDasharray={`${len + 1} ${len + 1}`}
-                  strokeDashoffset={(1 - local) * (len + 1)}
-                />
-              );
-            });
+            const d = st.kind === 'stroke' ? data.strokes[st.index] : st.d;
+            const len = st.kind === 'stroke' ? (lens[st.index] ?? 0) : st.len;
+            return (
+              <Path
+                key={`m-${k}`}
+                d={d}
+                fill="none"
+                stroke={t.wrong}
+                strokeWidth={STROKE_WIDTH + 1}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray={`${len + 1} ${len + 1}`}
+                strokeDashoffset={(1 - local) * (len + 1)}
+              />
+            );
           })}
         </G>
       </Svg>

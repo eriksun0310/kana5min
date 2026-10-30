@@ -13,10 +13,10 @@ describe('mnemonics', () => {
     expect(mnemonics.length).toBe(confusableGroups.length);
   });
 
-  it('沒標待補的組，每個字都有一句話、整組有怎麼分', () => {
-    for (const m of mnemonics.filter((x) => !x.pending)) {
+  it('每個組有怎麼分的一句話，每個字至少有紅色標記或差異提示', () => {
+    for (const m of mnemonics) {
       expect(m.howToTell.length).toBeGreaterThan(0);
-      for (const mem of m.members) expect(mem.line.length).toBeGreaterThan(0);
+      for (const mem of m.members) expect(mem.cue || mem.marks?.length).toBeTruthy();
     }
   });
 

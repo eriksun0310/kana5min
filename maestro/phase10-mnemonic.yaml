@@ -1,4 +1,4 @@
-# 對比頁「你可以這樣記」：る・ろ 有一句話與怎麼分；ソ・ン 還沒定，顯示整理中。
+# 對比頁「你可以這樣記」：每個字顯示差異提示；諧音句沿用記憶包（沒解鎖顯示鎖頭，點下去關面板開解鎖面板）；ソ 顯示昭和寫法的 そ。
 appId: com.ptalk.kana5min
 ---
 - runFlow:
@@ -29,13 +29,17 @@ appId: com.ptalk.kana5min
     id: mnemonic-h-ro
 - assertVisible:
     id: mnemonic-how
-- assertVisible: ".*滷肉飯.*"
+- assertVisible: ".*底部有圈.*"
+- assertVisible:
+    id: mnemonic-pun-locked-h-ru
+# 點未解鎖的諧音：面板關掉，開解鎖面板
 - tapOn:
-    id: mnemonic-sheet-close
+    id: mnemonic-pun-locked-h-ru
 - extendedWaitUntil:
     notVisible:
       id: mnemonic-sheet
     timeout: 5000
+- assertVisible: ".*解鎖.*"
 # 重開 App 再測 ソ・ン（同一次啟動內第二次開彈出層，Maestro 讀不到內容）
 - launchApp:
     stopApp: true
@@ -55,6 +59,8 @@ appId: com.ptalk.kana5min
     id: open-mnemonic
 - extendedWaitUntil:
     visible:
-      id: mnemonic-pending
+      id: mnemonic-k-so
     timeout: 5000
-- assertVisible: ".*還在整理中.*"
+- assertVisible: ".*昭和寫法的 そ.*"
+- assertVisible:
+    id: mnemonic-how

@@ -460,3 +460,12 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 假設：推薦字組是固定三組（見 `DROP_PRESETS`），對比頁的組對應到包含它的字組；不同組合的片假名階段，要所有選的字都有片假名對應字。拖曳本身 Maestro 模擬不了，流程用開發版的「dev 全對／全錯」直接結算一關；手感以你在實機上測為準。
 - 順帶：phase2-confuse、phase1-theme 流程因為新增卡片把內容擠到螢幕外，改成先捲動；Metro 因為刪檔案出現快取錯誤，重啟並清過快取。
 - Maestro：`maestro/phase13-drop.yaml`；截圖 `screenshots/ui-batch5/`（`maestro/screenshots/run-ui-batch5.sh`）。
+
+### 批 2 改版：「你可以這樣記」改成對比＋記憶包諧音（2026-10-30）
+
+- 原因：記憶包本來就有每個字的諧音句，面板再寫一套會重複、還會衝突（ぬ＝麵 vs 記憶包「奴才」）。改成：面板每個字旁邊放「差異提示」（例如「底部有圈」）加紅圈／紅線動畫，諧音句直接沿用記憶包。
+- 諧音句遵守記憶包的收費：已解鎖（或買斷）的字顯示句子；沒解鎖顯示「解鎖諧音」，點下去關掉面板、過 400ms 開記憶包的解鎖面板（`PunUnlockSheet`，同時開兩個彈出層 iOS 會失敗）。沒有諧音句的字（例如 つ）什麼都不顯示。
+- 資料 `src/data/mnemonics.ts` 不再有句子，只有 `cue`、`marks`、`howToTell`。標記新增 `path`（自訂路徑）；ソ 的紅線是「長筆＋手畫的下半彎」近似昭和寫法的 そ，位置是估的，之後可在 `mnemonics.ts` 微調。`MnemonicGlyph` 的標記改成依序播放（先描筆畫再畫圈或路徑）。
+- 沒有記法資料的組也會列出每個字與諧音句（批 6 新增的組不用另外寫記法）。
+- 作廢：`mnemonics-batch2.md`（句子審核表）已刪除；`confusable-groups-batch6.md` 裡各字的「待補」句子欄不用填，諧音一律用記憶包。
+- Maestro：`phase10-mnemonic.yaml` 更新（差異提示、鎖頭、點鎖頭開解鎖面板、ソ 的昭和そ）；截圖 `screenshots/ui-batch2/`。

@@ -29,3 +29,22 @@ tags:
     timeout: 5000
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/ui-batch2/2-Mnemonic-ruro-${THEME}
+- tapOn:
+    id: mnemonic-sheet-close
+- waitForAnimationToEnd
+- tapOn:
+    id: back
+- tapOn:
+    id: see-all-groups
+- tapOn:
+    id: catalog-tab-katakana
+- tapOn:
+    id: group-son
+- tapOn:
+    id: open-mnemonic
+- extendedWaitUntil:
+    visible:
+      id: mnemonic-k-so
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch2/3-Mnemonic-son-${THEME}

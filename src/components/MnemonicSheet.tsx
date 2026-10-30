@@ -1,7 +1,9 @@
 import React from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { mustById, punFor, soundOf } from '../data';
 import type { GroupMnemonic } from '../data/mnemonics';
-import { mustById } from '../data';
+import { punCardState } from '../logic/punUnlock';
+import { useSettingsStore } from '../store/settingsStore';
 import { useBottomPad } from '../theme/layout';
 import { useTheme } from '../theme/useTheme';
 import { Icon } from './Icon';
@@ -9,14 +11,20 @@ import { MnemonicGlyph } from './MnemonicGlyph';
 
 export interface MnemonicSheetProps {
   visible: boolean;
+  /** 這組的字（Kana id），沒有記法資料的組也會列出每個字與它的諧音句 */
+  memberIds: string[];
   mnemonic: GroupMnemonic | undefined;
+  /** 點未解鎖的諧音：由外面關掉這個面板並開解鎖面板 */
+  onUnlock: (kanaId: string) => void;
   onClose: () => void;
   testID?: string;
 }
 
 /** 對比頁「你可以這樣記」：每個字一張卡（紅色動畫 + 一句話），最下面一句話講怎麼分。 */
-export function MnemonicSheet({ visible, mnemonic, onClose, testID }: MnemonicSheetProps) {
+export function MnemonicSheet({ visible, memberIds, mnemonic, onUnlock, onClose, testID }: MnemonicSheetProps) {
   const t = useTheme();
+  const purchased = useSettingsStore((s) => s.punPackPurchased);
+  const unlocked = useSettingsStore((s) => s.punUnlocked);
   const bottom = useBottomPad(24);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -44,26 +52,43 @@ export function MnemonicSheet({ visible, mnemonic, onClose, testID }: MnemonicSh
             </Pressable>
           </View>
           <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
-            {!mnemonic || mnemonic.pending ? (
-              <Text testID="mnemonic-pending" style={{ fontSize: 15, lineHeight: 23, color: t.muted }}>
-                這組的記法還在整理中，先看上面的「差在哪裡」。
+            {memberIds.map((id) => {
+              const k = mustById(id);
+              const m = mnemonic?.members.find((x) => x.id === id);
+              const sound = soundOf(id);
+              const pun = punFor(id);
+              const open = sound ? punCardState(sound, { purchased, unlocked }) === 'unlocked' : false;
+              return (
+                <View key={id} testID={`mnemonic-${id}`} style={[styles.row, { backgroundColor: t.flat }]}>
+                  <MnemonicGlyph char={k.char} marks={m?.marks} size={96} />
+                  <View style={styles.text}>
+                    {m?.cue ? <Text style={[styles.cue, { color: t.accentText }]}>{m.cue}</Text> : null}
+                    {pun && open ? (
+                      <Text testID={`mnemonic-pun-${id}`} style={[styles.line, { color: t.text }]}>
+                        {pun}
+                      </Text>
+                    ) : null}
+                    {pun && !open ? (
+                      <Pressable
+                        testID={`mnemonic-pun-locked-${id}`}
+                        accessibilityRole="button"
+                        accessibilityLabel="解鎖諧音"
+                        onPress={() => onUnlock(id)}
+                        style={[styles.lock, { backgroundColor: t.accentSoft }]}
+                      >
+                        <Icon name="lock" size={14} color={t.accentText} />
+                        <Text style={{ color: t.accentText, fontSize: 14, fontWeight: '700' }}>解鎖諧音</Text>
+                      </Pressable>
+                    ) : null}
+                  </View>
+                </View>
+              );
+            })}
+            {mnemonic?.howToTell ? (
+              <Text testID="mnemonic-how" style={[styles.how, { color: t.accentText }]}>
+                {mnemonic.howToTell}
               </Text>
-            ) : (
-              <>
-                {mnemonic.members.map((m) => {
-                  const k = mustById(m.id);
-                  return (
-                    <View key={m.id} testID={`mnemonic-${m.id}`} style={[styles.row, { backgroundColor: t.flat }]}>
-                      <MnemonicGlyph char={k.char} marks={m.marks} size={96} />
-                      <Text style={[styles.line, { color: t.text }]}>{m.line}</Text>
-                    </View>
-                  );
-                })}
-                <Text testID="mnemonic-how" style={[styles.how, { color: t.accentText }]}>
-                  {mnemonic.howToTell}
-                </Text>
-              </>
-            )}
+            ) : null}
           </ScrollView>
         </View>
       </View>
@@ -95,6 +120,9 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
   },
-  line: { flex: 1, fontSize: 15, lineHeight: 23 },
+  text: { flex: 1, gap: 6 },
+  cue: { fontSize: 13, fontWeight: '700', lineHeight: 19 },
+  line: { fontSize: 15, lineHeight: 23 },
+  lock: { alignSelf: 'flex-start', minHeight: 36, borderRadius: 12, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 6 },
   how: { fontSize: 15, fontWeight: '700', lineHeight: 23, marginTop: 4, marginBottom: 8 },
 });
