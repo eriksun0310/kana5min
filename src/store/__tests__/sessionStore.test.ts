@@ -134,13 +134,28 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(result.summary.items.find((i) => i.kanaId === 'h-a')?.tone).toBe('wrong');
   });
 
+  it('recordAnswers：一題多個假名各記一筆（kana_stat 與本輪答案），整題只算作答一次', async () => {
+    const ids = ['h-nu', 'h-me'];
+    await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
+    expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(2))).toBe(true);
+    useSessionStore.getState().recordAnswers({ 'h-nu': false, 'h-me': true });
+    await new Promise((r) => setTimeout(r, 0));
+    const s = useSessionStore.getState();
+    expect(s.answers['h-nu']).toEqual([false]);
+    expect(s.answers['h-me']).toEqual([true]);
+    expect(s.qAnswered).toBe(true);
+    const stats = useProgressStore.getState().kanaStats;
+    expect(stats['h-nu']).toMatchObject({ correctCount: 0, wrongCount: 1 });
+    expect(stats['h-me']).toMatchObject({ correctCount: 1, wrongCount: 0 });
+  });
+
   it('自動練習含易混淆字題：答錯當下就寫入該組答錯次數，不等一輪結束', async () => {
     const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
     await useProgressStore.getState().commitRound(Object.fromEntries(ids.map((i) => [i, [true]])), NOW - DAY_MS);
     expect(useSessionStore.getState().startAuto(currentProgressList(), NOW, seededRng(8))).toBe(true);
     const s = useSessionStore.getState();
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.some((q) => ['findall', 'readseq', 'seq', 'see', 'confuse'].includes(q.type))).toBe(true);
+    expect(s.questions.some((q) => ['findall', 'readseq', 'seq', 'maskhalf', 'see', 'confuse'].includes(q.type))).toBe(true);
 
     useSessionStore.getState().recordAnswer('h-nu', false);
     // 還沒 finish，confusion 已經寫進 store 與 repository
@@ -163,7 +178,7 @@ describe('sessionStore（每日練習狀態）', () => {
     expect(s.mode).toBe('confuse');
     expect(s.groupId).toBe('nume');
     expect(s.questions).toHaveLength(10);
-    expect(s.questions.every((q) => ['findall', 'readseq', 'seq', 'see', 'confuse'].includes(q.type))).toBe(true);
+    expect(s.questions.every((q) => ['findall', 'readseq', 'seq', 'maskhalf', 'see', 'confuse'].includes(q.type))).toBe(true);
 
     const result = await playQuiz(['h-me']); // め 全錯，ぬ 全對
     const progress = useProgressStore.getState().progress;

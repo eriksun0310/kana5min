@@ -1,0 +1,152 @@
+# 批 4：抓錯字（開發版佔位詞）與默寫自我檢查。
+# 抓錯字的詞要等使用者核可（words-spot-error.md），目前只有開發版用佔位詞：kana5min://quiz?mode=dev-spot。
+# 默寫自我檢查：自動練習（hiragana-almost，有易混淆字組）10 題裡會出現，翻面核對後自評。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+# --- 抓錯字（佔位詞）：第一題點錯、確認會揭曉，其餘點對
+- openLink: kana5min://quiz?mode=dev-spot
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
+- extendedWaitUntil:
+    visible:
+      id: quiz-spoterr
+    timeout: 15000
+- assertVisible: 有一個字被換成長得像的字，找出來
+- assertVisible:
+    id: quiz-confirm
+- tapOn:
+    id: spot-wrong-0
+- tapOn:
+    id: quiz-confirm
+- assertVisible:
+    id: quiz-feedback
+- assertVisible: ".*這個字沒有換.*"
+- tapOn:
+    id: quiz-next
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-spoterr
+          commands:
+            - tapOn:
+                id: spot-target
+            - tapOn:
+                id: quiz-confirm
+            - assertVisible: ".*找到了.*"
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible:
+    id: result-home
+- tapOn:
+    id: result-home
+# --- 默寫自我檢查：自動練習裡抓到 recall 題，翻面前看不到字，翻面後自評
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: start-auto-practice
+- evalScript: ${output.recall = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-kana
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: replay-audio
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-recall
+          commands:
+            - assertNotVisible:
+                id: recall-char
+            - tapOn:
+                id: recall-flip
+            - assertVisible:
+                id: recall-char
+            - tapOn:
+                id: recall-yes
+            - assertVisible: 很好！之後會隔久一點再問你
+            - evalScript: ${output.recall = 1}
+      - runFlow:
+          when:
+            visible:
+              id: quiz-maskhalf
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-all
+          commands:
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-readseq
+          commands:
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-seq
+          commands:
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible:
+    id: result-home
+- assertTrue: ${output.recall == 1}
+- tapOn:
+    id: result-home

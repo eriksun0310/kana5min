@@ -238,3 +238,10 @@ screenshots/phaseN/      截圖
 - `CoachTip`（`src/components/CoachTip.tsx`）：反色氣泡＋朝上箭頭，排在版面流程內（不是浮層），Pressable 設 `accessible={false}` 讓文字可被 Maestro 讀到；卸載時也會呼叫 `onDismiss`。testID `coach-intro`／`coach-stroke`／`coach-trace`。
 - `HomeHelpSheet`（`src/components/HomeHelpSheet.tsx`）：Modal 底部面板，內容 `homeHelpItems(goal)`；testID `home-help`（首頁按鈕）、`home-help-sheet`、`home-help-close`、`home-help-backdrop`。設定頁列 `row-replay-tour`。
 - 開發深連結預設（`applyDebugPreset`）一律把 `tourSeen` 與三個提示設為已看過。Maestro：`common/onboard.yaml` 清除狀態後先點 `tour-skip`；`maestro/phase7-tour.yaml` 測導覽、說明面板、提示氣泡與重看教學。
+
+## 15. 批 4：遮一半猜字、默寫自我檢查、抓錯字（2026-10-30）
+
+- `maskhalf` 遮一半猜字（`src/logic/maskHalf.ts`、`QuizMaskHalf`）：用 KanjiVG 筆畫（react-native-svg）畫字，只露出上／下／左／右一半；選項只放拼音（不放字形，不認識假名的人沒辦法拿露出的筆畫去對選項），4 個選項 = 兩對（目標＋同組一個、另一組一對）。遮哪邊要「看得出來」：把筆畫取樣成點（間距 2 單位），露出的部分裡有 `MIN_VISIBLE_DISTANCE`（12 單位）以上的筆畫在其他選項的字露出部分附近（7 單位內）找不到才算（ぬ／め 遮掉下面的圈就看不出來，測試固定這個例子）。作答後露出全字（淡色）。
+- `recall` 默寫自我檢查（`QuizRecall`）：看拼音、聽聲音，想好後「翻面核對」看字，再自評「我寫對了／沒寫出來」；對錯由自評決定，記入 SRS 與計分。只在有易混淆字組可用時進自動練習（剛開始學維持單純的看字選音／聽音選字），占用看字選音／聽音選字的名額。
+- `spoterr` 抓錯字（`src/logic/spotError.ts`、`QuizSpotError`、`src/data/spotErrorWords.ts`）：3 個詞（同一種文字），其中一個字被換成同組的另一個字，點出來再確認；被換的位置在所有易混淆字中均勻抽，所有字都可點，作答前不播放。**詞庫尚未核可**（`words-spot-error.md`）：正式版詞池只有 words.json 裡本來就有的 3 個詞，所以 `SPOT_ERROR_IN_PRACTICE = false`、不進練習；開發版用 `kana5min://quiz?mode=dev-spot` 以佔位詞看介面（`DEV_PLACEHOLDER_WORDS`，不是真的詞、沒有音檔）。核可後：詞加進 words.json、產音檔、旗標改 true。
+- 計分：maskhalf 沿用選擇題（答錯記「把答案當成選到的字」）；spoterr 選錯時被換的字記錯、記「把原本的字當成換上去的字」；recall 為自評。

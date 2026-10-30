@@ -5,10 +5,15 @@ import { FlowHeader, Screen } from '../src/components';
 import { QuizFindAll } from '../src/components/QuizFindAll';
 import { QuizHear } from '../src/components/QuizHear';
 import { QuizLoanword } from '../src/components/QuizLoanword';
+import { QuizMaskHalf } from '../src/components/QuizMaskHalf';
 import { QuizReadSeq } from '../src/components/QuizReadSeq';
 import { QuizSee } from '../src/components/QuizSee';
+import { QuizRecall } from '../src/components/QuizRecall';
 import { QuizSeq } from '../src/components/QuizSeq';
+import { QuizSpotError } from '../src/components/QuizSpotError';
 import { QuizWordRead } from '../src/components/QuizWordRead';
+import { DEV_PLACEHOLDER_WORDS } from '../src/data/spotErrorWords';
+import { buildDevSpotQuestions } from '../src/logic/spotError';
 import { isLoanwordQuestion, type AnswerDetail } from '../src/logic/session';
 import { recordConfusion } from '../src/scoring';
 import { elapsedMinutes, elapsedMs, EXTEND_MINUTES } from '../src/logic/practiceTimer';
@@ -76,6 +81,13 @@ export default function QuizScreen() {
         return;
       }
       setOwnedSid(useSessionStore.getState().sid);
+    } else if (__DEV__ && mode === 'dev-spot') {
+      // 開發版專用：用佔位詞出抓錯字題，看介面（kana5min://quiz?mode=dev-spot）
+      if (!store.startQuestions(buildDevSpotQuestions(DEV_PLACEHOLDER_WORDS, Math.random), Date.now())) {
+        router.replace('/');
+        return;
+      }
+      setOwnedSid(useSessionStore.getState().sid);
     } else if (mode === 'confuse') {
       if (!group || !store.startConfuse(group, currentProgressList(), Date.now())) {
         router.replace('/');
@@ -127,6 +139,9 @@ export default function QuizScreen() {
       findall: QuizFindAll,
       readseq: QuizReadSeq,
       seq: QuizSeq,
+      maskhalf: QuizMaskHalf,
+      recall: QuizRecall,
+      spoterr: QuizSpotError,
     } as Partial<Record<typeof question.type, typeof QuizHear>>
   )[question.type] ?? QuizHear;
 

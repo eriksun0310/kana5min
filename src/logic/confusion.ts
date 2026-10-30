@@ -7,6 +7,8 @@ import type { Progress } from '../data/types';
 import type { ConfusionRecord } from '../db/types';
 import { mixLoanwordDrafts } from './loanword';
 import { buildGroupGameQuestion, GROUP_GAME_TYPES, type GroupGameType } from './groupGames';
+import { buildMaskHalfQuestion } from './maskHalf';
+import { approvedSpotWords, buildSpotErrorQuestion, spotErrorAvailable, spotPoolReady } from './spotError';
 import { pickWordReadDraftsExact, wordReadPool } from './wordRead';
 import {
   arrange,
@@ -200,10 +202,11 @@ export function planTypes<T extends string>(
   return out;
 }
 
-type AutoType = 'see' | 'hear' | 'findall' | 'readseq' | 'seq' | 'wordread';
+type AutoType = 'see' | 'hear' | 'findall' | 'readseq' | 'seq' | 'maskhalf' | 'recall' | 'wordread' | 'spoterr';
 
 /**
- * 自動練習 10 題：看字選音、聽音選字、找出所有、念出一串、聽音選字串、看詞選拼音混合。
+ * 自動練習 10 題：看字選音、聽音選字、找出所有、念出一串、聽音選字串、遮一半猜字、默寫自我檢查、看詞選拼音混合
+ *（抓錯字等詞庫核可後才會加入，見 data/spotErrorWords.ts）。
  * - 同一種題型最多 2 題（可用題型數 × 2 >= 10 時；題型比較少時平均分配）。
  * - 易混淆字題（找出所有／念出一串／聽音選字串）需要「至少 2 個成員已學」的組；組依權重抽
  *   （答錯多的組出現機率較高）。看詞選拼音需要有可讀的外來語（片假名已學到能讀）。
@@ -224,8 +227,12 @@ export function buildAutoPractice10(
   const groups = availableGroups(allProgress).filter((g) => isConfuseEligible(g, learned));
   const hasWord = wordReadPool(learned).length > 0;
   const available: AutoType[] = ['see', 'hear'];
-  if (groups.length > 0) available.push(...GROUP_GAME_TYPES);
+  // 沒有易混淆字組可用（剛開始學）時維持單純的看字選音／聽音選字
+  if (groups.length > 0) available.push(...GROUP_GAME_TYPES, 'maskhalf', 'recall');
   if (hasWord) available.push('wordread');
+  const spotPool = approvedSpotWords();
+  const spotScript = (['hiragana', 'katakana'] as const).find((sc) => spotPoolReady(spotPool, sc));
+  if (spotErrorAvailable(spotPool) && spotScript) available.push('spoterr');
   const plan = planTypes(available, size, rng);
 
   const drafts: QuizDraft[] = [];
@@ -256,10 +263,33 @@ export function buildAutoPractice10(
     return true;
   };
 
+  const extra = (type: 'maskhalf' | 'spoterr'): boolean => {
+    let d: QuizDraft | undefined;
+    if (type === 'maskhalf') {
+      const g = pickConfuseGroup(groups, counts, learned, rng);
+      d = g ? buildMaskHalfQuestion(g, learned, rng, used) : undefined;
+    } else if (spotScript) {
+      d = buildSpotErrorQuestion(spotPool, spotScript, rng, used);
+    }
+    if (!d) return false;
+    used.add(d.kanaId);
+    drafts.push(d);
+    return true;
+  };
+
   let wordCount = 0;
   for (const type of plan) {
     if (type === 'wordread') wordCount++;
-    else if (type === 'see' || type === 'hear') {
+    else if (type === 'maskhalf' || type === 'spoterr') {
+      if (!extra(type)) choice('see');
+    } else if (type === 'recall') {
+      // 默寫自我檢查：從已學字挑一個（占用看字選音／聽音選字的名額）
+      if (choiceLeft > 0) {
+        choiceLeft--;
+        drafts.push({ kanaId: order[nextKana++ % order.length], type: 'recall', options: [], answerId: '' });
+        drafts[drafts.length - 1].answerId = drafts[drafts.length - 1].kanaId;
+      }
+    } else if (type === 'see' || type === 'hear') {
       if (!choice(type) && groups.length > 0) game(GROUP_GAME_TYPES[Math.floor(rng() * GROUP_GAME_TYPES.length)]);
     } else if (!game(type)) choice(type === 'findall' ? 'see' : 'hear');
   }
@@ -298,10 +328,21 @@ export function buildQuickConfuse10(
   const probe = GROUP_GAME_TYPES.filter(
     (type) => buildGroupGameQuestion(type, group, known, rng, new Set(), { target: members[0] }) !== undefined,
   );
-  const plan = planTypes<GroupGameType | 'see' | 'confuse'>([...probe, 'see', 'confuse'], size, rng);
+  const maskOk = buildMaskHalfQuestion(group, known, rng, new Set(), { target: members[0] }) !== undefined;
+  const plan = planTypes<GroupGameType | 'maskhalf' | 'see' | 'confuse'>(
+    [...probe, ...(maskOk ? (['maskhalf'] as const) : []), 'see', 'confuse'],
+    size,
+    rng,
+  );
   const drafts = targets.map((id, i) => {
     const type = plan[i];
     if (type === 'see' || type === 'confuse') return buildGroupQuestion(group, id, type, rng);
+    if (type === 'maskhalf') {
+      return (
+        buildMaskHalfQuestion(group, known, rng, new Set(), { target: id }) ??
+        buildGroupQuestion(group, id, 'confuse', rng)
+      );
+    }
     return buildGroupGameQuestion(type, group, known, rng, new Set(), { target: id }) ?? buildGroupQuestion(group, id, 'confuse', rng);
   });
 

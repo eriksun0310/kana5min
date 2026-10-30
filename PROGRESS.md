@@ -425,3 +425,16 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
   5. 平假名階段 K = 3 對、片假名 K = 2 對，因為只有 5 組易混淆字；需要更多組才能增加格子數。
   6. 作答前不提供聲音的題型：readseq、wordread（聲音會直接洩漏答案）；作答後才播放。
 - **沒有在模擬器驗證**：8081 目前被主 checkout（/Users/jiayu/Desktop/kana5min）的 Metro 佔用（Debug 版只連 8081），我沒有關它。新增 `maestro/phase11-new-quiz-types.yaml`、更新 `common/answer-quiz.yaml`、`answer-one.yaml`、phase2-auto-practice、phase2-confuse、phase3-loanword、phase8-reminder 及截圖腳本（新增 `maestro/screenshots/run-ui-batch3.sh` → `screenshots/ui-batch3/`），**全部尚未跑過**。合併到 main 後請在 iPhone 17 跑全套 Maestro 與截圖（亮暗各一），並看一下 findall 6 格與 12 格、readseq 鍵盤（10 列時）是否擠在一個畫面。
+
+## 批 4：遮一半猜字、默寫自我檢查、抓錯字（2026-10-30，分支 claude/quiz-engine-3fda90）
+
+- **遮一半猜字 `maskhalf`**（`src/logic/maskHalf.ts`、`QuizMaskHalf`）：KanjiVG 筆畫只露出一半，選項只放拼音，兩對選項結構對稱；露出的那半要和其他選項的字有足夠差異（ぬ／め 遮掉圈就不可用，單元測試固定）。進自動練習與快速辨識（有易混淆字組時）。
+- **默寫自我檢查 `recall`**（`QuizRecall`）：看拼音＋聲音，翻面核對、自評。只在有易混淆字組可用時進自動練習，占用看字選音／聽音選字的名額。
+- **抓錯字 `spoterr`**（`src/logic/spotError.ts`、`QuizSpotError`）：引擎、計分、介面都做完並有測試（用佔位詞），**詞沒有放進 App、沒有產音檔**：候選詞在 `words-spot-error.md`（平假名 21 個、片假名 13 個，含讀音、意思、易混淆字）等你核可。核可前 `SPOT_ERROR_IN_PRACTICE = false`，正式版不會出現抓錯字；開發版用 `kana5min://quiz?mode=dev-spot` 看介面（`sessionStore.startQuestions`）。
+- **作弊測試**（`maskHalf.test.ts`、`spotError.test.ts`）：maskhalf 選項只有拼音、答案位置均勻、兩對結構對稱、隨機選 ≈ 25%；spoterr 被換位置在所有易混淆字中均勻、亂點易混淆字的答對率 ≈ 1／個數。
+- **Maestro**：新增 `maestro/phase12-spot-error.yaml`（抓錯字佔位詞、默寫自我檢查）；`common/answer-quiz.yaml`、`answer-one.yaml`、phase2-auto-practice、phase2-confuse、phase3-loanword、phase11 都加了 maskhalf／recall／spoterr 的處理。刪掉 `ui-new-capture.yaml`／`run-ui-new.sh`（已被 `ui-batch3-capture.yaml`／`run-ui-batch3.sh` 取代，裡面還有已移除的 `quiz-odd`）。`maestro/screenshots/phase2-capture.yaml`、`phase3-capture.yaml`、`ui-affordance-capture.yaml` 的測驗迴圈在批 3 之前就沒處理找出所有／字串題，這次也沒更新（只是截圖腳本，不是驗收流程）。
+- **假設**：
+  1. 抓錯字的詞池規則：每個詞至少 2 個易混淆字（同字重複算 1 種，所以 ろくろ 不合格；候選清單有列出這個決定請你決定）。
+  2. 默寫自我檢查的對錯完全是自評，直接進 SRS 與計分；沒有另外的防作弊。
+  3. maskhalf 的「看得出來」用 KanjiVG 筆畫取樣判斷，畫面也用 KanjiVG 筆畫繪製（和判斷用同一份資料）；字型（Klee One）的字形不會用在這題。
+- **沒有在模擬器驗證**（同批 3：8081 被主 checkout 的 Metro 佔用，我沒有關它）：`QuizMaskHalf`、`QuizRecall`、`QuizSpotError`、`QuizReadSeq`、`QuizFindAll`、`QuizWordRead` 六個新畫面全都沒看過實際版面；phase11、phase12 與更新過的 Maestro 流程沒跑；亮暗色截圖（`screenshots/ui-batch3/`）沒有。合併後請在 iPhone 17 跑 `maestro test maestro/phase11-new-quiz-types.yaml maestro/phase12-spot-error.yaml`、`maestro/phase2-auto-practice.yaml`、`phase2-confuse`、`phase3-loanword` 與全套，並用 `maestro/screenshots/run-ui-batch3.sh` 截圖。需要特別看：念出一串鍵盤 10 列時的高度、找出所有 6 格（3 欄）與 12 格（4 欄）的版面、遮一半的 SVG 在暗色下的筆畫顏色。

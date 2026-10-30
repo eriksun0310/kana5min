@@ -122,6 +122,8 @@ export interface SessionState {
    * 已學的字照常更新 SRS；未學的字只記答錯次數，不寫 SRS。
    */
   startConfuse: (groupId: string, allProgress: Progress[], now: number, rng?: Rng) => boolean;
+  /** 開發用：直接以給定的題目開始一輪（模式視為自動練習，不限時）；沒有題目回傳 false。 */
+  startQuestions: (drafts: Omit<QuizQuestion, 'id'>[], now: number) => boolean;
   /** 目前新字的學習步驟都完成了：有下一個新字回 'next'，否則建立題目進入測驗回 'quiz' */
   advanceNew: (rng?: Rng) => 'next' | 'quiz';
   /** 記錄一題的對錯；答錯時同時把所屬易混淆字組的答錯次數即時寫入 */
@@ -286,6 +288,22 @@ export const useSessionStore = create<SessionState>()((set, get) => {
       // newKanaIds 在自動練習中不代表新字，不放進狀態；讀外來語題沒有對應假名，不列入
       reviewKanaIds: [...new Set(questions.filter((q) => q.kanaId !== '').map((q) => q.kanaId))],
       learnedIds: [...learnedIdSet(allProgress)],
+      questions,
+      startedAt: now,
+    }));
+    return true;
+  },
+
+  startQuestions(drafts, now) {
+    if (drafts.length === 0) return false;
+    const questions = drafts.map((d, i) => ({ id: `q-${i}`, ...d }));
+    set((s) => ({
+      ...empty,
+      sid: s.sid + 1,
+      active: true,
+      mode: 'auto',
+      phase: 'quiz',
+      reviewKanaIds: [...new Set(questions.filter((q) => q.kanaId !== '').map((q) => q.kanaId))],
       questions,
       startedAt: now,
     }));

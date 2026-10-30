@@ -211,7 +211,7 @@ describe('buildAutoPractice10', () => {
       // 同一個字不相鄰
       for (let i = 1; i < qs.length; i++) expect(qs[i].kanaId).not.toBe(qs[i - 1].kanaId);
     }
-    expect([...seen].sort()).toEqual(['findall', 'hear', 'readseq', 'see', 'seq']);
+    expect([...seen].sort()).toEqual(['findall', 'hear', 'maskhalf', 'readseq', 'recall', 'see', 'seq']);
   });
 
   it('片假名組在解鎖前不會出現在任何題目（即使答錯紀錄很多）', () => {
@@ -240,7 +240,7 @@ describe('buildAutoPractice10', () => {
 });
 
 describe('buildQuickConfuse10', () => {
-  it('10 題，找出所有、念出一串、聽音選字串、看字選音、聽音選字各 2 題，答案字限該組成員', () => {
+  it('10 題，找出所有、念出一串、聽音選字串、遮一半猜字、看字選音、聽音選字，同一題型最多 2 題，答案字限該組成員', () => {
     for (const id of ['nume', 'wanere']) {
       const g = group(id);
       const qs = buildQuickConfuse10(g, seededRng(11));
@@ -248,15 +248,17 @@ describe('buildQuickConfuse10', () => {
       expect(qs.map((q) => q.id)).toEqual(Array.from({ length: 10 }, (_, i) => `q-${i}`));
       const perType: Record<string, number> = {};
       for (const q of qs) {
-        expect([...GAME_TYPES, 'see', 'confuse']).toContain(q.type);
+        expect([...GAME_TYPES, 'maskhalf', 'see', 'confuse']).toContain(q.type);
         expect(g.members).toContain(q.answerId);
         expect(q.groupId).toBe(id);
         if (q.type === 'readseq') for (const m of q.sequence ?? []) expect(g.members).toContain(m);
         if (q.type === 'see' || q.type === 'confuse') for (const o of q.options) expect(g.members).toContain(o);
         perType[q.type] = (perType[q.type] ?? 0) + 1;
       }
-      // 五種題型各 2 題
-      expect(Object.values(perType)).toEqual([2, 2, 2, 2, 2]);
+      // 六種題型：每種 1～2 題
+      expect(Object.keys(perType).sort()).toEqual(['confuse', 'findall', 'maskhalf', 'readseq', 'see', 'seq']);
+      expect(Math.max(...Object.values(perType))).toBe(2);
+      expect(Math.min(...Object.values(perType))).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -392,6 +394,31 @@ describe('groupsByTab（完整目錄的分類）', () => {
     expect(tabs[1].groups.map((g) => g.id)).toEqual(['shitsu', 'son']);
     // 片假名還沒解鎖：只有平假名分類
     expect(groupsByTab(availableGroups(hiraganaAll().slice(0, 10))).map((t) => t.tab)).toEqual(['hiragana']);
+  });
+});
+
+describe('默寫自我檢查（recall）進自動練習', () => {
+  it('有易混淆字組可用時會出現；題目對應一個已學字，沒有選項', () => {
+    const ids = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-me', 'h-ru', 'h-ro'];
+    const progress = ids.map((i) => prog(i));
+    let seen = 0;
+    for (let seed = 1; seed <= 60; seed++) {
+      for (const q of buildAutoPractice10(progress, {}, seededRng(seed))!) {
+        if (q.type !== 'recall') continue;
+        seen++;
+        expect(ids).toContain(q.kanaId);
+        expect(q.answerId).toBe(q.kanaId);
+        expect(q.options).toEqual([]);
+      }
+    }
+    expect(seen).toBeGreaterThan(30);
+  });
+
+  it('剛開始學（沒有易混淆字組可用）時不出 recall／maskhalf', () => {
+    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o'].map((i) => prog(i));
+    for (let seed = 1; seed <= 30; seed++) {
+      expect(buildAutoPractice10(progress, {}, seededRng(seed))!.every((q) => q.type === 'see' || q.type === 'hear')).toBe(true);
+    }
   });
 });
 

@@ -1,4 +1,4 @@
-# 批 3 新題型：易混淆字快速辨識（る・ろ 組）10 題，找出所有、念出一串、聽音選字串、看字選音、聽音選字各 2 題。
+# 批 3、4 新題型：易混淆字快速辨識（る・ろ 組）10 題，找出所有、念出一串、聽音選字串、遮一半猜字、看字選音、聽音選字，同一題型最多 2 題。
 # 檢查：找出所有只給拼音、不顯示答案數量；念出一串用固定拼音鍵盤輸入；聽音選字串先暫選再確認；
 # 念出一串故意打錯一次，確認會顯示正確拼音。整輪答完，三種新題型都要看過。
 appId: com.ptalk.kana5min
@@ -42,6 +42,15 @@ appId: com.ptalk.kana5min
           commands:
             - tapOn:
                 id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-maskhalf
+          commands:
+            - assertVisible: 被遮住一半，這是哪個字？
+            - tapOn:
+                id: opt-correct
+            - assertVisible: ".*答對了.*"
       - runFlow:
           when:
             visible:

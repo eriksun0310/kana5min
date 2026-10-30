@@ -34,6 +34,31 @@ appId: com.ptalk.kana5min
       - runFlow:
           when:
             visible:
+              id: quiz-maskhalf
+          commands:
+            - tapOn:
+                id: opt-correct
+      - runFlow:
+          when:
+            visible:
+              id: quiz-recall
+          commands:
+            - tapOn:
+                id: recall-flip
+            - tapOn:
+                id: recall-yes
+      - runFlow:
+          when:
+            visible:
+              id: quiz-spoterr
+          commands:
+            - tapOn:
+                id: spot-target
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
               id: quiz-readseq
           commands:
             - tapOn:
