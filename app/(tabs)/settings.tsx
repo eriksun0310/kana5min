@@ -27,6 +27,11 @@ const GOAL_OPTIONS: SheetOption[] = [
   { value: '10', label: '10 分鐘', sub: '認真' },
 ];
 
+const DROP_OPTIONS: SheetOption[] = [
+  { value: 'drag', label: '拖曳到籃子' },
+  { value: 'tap', label: '點籃子' },
+];
+
 const SPEED_OPTIONS: SheetOption[] = [
   { value: 'normal', label: '一般' },
   { value: 'slow', label: '慢速' },
@@ -34,7 +39,7 @@ const SPEED_OPTIONS: SheetOption[] = [
 
 const TIME_OPTIONS: SheetOption[] = REMINDER_TIME_OPTIONS.map((v) => ({ value: v, label: v }));
 
-type SheetKind = 'goal' | 'speed' | 'time' | null;
+type SheetKind = 'goal' | 'speed' | 'time' | 'drop' | null;
 
 // 開發者選單只在開發版本載入；正式包的 __DEV__ 為 false，Metro 會把這個 require 一併移除
 const DebugMenu: React.ComponentType | null = __DEV__
@@ -53,6 +58,7 @@ export default function SettingsScreen() {
   const romajiAutoHide = useSettingsStore((s) => s.romajiAutoHide);
   const reminder = useSettingsStore((s) => s.reminder);
   const audioSpeed = useSettingsStore((s) => s.audioSpeed);
+  const dropControl = useSettingsStore((s) => s.dropControl);
   const punPurchased = useSettingsStore((s) => s.punPackPurchased);
   const { setTheme, setDailyGoalMinutes, setRomajiAutoHide, setReminder, setAudioSpeed } =
     useSettingsStore.getState();
@@ -182,10 +188,19 @@ export default function SettingsScreen() {
               testID="row-audio-speed"
               accessibilityRole="button"
               onPress={() => setSheet('speed')}
-              style={[styles.row, { borderBottomWidth: 0 }]}
+              style={rowStyle}
             >
               <RowText label="發音速度" sub="測驗時的播放速度" />
               <Value text={audioSpeed === 'slow' ? '慢速' : '一般'} />
+            </Pressable>
+            <Pressable
+              testID="row-drop-control"
+              accessibilityRole="button"
+              onPress={() => setSheet('drop')}
+              style={[styles.row, { borderBottomWidth: 0 }]}
+            >
+              <RowText label="掉字遊戲操作" sub="手不方便拖的話可以改成點籃子" />
+              <Value text={dropControl === 'tap' ? '點籃子' : '拖曳'} />
             </Pressable>
           </View>
         </Section>
@@ -328,6 +343,18 @@ export default function SettingsScreen() {
         onClose={() => setSheet(null)}
         onSelect={(v) => {
           setAudioSpeed(v as Settings['audioSpeed']);
+          setSheet(null);
+        }}
+      />
+      <OptionSheet
+        visible={sheet === 'drop'}
+        title="掉字遊戲操作"
+        options={DROP_OPTIONS}
+        selected={dropControl}
+        testIDPrefix="option-drop"
+        onClose={() => setSheet(null)}
+        onSelect={(v) => {
+          useSettingsStore.getState().setDropControl(v as 'drag' | 'tap');
           setSheet(null);
         }}
       />

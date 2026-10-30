@@ -32,6 +32,10 @@ export interface SettingsState extends Settings {
   /** 結果頁的「每天提醒你練習嗎？」是否已問過（不論選什麼都只問一次） */
   reminderAsked: boolean;
   // --- 提醒優化 結束 ---
+  /** 掉字歸類的操作方式：拖曳到籃子（預設）或直接點籃子 */
+  dropControl: 'drag' | 'tap';
+  /** 掉字歸類的怎麼玩教學是否看過（只在第一次自動出現） */
+  dropTutorialSeen: boolean;
 
   setTheme: (theme: Settings['theme']) => void;
   setDailyGoalMinutes: (m: Settings['dailyGoalMinutes']) => void;
@@ -55,6 +59,8 @@ export interface SettingsState extends Settings {
   resetTutorial: () => void;
   // ---- /新手教學 ----
   setReminderAsked: (asked: boolean) => void;
+  setDropControl: (control: 'drag' | 'tap') => void;
+  setDropTutorialSeen: (seen: boolean) => void;
   /** 記錄今天有練習 */
   markPracticed: (now: number) => void;
   /** 回到預設值（除錯用） */
@@ -73,6 +79,8 @@ export const defaultSettings: Settings & {
   tourSeen: boolean;
   learnTipsSeen: LearnTipsSeen;
   reminderAsked: boolean;
+  dropControl: 'drag' | 'tap';
+  dropTutorialSeen: boolean;
 } = {
   theme: 'system',
   dailyGoalMinutes: 5,
@@ -91,6 +99,8 @@ export const defaultSettings: Settings & {
   tourSeen: false,
   learnTipsSeen: noLearnTipsSeen(),
   reminderAsked: false,
+  dropControl: 'drag',
+  dropTutorialSeen: false,
 };
 
 export const SETTINGS_STORAGE_KEY = 'kana5min-settings';
@@ -122,6 +132,8 @@ export const useSettingsStore = create<SettingsState>()(
         set((s) => ({ learnTipsSeen: { ...s.learnTipsSeen, [key]: seen } })),
       resetTutorial: () => set({ tourSeen: false, learnTipsSeen: noLearnTipsSeen() }),
       setReminderAsked: (reminderAsked) => set({ reminderAsked }),
+      setDropControl: (dropControl) => set({ dropControl }),
+      setDropTutorialSeen: (dropTutorialSeen) => set({ dropTutorialSeen }),
       markPracticed: (now) => set((s) => ({ practiceDates: addPracticeDate(s.practiceDates, now) })),
       resetSettings: () =>
         set({ ...defaultSettings, punUnlocked: [], learnTipsSeen: noLearnTipsSeen() }),

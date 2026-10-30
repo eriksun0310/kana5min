@@ -222,4 +222,6 @@ appId: com.ptalk.kana5min
     id: group-wanere
     above:
       id: group-nume
+- scrollUntilVisible:
+    element: "ぬ・め，錯 0 次"
 - assertVisible: "ぬ・め，錯 0 次"

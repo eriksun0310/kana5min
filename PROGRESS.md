@@ -447,3 +447,16 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
   2. 默寫自我檢查的對錯完全是自評，直接進 SRS 與計分；沒有另外的防作弊。
   3. maskhalf 的「看得出來」用 KanjiVG 筆畫取樣判斷，畫面也用 KanjiVG 筆畫繪製（和判斷用同一份資料）；字型（Klee One）的字形不會用在這題。
 - **沒有在模擬器驗證**（同批 3：8081 被主 checkout 的 Metro 佔用，我沒有關它）：`QuizMaskHalf`、`QuizRecall`、`QuizSpotError`、`QuizReadSeq`、`QuizFindAll`、`QuizWordRead` 六個新畫面全都沒看過實際版面；phase11、phase12 與更新過的 Maestro 流程沒跑；亮暗色截圖（`screenshots/ui-batch3/`）沒有。合併後請在 iPhone 17 跑 `maestro test maestro/phase11-new-quiz-types.yaml maestro/phase12-spot-error.yaml`、`maestro/phase2-auto-practice.yaml`、`phase2-confuse`、`phase3-loanword` 與全套，並用 `maestro/screenshots/run-ui-batch3.sh` 截圖。需要特別看：念出一串鍵盤 10 列時的高度、找出所有 6 格（3 欄）與 12 格（4 欄）的版面、遮一半的 SVG 在暗色下的筆畫顏色。
+
+## 批 5：掉字歸類正式版（2026-10-30）
+
+- 入口：練習頁「掉字歸類」卡片（所有人都看得到，取代原本只有開發版的手感實驗，`app/drop-lab.tsx` 已刪）。對比頁底下多一顆「用這一組玩掉字」（該組所屬推薦字組、學過的字至少 3 個才出現）。
+- 選字（`app/drop/index.tsx`）：推薦最多 3 組（依對應易混淆組的答錯次數排序，同分預設し・つ・そ・ん → る・ろ・ぬ・め → ぬ・め・わ・ね・れ，只放學過的字至少 3 個的組）、隨機（從學過的字抽 4 個）、自己選 3～6 個。學過的字不到 3 個時顯示「先學會 3 個字就能玩」。「怎麼玩」可以隨時重看。
+- 遊戲（`app/drop/play.tsx`）：一關 12 個字，同時最多 2 個，5.5 秒掉到底；籃子 3～4 個一列、5～6 個兩列，每關重新打散順序。四個階段依序進階：片假名→平假名、平假名→片假名、片假名→拼音、平假名→拼音（片假名還沒解鎖或選的字沒有片假名時只玩最後一個）。沒有愛心：放錯或掉到底各算錯一個，錯 1 個以內過關，沒過關可以再試同一階段，一關一定玩完 12 個。
+- 暫停：左上 ✕ 暫停（字停住），也會在 App 進背景時自動暫停；暫停選單可以繼續、重看怎麼玩、離開。離開或中途放棄不計分，只有打完一關才寫進計分。
+- 計分：打完一關後用批 3 的介面逐字記錄（`recordKanaResult`；歸錯的另外 `recordConfusion`，用掉下來的那種文字）。
+- 設定：「掉字遊戲操作」（拖曳／點籃子，預設拖曳）；點籃子模式下點哪個籃子，最早掉下來的字就放進去。教學只在第一次進遊戲出現（`dropTutorialSeen`），之後從「怎麼玩」看。
+- 純邏輯在 `src/logic/dropGame.ts`（有單元測試 13 個）；拖曳手勢的籃子判定用 `slotAtPoint`（也給 worklet 用）。
+- 假設：推薦字組是固定三組（見 `DROP_PRESETS`），對比頁的組對應到包含它的字組；不同組合的片假名階段，要所有選的字都有片假名對應字。拖曳本身 Maestro 模擬不了，流程用開發版的「dev 全對／全錯」直接結算一關；手感以你在實機上測為準。
+- 順帶：phase2-confuse、phase1-theme 流程因為新增卡片把內容擠到螢幕外，改成先捲動；Metro 因為刪檔案出現快取錯誤，重啟並清過快取。
+- Maestro：`maestro/phase13-drop.yaml`；截圖 `screenshots/ui-batch5/`（`maestro/screenshots/run-ui-batch5.sh`）。

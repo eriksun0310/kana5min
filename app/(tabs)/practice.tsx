@@ -83,26 +83,25 @@ export default function PracticeScreen() {
           )}
         </View>
 
-        {__DEV__ ? (
-          // 開發版專用：掉字歸類的拖曳手感實驗（正式版不會出現）
-          <View style={styles.cardWrap}>
-            <Pressable
-              testID="open-drop-lab"
-              accessibilityRole="button"
-              onPress={() => router.push('/drop-lab')}
-              style={({ pressed }) => [
-                styles.card,
-                { backgroundColor: t.surface, borderColor: t.accent, opacity: pressed ? 0.9 : 1 },
-              ]}
-            >
-              <View style={styles.cardText}>
-                <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>掉字歸類（手感實驗）</Text>
-                <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>開發版專用：把掉下來的字拖到對的籃子</Text>
-              </View>
-              <Icon name="chevronRight" size={20} color={t.accentText} />
-            </Pressable>
-          </View>
-        ) : null}
+        <View style={styles.cardWrap}>
+          <Pressable
+            testID="open-drop"
+            accessibilityRole="button"
+            onPress={() => router.push('/drop')}
+            style={({ pressed }) => [
+              styles.card,
+              { backgroundColor: t.surface, borderColor: t.line, opacity: pressed ? 0.9 : 1 },
+            ]}
+          >
+            <View style={styles.cardText}>
+              <Text style={{ fontSize: 19, fontWeight: '700', color: t.text }}>掉字歸類</Text>
+              <Text style={{ fontSize: 14, lineHeight: 21, color: t.muted }}>
+                字會掉下來，放進對的籃子，練到不再搞混
+              </Text>
+            </View>
+            <Icon name="chevronRight" size={20} color={t.accentText} />
+          </Pressable>
+        </View>
 
         <View style={styles.sectionHead}>
           <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>最常搞混的</Text>

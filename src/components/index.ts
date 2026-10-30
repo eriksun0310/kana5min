@@ -18,3 +18,4 @@ export { TextLink, type TextLinkProps } from './TextLink';
 export { KanaListSheet, type KanaListItem, type KanaListSheetProps } from './KanaListSheet';
 export { MnemonicGlyph, type MnemonicGlyphProps } from './MnemonicGlyph';
 export { MnemonicSheet, type MnemonicSheetProps } from './MnemonicSheet';
+export { DropHowTo, type DropHowToProps } from './DropHowTo';

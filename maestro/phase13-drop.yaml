@@ -1,0 +1,126 @@
+# 掉字歸類：練習頁入口 → 選字（推薦／自己選）→ 第一次教學 → 階段進階（片→平…）→ 暫停與離開（不計分）
+# → 過關與沒過關 → 設定改成「點籃子」。拖曳本身 Maestro 做不到，用開發版的 dev-drop-pass／fail 直接結束一關。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: katakana-started
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+# 選字畫面：三組推薦、自己選、隨機、怎麼玩
+- assertVisible:
+    id: drop-preset-shitsu-son
+- assertVisible:
+    id: drop-random
+- assertVisible:
+    id: drop-howto
+- assertVisible:
+    id: drop-start-custom
+# 自己選：選 3 個字才能開始
+- tapOn:
+    id: drop-pick-h-a
+- tapOn:
+    id: drop-pick-h-i
+- tapOn:
+    id: drop-pick-h-u
+- tapOn:
+    id: drop-start-custom
+- extendedWaitUntil:
+    visible:
+      id: drop-tutorial
+    timeout: 5000
+# 第一次進來先看教學
+- assertVisible: 怎麼玩
+- tapOn:
+    id: drop-start
+- assertVisible:
+    id: drop-stage
+- assertVisible: ".*階段 1/4.*片假名 → 平假名.*"
+# 暫停 → 繼續
+- tapOn:
+    id: drop-pause
+- assertVisible:
+    id: drop-paused
+- tapOn:
+    id: drop-resume
+- assertNotVisible:
+    id: drop-paused
+# 過關 → 下一階段
+- tapOn:
+    id: dev-drop-pass
+- assertVisible:
+    id: drop-end
+- assertVisible: "過關！"
+- tapOn:
+    id: drop-next
+- assertVisible: ".*階段 2/4.*平假名 → 片假名.*"
+# 沒過關 → 再試這一階段
+- tapOn:
+    id: dev-drop-fail
+- assertVisible: "差一點"
+- tapOn:
+    id: drop-retry
+- assertVisible: ".*階段 2/4.*"
+# 暫停後離開，回到選字畫面（不計分）
+- tapOn:
+    id: drop-pause
+- tapOn:
+    id: drop-leave
+- assertVisible:
+    id: drop-start-custom
+# 之後不再自動出教學：選推薦直接進遊戲
+- tapOn:
+    id: drop-preset-shitsu-son
+- assertVisible:
+    id: drop-stage
+- assertNotVisible:
+    id: drop-tutorial
+- tapOn:
+    id: drop-pause
+- tapOn:
+    id: drop-leave
+- tapOn:
+    id: back
+# 對比頁「用這一組玩掉字」
+- tapOn:
+    id: group-shitsu
+- assertVisible:
+    id: play-drop
+- tapOn:
+    id: play-drop
+- assertVisible:
+    id: drop-stage
+- tapOn:
+    id: drop-pause
+- tapOn:
+    id: drop-leave
+- tapOn:
+    id: back
+# 設定改成「點籃子」
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-drop-control
+- tapOn:
+    id: row-drop-control
+- tapOn:
+    id: option-drop-tap
+- extendedWaitUntil:
+    notVisible:
+      id: option-drop-tap
+    timeout: 5000
+- assertVisible:
+    id: row-drop-control
+    text: ".*點籃子.*"

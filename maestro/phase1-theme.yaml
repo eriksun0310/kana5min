@@ -47,4 +47,6 @@ appId: com.ptalk.kana5min
     id: tab-settings
 - assertVisible:
     id: theme-dark
+- scrollUntilVisible:
+    element: 學習紀錄只存在這支手機上.*
 - assertVisible: 學習紀錄只存在這支手機上.*

@@ -2,10 +2,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
-import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, Screen } from '../../src/components';
-import { mustById } from '../../src/data';
+import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, Screen, SecondaryButton } from '../../src/components';
+import { mustById, seionOrder } from '../../src/data';
 import { mnemonicOf } from '../../src/data/mnemonics';
 import { availableGroups, confusionCounts, resolvedMembers } from '../../src/logic/confusion';
+import { learnedSyllables, presetForGroup } from '../../src/logic/dropGame';
+import { isLearned } from '../../src/logic/srs';
 import { progressList, useProgressStore, useSettingsStore } from '../../src/store';
 import { useBottomPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
@@ -25,6 +27,16 @@ export default function ConfuseScreen() {
   const slow = useSettingsStore((s) => s.audioSpeed) === 'slow';
 
   const counts = useMemo(() => confusionCounts(confusions), [confusions]);
+  const learnedSet = useMemo(
+    () =>
+      new Set(
+        learnedSyllables(
+          Object.values(progress).filter(isLearned).map((p) => p.kanaId),
+          seionOrder('hiragana').map((k) => k.id),
+        ),
+      ),
+    [progress],
+  );
   // 切換膠囊只列可用的組（片假名組在解鎖前不出現），維持預設順序，切換時位置不會跳動
   const groups = useMemo(() => availableGroups(progressList(progress)), [progress]);
   // 切換用本地狀態；路由帶進來的組不可用（例如片假名還沒解鎖）就退回第一個可用組
@@ -45,6 +57,7 @@ export default function ConfuseScreen() {
   const three = members.length >= 3;
   const cardWidth = (width - SIDE * 2 - GAP * (members.length - 1)) / members.length;
   const misses = counts[group.id] ?? 0;
+  const dropPlay = presetForGroup(group.id, learnedSet);
 
   return (
     <Screen>
@@ -147,6 +160,14 @@ export default function ConfuseScreen() {
       />
 
       <View style={[styles.bottom, { paddingBottom: bottom }]}>
+        {dropPlay ? (
+          <SecondaryButton
+            testID="play-drop"
+            label="用這一組玩掉字"
+            onPress={() => router.push({ pathname: '/drop/play', params: { sel: dropPlay.selection.join(',') } })}
+            style={styles.dropBtn}
+          />
+        ) : null}
         <PrimaryButton
           testID="quick-confuse"
           label="快速辨識 10 題"
@@ -192,4 +213,5 @@ const styles = StyleSheet.create({
   },
   missRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   bottom: { paddingHorizontal: SIDE, paddingTop: 12 },
+  dropBtn: { marginBottom: 10 },
 });

@@ -1,0 +1,72 @@
+# 批 5 截圖：練習頁入口、選字畫面、教學、遊戲中（4 個與 6 個籃子）、暫停、過關。
+# 請用 maestro/screenshots/run-ui-batch5.sh 執行（亮色、暗色各一次，THEME 由它傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: katakana-started
+- extendedWaitUntil:
+    visible:
+      id: tab-practice
+    timeout: 10000
+- tapOn:
+    id: tab-practice
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch5/1-Practice-${THEME}
+- tapOn:
+    id: open-drop
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch5/2-Select-${THEME}
+- tapOn:
+    id: drop-preset-shitsu-son
+- extendedWaitUntil:
+    visible:
+      id: drop-tutorial
+    timeout: 5000
+- takeScreenshot: screenshots/ui-batch5/3-Tutorial-${THEME}
+- tapOn:
+    id: drop-start
+- extendedWaitUntil:
+    visible:
+      id: drop-stage
+    timeout: 5000
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: screenshots/ui-batch5/4-Play4-${THEME}
+- tapOn:
+    id: drop-pause
+- takeScreenshot: screenshots/ui-batch5/5-Paused-${THEME}
+- tapOn:
+    id: drop-leave
+- tapOn:
+    id: drop-pick-h-a
+- tapOn:
+    id: drop-pick-h-i
+- tapOn:
+    id: drop-pick-h-u
+- tapOn:
+    id: drop-pick-h-e
+- tapOn:
+    id: drop-pick-h-o
+- tapOn:
+    id: drop-pick-h-ka
+- tapOn:
+    id: drop-start-custom
+- extendedWaitUntil:
+    visible:
+      id: drop-stage
+    timeout: 5000
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: screenshots/ui-batch5/6-Play6-${THEME}
+- tapOn:
+    id: dev-drop-pass
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch5/7-Pass-${THEME}
