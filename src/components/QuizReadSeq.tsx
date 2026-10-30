@@ -95,6 +95,23 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
             })}
           </View>
         </View>
+        {!confirmed ? (
+          <View style={styles.tools}>
+            <Pressable
+              testID="readseq-back"
+              accessibilityRole="button"
+              accessibilityLabel="刪除一個"
+              onPress={() => setTyped((s) => s.slice(0, -1))}
+              style={styles.tool}
+            >
+              <Text style={{ fontSize: 14, color: t.muted }}>⌫ 刪除一個</Text>
+            </Pressable>
+            {__DEV__ ? (
+              // 開發版本專用：一鍵填好正確答案，讓 Maestro 不用逐鍵點
+              <Pressable testID="dev-solve" onPress={() => setTyped([...sequence])} style={styles.tool}>
+                <Text style={{ fontSize: 10, color: t.muted }}>dev</Text>
+              </Pressable>
+            ) : null}
         <View style={styles.keyboard}>
           {rows.map((row, r) => (
             <View key={r} style={styles.keyRow}>
@@ -115,29 +132,12 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
                     <Text style={[styles.keyText, { color: t.text }]}>{mustById(id).romaji}</Text>
                   </Pressable>
                 ) : (
-                  <View key={c} style={styles.key} />
+                  <View key={c} style={[styles.key, { borderColor: 'transparent' }]} />
                 ),
               )}
             </View>
           ))}
         </View>
-        {!confirmed ? (
-          <View style={styles.tools}>
-            <Pressable
-              testID="readseq-back"
-              accessibilityRole="button"
-              accessibilityLabel="刪除一個"
-              onPress={() => setTyped((s) => s.slice(0, -1))}
-              style={styles.tool}
-            >
-              <Text style={{ fontSize: 14, color: t.muted }}>⌫ 刪除一個</Text>
-            </Pressable>
-            {__DEV__ ? (
-              // 開發版本專用：一鍵填好正確答案，讓 Maestro 不用逐鍵點
-              <Pressable testID="dev-solve" onPress={() => setTyped([...sequence])} style={styles.tool}>
-                <Text style={{ fontSize: 10, color: t.muted }}>dev</Text>
-              </Pressable>
-            ) : null}
           </View>
         ) : null}
       </ScrollView>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   keyRow: { flexDirection: 'row', gap: 6 },
   key: { flex: 1, height: 42, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   keyText: { fontSize: 16, fontWeight: '600' },
-  tools: { flexDirection: 'row', justifyContent: 'center', gap: 16, paddingTop: 6 },
+  tools: { flexDirection: 'row', justifyContent: 'center', gap: 16, paddingVertical: 4 },
   tool: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center' },
   bottom: { paddingHorizontal: 24, paddingBottom: 44, paddingTop: 12 },
   feedbackBox: { gap: 10 },
