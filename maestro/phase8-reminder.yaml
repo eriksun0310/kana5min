@@ -38,7 +38,7 @@ appId: com.ptalk.kana5min
       - runFlow:
           when:
             visible:
-              id: loanword-text
+              id: wordread-text
           commands:
             - tapOn:
                 id: opt-correct

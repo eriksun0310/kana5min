@@ -33,7 +33,8 @@ import {
   type SavedSession,
 } from '../logic/sessionSave';
 import { toDateKey } from '../logic/progressStats';
-import { mixLoanwordDrafts, pickLoanwordDrafts } from '../logic/loanword';
+import { mixLoanwordDrafts } from '../logic/loanword';
+import { pickWordReadDrafts } from '../logic/wordRead';
 import {
   buildDailySession,
   buildQuiz,
@@ -43,6 +44,7 @@ import {
   type Rng,
 } from '../logic/session';
 import { progressList, useProgressStore } from './progressStore';
+import { recordKanaResult } from '../scoring';
 import { clearSavedSession, readSavedSession, writeSavedSession } from './sessionSaveStorage';
 import { useSettingsStore } from './settingsStore';
 
@@ -124,6 +126,8 @@ export interface SessionState {
   advanceNew: (rng?: Rng) => 'next' | 'quiz';
   /** 記錄一題的對錯；答錯時同時把所屬易混淆字組的答錯次數即時寫入 */
   recordAnswer: (kanaId: string, correct: boolean) => void;
+  /** 一題有好幾個假名時（念出一串、聽音選字串、找出所有…）：每個假名各自記一筆，整題只算作答一次 */
+  recordAnswers: (perKana: Record<string, boolean>) => void;
   /** 記錄一題讀外來語的對錯：不更新任何假名的 SRS 與易混淆紀錄 */
   recordLoanwordAnswer: (correct: boolean) => void;
   /** 前進到下一題；已經是最後一題時回傳 false（不動） */
@@ -166,7 +170,7 @@ function withLoanwords(
   preferKanaIds: readonly string[],
   rng: Rng,
 ): QuizQuestion[] {
-  const drafts = pickLoanwordDrafts(learnedIds, rng, preferKanaIds);
+  const drafts = pickWordReadDrafts(learnedIds, rng, preferKanaIds);
   return drafts.length === 0 ? questions : mixLoanwordDrafts(questions, drafts, rng);
 }
 
@@ -333,17 +337,27 @@ export const useSessionStore = create<SessionState>()((set, get) => {
   },
 
   recordAnswer(kanaId, correct) {
-    set((s) => ({
-      answers: { ...s.answers, [kanaId]: [...(s.answers[kanaId] ?? []), correct] },
-      qAnswered: true,
-    }));
+    get().recordAnswers({ [kanaId]: correct });
+  },
+
+  recordAnswers(perKana) {
+    const entries = Object.entries(perKana);
+    set((s) => {
+      const answers = { ...s.answers };
+      for (const [kanaId, correct] of entries) answers[kanaId] = [...(answers[kanaId] ?? []), correct];
+      return { answers, qAnswered: true };
+    });
     persist();
-    if (!correct) {
-      // 作答當下就寫入易混淆字組的答錯次數，不等一輪結束；寫入失敗不影響作答流程
-      useProgressStore
-        .getState()
-        .recordWrongAnswer(kanaId, Date.now())
-        .catch(() => {});
+    for (const [kanaId, correct] of entries) {
+      // 每個假名各自計分（kana_stat）；不影響 SRS
+      void recordKanaResult(kanaId, correct);
+      if (!correct) {
+        // 作答當下就寫入易混淆字組的答錯次數，不等一輪結束；寫入失敗不影響作答流程
+        useProgressStore
+          .getState()
+          .recordWrongAnswer(kanaId, Date.now())
+          .catch(() => {});
+      }
     }
   },
 

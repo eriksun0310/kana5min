@@ -84,7 +84,7 @@ tags:
       - runFlow:
           when:
             visible:
-              id: loanword-text
+              id: wordread-text
           commands:
             - evalScript: "${output.doShot = output.shotWrong == 0 ? 1 : 0; output.shotWrong = 1}"
             - runFlow:
@@ -141,7 +141,7 @@ tags:
       - runFlow:
           when:
             visible:
-              id: loanword-text
+              id: wordread-text
           commands:
             - tapOn:
                 id: opt-correct

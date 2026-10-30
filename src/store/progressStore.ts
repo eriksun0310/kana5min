@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Progress } from '../data/types';
-import type { ConfusionRecord, ProgressRepository } from '../db/types';
+import type { ConfusionPair, ConfusionRecord, KanaStat, ProgressRepository } from '../db/types';
 import { groupsForWrongAnswer } from '../logic/confusion';
 import { applyRoundResult } from '../logic/srs';
 
@@ -15,6 +15,10 @@ export interface ProgressState {
   loaded: boolean;
   progress: Record<string, Progress>;
   confusions: ConfusionRecord[];
+  /** 每個假名各自的累計對錯 */
+  kanaStats: Record<string, KanaStat>;
+  /** 混淆對：「把 truthId 當成 pickedId」的累計次數 */
+  confusionPairs: ConfusionPair[];
   /** 從 repository 載入全部進度（App 啟動時呼叫一次） */
   load: (repo: ProgressRepository) => Promise<void>;
   /**
@@ -28,6 +32,13 @@ export interface ProgressState {
    * 先更新記憶體（畫面立即看到）再寫入；字不屬於任何組時什麼都不做。
    */
   recordWrongAnswer: (kanaId: string, now: number) => Promise<void>;
+  /**
+   * 記錄某個假名的一次對錯（每個假名各自計分；與 SRS 分開，不影響複習排程）。
+   * 先更新記憶體再寫入；repository 尚未載入時只更新記憶體不丟錯。
+   */
+  recordKanaResult: (kanaId: string, correct: boolean, now?: number) => Promise<void>;
+  /** 記錄「把 truthId 當成 pickedId」一次（truthId === pickedId 或空字串不記）。 */
+  recordConfusion: (truthId: string, pickedId: string, now?: number) => Promise<void>;
   /** 清除全部進度（設定或除錯用） */
   reset: () => Promise<void>;
   /** 以給定進度取代全部進度並清空易混淆紀錄（開發用預設） */
@@ -50,14 +61,23 @@ export function createProgressStore() {
     loaded: false,
     progress: {},
     confusions: [],
+    kanaStats: {},
+    confusionPairs: [],
 
     async load(r) {
       repo = r;
-      const [all, confusions] = await Promise.all([r.getAll(), r.getConfusions()]);
+      const [all, confusions, stats, pairs] = await Promise.all([
+        r.getAll(),
+        r.getConfusions(),
+        r.getKanaStats(),
+        r.getConfusionPairs(),
+      ]);
       set({
         loaded: true,
         progress: Object.fromEntries(all.map((p) => [p.kanaId, p])),
         confusions,
+        kanaStats: Object.fromEntries(stats.map((x) => [x.kanaId, x])),
+        confusionPairs: pairs,
       });
     },
 
@@ -94,16 +114,44 @@ export function createProgressStore() {
       }
     },
 
+    async recordKanaResult(kanaId, correct, now = Date.now()) {
+      const prev = get().kanaStats[kanaId];
+      const next: KanaStat = {
+        kanaId,
+        correctCount: (prev?.correctCount ?? 0) + (correct ? 1 : 0),
+        wrongCount: (prev?.wrongCount ?? 0) + (correct ? 0 : 1),
+        updatedAt: now,
+      };
+      set({ kanaStats: { ...get().kanaStats, [kanaId]: next } });
+      if (repo) await repo.addKanaResult(kanaId, correct, now);
+    },
+
+    async recordConfusion(truthId, pickedId, now = Date.now()) {
+      if (!truthId || !pickedId || truthId === pickedId) return;
+      const list = get().confusionPairs;
+      const prev = list.find((c) => c.truthId === truthId && c.pickedId === pickedId);
+      const next: ConfusionPair = { truthId, pickedId, count: (prev?.count ?? 0) + 1, updatedAt: now };
+      set({
+        confusionPairs: [...list.filter((c) => c !== prev), next],
+      });
+      if (repo) await repo.addConfusionPair(truthId, pickedId, now, 1);
+    },
+
     async reset() {
       await need().reset();
-      set({ progress: {}, confusions: [] });
+      set({ progress: {}, confusions: [], kanaStats: {}, confusionPairs: [] });
     },
 
     async replaceAll(items) {
       const r = need();
       await r.reset();
       await r.upsertMany(items);
-      set({ progress: Object.fromEntries(items.map((p) => [p.kanaId, p])), confusions: [] });
+      set({
+        progress: Object.fromEntries(items.map((p) => [p.kanaId, p])),
+        confusions: [],
+        kanaStats: {},
+        confusionPairs: [],
+      });
     },
   }));
 }

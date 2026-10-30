@@ -45,7 +45,7 @@ tags:
       - runFlow:
           when:
             visible:
-              id: loanword-text
+              id: wordread-text
           commands:
             - tapOn:
                 id: opt-correct

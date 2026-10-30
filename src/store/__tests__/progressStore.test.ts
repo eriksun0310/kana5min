@@ -109,3 +109,54 @@ describe('progressStore', () => {
     await expect(store.getState().commitRound({ 'h-a': [true] }, NOW)).rejects.toThrow('repository');
   });
 });
+
+describe('每個假名各自計分與混淆對（recordKanaResult／recordConfusion）', () => {
+  it('累計對錯與「把 X 當成 Y」，寫入 repository，重新載入還在', async () => {
+    const repo = createMemoryRepository();
+    const store = createProgressStore();
+    await store.getState().load(repo);
+    await store.getState().recordKanaResult('h-nu', true, NOW);
+    await store.getState().recordKanaResult('h-nu', false, NOW + 1);
+    await store.getState().recordKanaResult('h-nu', false, NOW + 2);
+    await store.getState().recordConfusion('h-nu', 'h-me', NOW);
+    await store.getState().recordConfusion('h-nu', 'h-me', NOW + 5);
+    await store.getState().recordConfusion('h-me', 'h-nu', NOW);
+    expect(store.getState().kanaStats['h-nu']).toMatchObject({ correctCount: 1, wrongCount: 2, updatedAt: NOW + 2 });
+
+    const again = createProgressStore();
+    await again.getState().load(repo);
+    expect(again.getState().kanaStats['h-nu']).toMatchObject({ correctCount: 1, wrongCount: 2 });
+    const pairs = again.getState().confusionPairs;
+    expect(pairs.find((p) => p.truthId === 'h-nu' && p.pickedId === 'h-me')?.count).toBe(2);
+    expect(pairs.find((p) => p.truthId === 'h-me' && p.pickedId === 'h-nu')?.count).toBe(1);
+  });
+
+  it('相同的字、空字串不記；不影響 SRS 進度與組層級的 confusion', async () => {
+    const repo = createMemoryRepository();
+    const store = createProgressStore();
+    await store.getState().load(repo);
+    await store.getState().recordConfusion('h-nu', 'h-nu');
+    await store.getState().recordConfusion('', 'h-me');
+    expect(store.getState().confusionPairs).toEqual([]);
+    await store.getState().recordKanaResult('h-nu', false, NOW);
+    expect(store.getState().progress).toEqual({});
+    expect(store.getState().confusions).toEqual([]);
+  });
+
+  it('reset 與 replaceAll 會一起清掉計分與混淆對；repository 尚未載入時只更新記憶體不丟錯', async () => {
+    const early = createProgressStore();
+    await expect(early.getState().recordKanaResult('h-a', true, NOW)).resolves.toBeUndefined();
+    expect(early.getState().kanaStats['h-a'].correctCount).toBe(1);
+
+    const repo = createMemoryRepository();
+    const store = createProgressStore();
+    await store.getState().load(repo);
+    await store.getState().recordKanaResult('h-a', true, NOW);
+    await store.getState().recordConfusion('h-a', 'h-o', NOW);
+    await store.getState().reset();
+    expect(store.getState().kanaStats).toEqual({});
+    expect(store.getState().confusionPairs).toEqual([]);
+    expect(await repo.getKanaStats()).toEqual([]);
+    expect(await repo.getConfusionPairs()).toEqual([]);
+  });
+});

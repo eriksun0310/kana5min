@@ -12,6 +12,7 @@ import {
   isConfuseEligible,
   isKatakanaUnlocked,
   pickConfuseGroup,
+  planTypes,
   groupsByTab,
   sortGroupsByMisses,
   topConfusionGroups,
@@ -157,7 +158,7 @@ describe('buildConfuseQuestion', () => {
   });
 });
 
-const GAME_TYPES = ['odd', 'all', 'seq'];
+const GAME_TYPES = ['findall', 'readseq', 'seq'];
 const isGame = (q: { type: string }) => GAME_TYPES.includes(q.type);
 
 describe('buildAutoPractice10', () => {
@@ -176,7 +177,7 @@ describe('buildAutoPractice10', () => {
     }
   });
 
-  it('已學字不足：同一個字最多 2 題（兩種題型），總題數 = 2×字數', () => {
+  it('已學字不足（沒有易混淆字組可用）：同一個字最多 2 題（兩種題型），總題數 = 2×字數', () => {
     const qs = buildAutoPractice10(['h-a', 'h-i', 'h-u'].map((i) => prog(i)), {}, seededRng(6))!;
     expect(qs).toHaveLength(6);
     for (const id of ['h-a', 'h-i', 'h-u']) {
@@ -193,20 +194,24 @@ describe('buildAutoPractice10', () => {
       const qs = buildAutoPractice10(progress, {}, seededRng(seed))!;
       expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
       const games = qs.filter(isGame);
-      expect(games.length).toBeGreaterThanOrEqual(2);
-      expect(games.length).toBeLessThanOrEqual(4);
+      expect(games.length).toBeGreaterThanOrEqual(3);
+      expect(games.length).toBeLessThanOrEqual(6);
+      // 同一種題型最多 2 題
+      const perType: Record<string, number> = {};
+      for (const q of qs) perType[q.type] = (perType[q.type] ?? 0) + 1;
+      expect(Math.max(...Object.values(perType))).toBeLessThanOrEqual(2);
       for (const q of games) {
         const g = group(q.groupId!);
         expect(g.members).toContain(q.answerId);
-        for (const o of q.options) expect(g.members).toContain(o);
-        for (const c of q.cells ?? []) expect(g.members).toContain(c);
-        for (const id of q.sequence ?? []) expect(g.members).toContain(id);
+        // 找出所有、聽音選字串會混入同一種文字的其他字組當干擾；念出一串只用該組成員
+        if (q.type === 'readseq') for (const id of q.sequence ?? []) expect(g.members).toContain(id);
+        for (const id of q.options) expect(id.startsWith('h-')).toBe(true);
       }
       qs.forEach((q) => seen.add(q.type));
       // 同一個字不相鄰
       for (let i = 1; i < qs.length; i++) expect(qs[i].kanaId).not.toBe(qs[i - 1].kanaId);
     }
-    expect([...seen].sort()).toEqual(['all', 'hear', 'odd', 'see', 'seq']);
+    expect([...seen].sort()).toEqual(['findall', 'hear', 'readseq', 'see', 'seq']);
   });
 
   it('片假名組在解鎖前不會出現在任何題目（即使答錯紀錄很多）', () => {
@@ -235,19 +240,23 @@ describe('buildAutoPractice10', () => {
 });
 
 describe('buildQuickConfuse10', () => {
-  it('10 題，只有找不同、找出所有、聽音選字串三種題型，用到的字限該組成員', () => {
+  it('10 題，找出所有、念出一串、聽音選字串、看字選音、聽音選字各 2 題，答案字限該組成員', () => {
     for (const id of ['nume', 'wanere']) {
       const g = group(id);
       const qs = buildQuickConfuse10(g, seededRng(11));
       expect(qs).toHaveLength(10);
       expect(qs.map((q) => q.id)).toEqual(Array.from({ length: 10 }, (_, i) => `q-${i}`));
+      const perType: Record<string, number> = {};
       for (const q of qs) {
-        expect(GAME_TYPES).toContain(q.type);
-        for (const o of q.options) expect(g.members).toContain(o);
+        expect([...GAME_TYPES, 'see', 'confuse']).toContain(q.type);
         expect(g.members).toContain(q.answerId);
         expect(q.groupId).toBe(id);
+        if (q.type === 'readseq') for (const m of q.sequence ?? []) expect(g.members).toContain(m);
+        if (q.type === 'see' || q.type === 'confuse') for (const o of q.options) expect(g.members).toContain(o);
+        perType[q.type] = (perType[q.type] ?? 0) + 1;
       }
-      for (const type of GAME_TYPES) expect(qs.some((q) => q.type === type)).toBe(true);
+      // 五種題型各 2 題
+      expect(Object.values(perType)).toEqual([2, 2, 2, 2, 2]);
     }
   });
 
@@ -303,7 +312,6 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
         if (!isGame(q)) continue;
         const g = group(q.groupId!);
         groupsSeen.add(g.id);
-        for (const o of q.options) expect(g.members).toContain(o);
         expect(g.members).toContain(q.answerId);
       }
     }
@@ -323,7 +331,11 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
   it('快速辨識 シ・ツ：10 題，選項只有 シ ツ', () => {
     const qs = buildQuickConfuse10(group('shitsu'), seededRng(3));
     expect(qs).toHaveLength(10);
-    for (const q of qs) expect([...q.options].sort()).toEqual(['k-shi', 'k-tsu']);
+    for (const q of qs) {
+      expect(['k-shi', 'k-tsu']).toContain(q.answerId);
+      if (q.type === 'see' || q.type === 'confuse') expect([...q.options].sort()).toEqual(['k-shi', 'k-tsu']);
+      if (q.type === 'readseq') for (const m of q.sequence ?? []) expect(['k-shi', 'k-tsu']).toContain(m);
+    }
   });
 
   it('自動練習含讀外來語題：只抽可讀詞；沒有可讀詞時行為與之前完全相同', () => {
@@ -333,7 +345,7 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
     for (let seed = 1; seed <= 40; seed++) {
       const qs = buildAutoPractice10([...base, ...kata10], {}, seededRng(seed))!;
       expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
-      const lw = qs.filter((q) => q.type === 'loanword');
+      const lw = qs.filter((q) => q.type === 'wordread');
       expect(lw.length).toBeGreaterThanOrEqual(1);
       expect(lw.length).toBeLessThanOrEqual(2);
       for (const q of lw) expect(readable.has(q.wordId!)).toBe(true);
@@ -341,7 +353,7 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
     }
     // 只學平假名：沒有 loanword 題
     for (let seed = 1; seed <= 20; seed++) {
-      expect(buildAutoPractice10(base, {}, seededRng(seed))!.some((q) => q.type === 'loanword')).toBe(false);
+      expect(buildAutoPractice10(base, {}, seededRng(seed))!.some((q) => q.type === 'wordread')).toBe(false);
     }
   });
 });
@@ -380,5 +392,34 @@ describe('groupsByTab（完整目錄的分類）', () => {
     expect(tabs[1].groups.map((g) => g.id)).toEqual(['shitsu', 'son']);
     // 片假名還沒解鎖：只有平假名分類
     expect(groupsByTab(availableGroups(hiraganaAll().slice(0, 10))).map((t) => t.tab)).toEqual(['hiragana']);
+  });
+});
+
+describe('planTypes（一輪裡同一題型最多 2 題）', () => {
+  it('題型夠多（5 種以上）時每種最多 2 題，總數剛好 10', () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      const plan = planTypes(['a', 'b', 'c', 'd', 'e'], 10, seededRng(seed));
+      expect(plan).toHaveLength(10);
+      const n: Record<string, number> = {};
+      plan.forEach((t) => (n[t] = (n[t] ?? 0) + 1));
+      expect(Object.values(n)).toEqual([2, 2, 2, 2, 2]);
+    }
+  });
+
+  it('6 種題型：每種 1～2 題；題型比較少時平均分配（各種題數最多差 1）', () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      const six = planTypes(['a', 'b', 'c', 'd', 'e', 'f'], 10, seededRng(seed));
+      const n6: Record<string, number> = {};
+      six.forEach((t) => (n6[t] = (n6[t] ?? 0) + 1));
+      expect(Math.max(...Object.values(n6))).toBe(2);
+      expect(Math.min(...Object.values(n6))).toBe(1);
+      const three = planTypes(['a', 'b', 'c'], 10, seededRng(seed));
+      const n3 = ['a', 'b', 'c'].map((t) => three.filter((x) => x === t).length);
+      expect(Math.max(...n3) - Math.min(...n3)).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('沒有可用題型回傳空陣列', () => {
+    expect(planTypes([], 10, seededRng(1))).toEqual([]);
   });
 });

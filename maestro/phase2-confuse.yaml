@@ -71,7 +71,7 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: confuse-card-h-wa
 - assertVisible: "0 次"
-# 快速辨識（わねれ 組）：第一題故意答錯（找不同、找出所有、聽音選字串輪流出；找出所有與字串題要再按 quiz-confirm），其餘答對
+# 快速辨識（わねれ 組）：第一題故意答錯（找出所有、念出一串、聽音選字串、看字選音、聽音選字各 2 題；找出所有、念出一串與字串題要再按 quiz-confirm；念出一串不故意答錯），其餘答對
 - tapOn:
     id: quick-confuse
 # wrongDone：0 = 還沒答錯過，1 = 這題剛故意答錯，2 = 之後都答對
@@ -123,21 +123,12 @@ appId: com.ptalk.kana5min
       - runFlow:
           when:
             visible:
-              id: quiz-odd
+              id: quiz-readseq
           commands:
-            - runFlow:
-                when:
-                  true: ${output.wrongDone == 0}
-                commands:
-                  - tapOn:
-                      id: opt-wrong-0
-                  - evalScript: ${output.wrongDone = 1}
-            - runFlow:
-                when:
-                  true: ${output.wrongDone == 2}
-                commands:
-                  - tapOn:
-                      id: opt-correct
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
       - runFlow:
           when:
             visible:

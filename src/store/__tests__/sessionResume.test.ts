@@ -27,7 +27,7 @@ async function seedDue(n: number) {
 function answerCurrent(correct = true) {
   const s = useSessionStore.getState();
   const q = s.questions[s.qIndex];
-  if (q.type === 'loanword') s.recordLoanwordAnswer(correct);
+  if ((q.type === 'loanword' || q.type === 'wordread')) s.recordLoanwordAnswer(correct);
   else s.recordAnswer(q.kanaId, correct);
 }
 

@@ -1,0 +1,110 @@
+# 新畫面截圖：首頁待複習／今天新字面板、自動練習鎖定、找不同系列三種題型（等待作答與答對）。
+# 請用 maestro/screenshots/run-ui-new.sh 執行（亮色、暗色各一次，THEME 由它傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: practice-empty-hint
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch3/1-Practice-locked-${THEME}
+- tapOn:
+    id: tab-home
+- runFlow:
+    file: ../common/preset.yaml
+    env:
+      PRESET: hiragana-started
+- assertVisible:
+    id: start-today
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch3/2-Home-${THEME}
+- tapOn:
+    id: stat-new
+- assertVisible:
+    id: new-sheet
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/ui-batch3/3-Home-new-sheet-${THEME}
+- tapOn:
+    id: new-sheet-close
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- assertVisible:
+    id: quick-confuse
+- tapOn:
+    id: quick-confuse
+- evalScript: ${output.odd = 0; output.all = 0; output.seq = 0}
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 40
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: quiz-readseq
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.odd == 0}
+                commands:
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/ui-batch3/4-ReadSeq-wait-${THEME}
+            - tapOn:
+                id: dev-solve
+            - runFlow:
+                when:
+                  true: ${output.odd == 0}
+                commands:
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/ui-batch3/5-ReadSeq-filled-${THEME}
+                  - evalScript: ${output.odd = 1}
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-all
+          commands:
+            - tapOn:
+                id: dev-solve
+            - runFlow:
+                when:
+                  true: ${output.all == 0}
+                commands:
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/ui-batch3/6-All-selected-${THEME}
+                  - evalScript: ${output.all = 1}
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-seq
+          commands:
+            - runFlow:
+                when:
+                  true: ${output.seq == 0}
+                commands:
+                  - waitForAnimationToEnd
+                  - takeScreenshot: screenshots/ui-batch3/7-Seq-wait-${THEME}
+                  - evalScript: ${output.seq = 1}
+            - tapOn:
+                id: opt-correct
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next

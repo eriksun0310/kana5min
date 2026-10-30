@@ -43,7 +43,16 @@ appId: com.ptalk.kana5min
       - runFlow:
           when:
             visible:
-              id: quiz-odd
+              id: quiz-readseq
+          commands:
+            - tapOn:
+                id: dev-solve
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: quiz-wordread
           commands:
             - tapOn:
                 id: opt-correct

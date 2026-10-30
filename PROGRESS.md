@@ -397,3 +397,31 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 還原了舊的「找出所有」改一半的修改；題型引擎整個之後在批 3 重寫。
 - 假設：phase10 的 Maestro 流程中，「待複習」面板要重開 App 再測，因為同一次啟動裡 Maestro 讀不到第二個 Modal 的內容（畫面實際有開，截圖確認過）。
 - 截圖：`screenshots/ui-batch1/`（`maestro/screenshots/run-ui-batch1.sh`）。
+
+## 批 3：新題型引擎（2026-10-30，分支 claude/quiz-engine-3fda90）
+
+- **目標**：之前的「找不同」等題型太容易被猜出來，改成「作弊測試」（完全不認識假名的人不能靠猜或排除法答對）過關的題型。設計與細節見 docs/architecture.md 第 9 節。
+- **題型**（`src/logic/groupGames.ts`、`src/logic/wordRead.ts`；元件 `QuizFindAll`、`QuizReadSeq`、`QuizSeq`、`QuizWordRead`；`QuizOdd`、`QuizAll` 已刪）：
+  - 找出所有 `findall`：給拼音＋聲音，不顯示字形與答案數量；3 對（片假名 2 對）易混淆字、每個字形各出現 1 或 2 次、全部洗牌；全對才算對。
+  - 念出一串 `readseq`：3～5 個假名，從固定位置的拼音鍵盤（依五十音表排版，只放已學的字）輸入；作答前不播放聲音。
+  - 聽音選字串 `seq`：4 個不重複的字，三個選項是其中 3 個位置的三種輪換，兩兩距離相同、型態相同。
+  - 看詞選拼音 `wordread`：外來語詞庫看詞選拼音，選項只在一個音節不同；答完才顯示意思並播放。
+  - 10 題一輪同一題型最多 2 題（`planTypes`）：自動練習、快速辨識（る・ろ 這類組：找出所有／念出一串／聽音選字串／看字選音／聽音選字各 2 題）。
+- **作弊測試**（`cheatTest.test.ts`，N = 4000 的抽樣）：findall 每種字形次數相同、答案字形的種類序號／格子位置／數量均勻、亂勾幾乎不可能全對；readseq 鍵盤不隨題目變、亂按答對率 < 1%；seq 每個選項到其他選項的距離總和相同、聲音型態與字形型態一致、答案位置與「三個選項相同的位置」均勻；wordread 選項兩兩距離 1、答案位置均勻、「選詞庫裡較常見的音節」的答對率不顯著高於 25%。
+- **計分介面（給另一個 session 的掉字遊戲用）**：`import { recordKanaResult, recordConfusion, confusedWith } from '../src/scoring'`
+  - `recordKanaResult(kanaId: string, correct: boolean, now?)`：某個假名的一次對錯（累計到 sqlite `kana_stat`），不影響 SRS。
+  - `recordConfusion(truth: string, picked: string, now?)`：「把 truth 當成 picked」（兩個都是 Kana id，相同不記），累計到 `confusion_pair`。
+  - `confusedWith(truth)`：回傳 `{ pickedId, count }[]`，次數由多到少。
+  - 都不會丟錯（repository 尚未載入時只更新記憶體）。需要寫進 SRS 的掉字遊戲仍用 `sessionStore.recordAnswer(s)`，或自己呼叫 `progressStore.commitRound`。
+- **SQLite migration**：`src/db/sqliteRepository.ts` 新增 `kana_stat`、`confusion_pair` 兩張表（`CREATE TABLE IF NOT EXISTS`，舊資料庫升級只多出新表，`progress`／`confusion` 資料不動），`PRAGMA user_version = 2`；`ProgressRepository` 新增 `getKanaStats/addKanaResult/getConfusionPairs/addConfusionPair`（記憶體版同步，`reset` 一併清掉）。`progressStore` 新增 `kanaStats`、`confusionPairs` 狀態。
+- **流程**：`sessionStore.recordAnswers(perKana)`（一題多個假名各記一筆，整題只算作答一次）；`app/quiz.tsx` 依 `AnswerDetail` 記混淆（選擇題答錯記「把正確的字當成選到的字」）。`SESSION_SAVE_VERSION` 1 → 2：舊存檔（含已移除的 odd／all 題）一律作廢。
+- **「最常搞混的」排序**：`topConfusionGroups` 維持現有行為（只加不改），之後可以改用 `confusion_pair`。
+- **測試**：tsc 乾淨；jest 全過（新增 groupGames、cheatTest、wordRead、planTypes、計分／repository 測試，既有 sessionStore／confusion 測試改為新題型）。
+- **假設**：
+  1. 詞庫是 `loanwords()` = 97 個（使用者說 112：含 15 個 `exampleOnly` 的例字，這些原本就不進外來語題）；ギョウザ 的拼音（ō 長音）拼不出來，自動排除，其餘 96 個都能出題。
+  2. 每個假名各自計分後，結果頁的「答對 X／Y」是依作答筆數算：一題多字的題型會算成好幾筆。
+  3. findall 的「全選」位置沒有顯示數量；m = 1 時一種字形只出現一次，所以不一定「有很多個」。
+  4. seq 與 findall 為了對稱會混入同一種文字的其他字組當干擾（所以快速辨識 シ・ツ 的題目也會出現 ソ・ン）；答案字仍限該組。
+  5. 平假名階段 K = 3 對、片假名 K = 2 對，因為只有 5 組易混淆字；需要更多組才能增加格子數。
+  6. 作答前不提供聲音的題型：readseq、wordread（聲音會直接洩漏答案）；作答後才播放。
+- **沒有在模擬器驗證**：8081 目前被主 checkout（/Users/jiayu/Desktop/kana5min）的 Metro 佔用（Debug 版只連 8081），我沒有關它。新增 `maestro/phase11-new-quiz-types.yaml`、更新 `common/answer-quiz.yaml`、`answer-one.yaml`、phase2-auto-practice、phase2-confuse、phase3-loanword、phase8-reminder 及截圖腳本（新增 `maestro/screenshots/run-ui-batch3.sh` → `screenshots/ui-batch3/`），**全部尚未跑過**。合併到 main 後請在 iPhone 17 跑全套 Maestro 與截圖（亮暗各一），並看一下 findall 6 格與 12 格、readseq 鍵盤（10 列時）是否擠在一個畫面。
