@@ -16,7 +16,7 @@ import { seededRng } from './testUtils';
 describe('抓錯字：詞與詞池', () => {
   it('replaceablePositions：只算易混淆字組的成員；至少 2 個才合格', () => {
     expect(replaceablePositions('われる')).toEqual([0, 1, 2]);
-    expect(replaceablePositions('あい')).toEqual([]);
+    expect(replaceablePositions('いい')).toEqual([]);
     expect(isSpotEligible({ text: 'わかる' })).toBe(true);
     expect(isSpotEligible({ text: 'いぬ' })).toBe(false);
     expect(replaceablePositions('シャツ')).toEqual([0, 2]);
@@ -24,9 +24,9 @@ describe('抓錯字：詞與詞池', () => {
 
   it('核可前的正式詞池只有本來就有的詞，每種文字不到 3 個，所以不會放進練習', () => {
     const pool = approvedSpotWords();
-    expect(pool.map((w) => w.id).sort()).toEqual(['w-shatsu', 'w-shoppingu', 'w-wakaru']);
-    expect(spotPoolReady(pool, 'hiragana')).toBe(false);
-    expect(spotPoolReady(pool, 'katakana')).toBe(false);
+    // 組變多以後本來就有的詞也有不少符合；但還沒經過使用者核可，所以不放進練習
+    expect(pool.map((w) => w.id)).toEqual(expect.arrayContaining(['w-shatsu', 'w-shoppingu', 'w-wakaru']));
+    expect(pool.every((w) => isSpotEligible(w))).toBe(true);
     expect(SPOT_ERROR_IN_PRACTICE).toBe(false);
     expect(spotErrorAvailable(pool)).toBe(false);
   });
@@ -71,7 +71,6 @@ describe('buildSpotErrorQuestion', () => {
 
   it('詞不夠 3 個時回傳 undefined', () => {
     expect(buildSpotErrorQuestion(pool.slice(0, 2), 'hiragana', seededRng(1))).toBeUndefined();
-    expect(buildSpotErrorQuestion(approvedSpotWords(), 'hiragana', seededRng(1))).toBeUndefined();
   });
 
   it('作弊測試：被換的位置在所有「易混淆字」裡均勻；亂點一個易混淆字的答對率 ≈ 1／個數', () => {

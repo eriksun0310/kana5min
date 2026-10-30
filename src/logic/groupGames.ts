@@ -77,9 +77,16 @@ export function buildFindAllQuestion(
   const target = opts.target ?? pickTarget(members, learned, rng, avoid);
   const partner = pickOne(members.filter((id) => id !== target), rng);
   const clusters: string[][] = [[target, partner]];
+  // 同一個字可能同時屬於好幾組（例如 め 在 ぬ・め 和 の・め），格子裡每個字形只能出現一次：已用過的不再放
+  const used = new Set<string>(members);
   // 最多再加 2 組；字組數不夠就少放
-  for (const g of shuffle(others, rng).slice(0, 2)) {
-    clusters.push(shuffle(resolvedMembers(g), rng).slice(0, 2));
+  for (const g of shuffle(others, rng)) {
+    if (clusters.length >= 3) break;
+    const free = resolvedMembers(g).filter((id) => !used.has(id));
+    if (free.length < 2) continue;
+    const pair = shuffle(free, rng).slice(0, 2);
+    pair.forEach((id) => used.add(id));
+    clusters.push(pair);
   }
   const m = pickOne(FINDALL_MULTIPLICITIES, rng);
   const cells = shuffle(
@@ -223,7 +230,14 @@ export function buildSeqQuestion(
   if (members.length < 2) return undefined;
   const target = opts.target ?? pickTarget(members, learned, rng, avoid);
   const partner = pickOne(members.filter((id) => id !== target), rng);
-  const pool = otherGroups(group, opts.groups ?? confusableGroups).flatMap(resolvedMembers);
+  // 干擾字不能是這組的成員，也不能重複（同一個字可能屬於好幾組）
+  const pool = [
+    ...new Set(
+      otherGroups(group, opts.groups ?? confusableGroups)
+        .flatMap(resolvedMembers)
+        .filter((id) => !members.includes(id)),
+    ),
+  ];
   const known = (id: string) => (learned.has(id) ? 0 : 1);
   // 干擾字優先已學的；最不熟的那個放在「三個選項都一樣」的位置
   const extras = shuffle(pool, rng).sort((a, b) => known(a) - known(b)).slice(0, 2);

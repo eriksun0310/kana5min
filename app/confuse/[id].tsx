@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
 import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, PunUnlockSheet, Screen, SecondaryButton } from '../../src/components';
@@ -41,11 +41,20 @@ export default function ConfuseScreen() {
   const groups = useMemo(() => availableGroups(progressList(progress)), [progress]);
   // 切換用本地狀態；路由帶進來的組不可用（例如片假名還沒解鎖）就退回第一個可用組
   const [picked, setPicked] = useState<string | undefined>(id);
+  const pillsRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const pillX = useRef<Record<string, number>>({});
   const [mnemonicOpen, setMnemonicOpen] = useState(false);
   // 面板裡點未解鎖的諧音：先關面板，過一下再開解鎖面板（iOS 上同時有兩個彈出層會開不起來）
   const [unlockFor, setUnlockFor] = useState<string | null>(null);
   const group =
     groups.find((g) => g.id === picked) ?? groups.find((g) => g.id === id) ?? groups[0];
+
+  const groupId = group?.id;
+  useEffect(() => {
+    // 18 組放不下一列：選中的膠囊自動滑到可見的位置
+    const x = groupId ? pillX.current[groupId] : undefined;
+    if (x !== undefined) pillsRef.current?.scrollTo({ x: Math.max(0, x - SIDE), animated: true });
+  }, [groupId]);
 
   if (!group) {
     return (
@@ -69,12 +78,19 @@ export default function ConfuseScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.pills}>
+        <ScrollView
+          ref={pillsRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.pillsScroll}
+          contentContainerStyle={styles.pills}
+        >
           {groups.map((g) => {
             const on = g.id === group.id;
             return (
               <Pressable
                 key={g.id}
+                onLayout={(e) => (pillX.current[g.id] = e.nativeEvent.layout.x)}
                 testID={`pill-${g.id}`}
                 accessibilityRole="button"
                 accessibilityState={{ selected: on }}
@@ -91,7 +107,7 @@ export default function ConfuseScreen() {
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
 
         <View style={styles.cards}>
           {members.map((k) => (
@@ -197,7 +213,8 @@ const styles = StyleSheet.create({
   cardSpeaker: { position: 'absolute', right: 10, top: 10 },
   flex: { flex: 1 },
   content: { paddingBottom: 12 },
-  pills: { paddingTop: 12, paddingHorizontal: SIDE, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  pillsScroll: { flexGrow: 0, marginTop: 12 },
+  pills: { paddingHorizontal: SIDE, flexDirection: 'row', gap: 8 },
   pill: {
     minHeight: 42,
     paddingHorizontal: 16,

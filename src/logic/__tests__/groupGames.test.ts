@@ -52,11 +52,14 @@ describe('buildFindAllQuestion（找出所有）', () => {
     }
   });
 
-  it('平假名 3 對（6 或 12 格）、片假名 2 對（4 或 8 格）', () => {
+  it('平假名、片假名各 3 對（6 或 12 格）；只有原本 5 組時片假名只湊得出 2 對（4 或 8 格）', () => {
+    const original = ['nume', 'ruro', 'wanere', 'shitsu', 'son'].map(group);
     for (let seed = 1; seed <= 40; seed++) {
       const h = buildFindAllQuestion(group('nume'), learned('h-nu'), seededRng(seed))!;
       expect([6, 12]).toContain(h.cells!.length);
-      const k = buildFindAllQuestion(group('shitsu'), learned('k-shi'), seededRng(seed))!;
+      const k3 = buildFindAllQuestion(group('shitsu'), learned('k-shi'), seededRng(seed))!;
+      expect([6, 12]).toContain(k3.cells!.length);
+      const k = buildFindAllQuestion(group('shitsu'), learned('k-shi'), seededRng(seed), new Set(), { groups: original })!;
       expect([4, 8]).toContain(k.cells!.length);
     }
   });

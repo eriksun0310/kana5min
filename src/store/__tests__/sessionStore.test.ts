@@ -163,7 +163,7 @@ describe('sessionStore（每日練習狀態）', () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(useProgressStore.getState().confusions.find((c) => c.groupId === 'nume')?.wrongCount).toBe(1);
     useSessionStore.getState().recordAnswer('h-nu', true); // 答對不扣
-    useSessionStore.getState().recordAnswer('h-a', false); // あ 不屬於任何組
+    useSessionStore.getState().recordAnswer('h-i', false); // い 不屬於任何組
     await new Promise((r) => setTimeout(r, 0));
     expect(useProgressStore.getState().confusions).toHaveLength(1);
     expect(useProgressStore.getState().confusions[0].wrongCount).toBe(1);

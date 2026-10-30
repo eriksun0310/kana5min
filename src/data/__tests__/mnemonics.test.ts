@@ -4,13 +4,14 @@ import { strokesOf } from '../strokes';
 import { mustById } from '..';
 
 describe('mnemonics', () => {
-  it('每個易混淆組都有一筆，成員與組一致', () => {
-    for (const g of confusableGroups) {
-      const m = mnemonicOf(g.id);
-      expect(m).toBeDefined();
-      expect(m!.members.map((x) => x.id)).toEqual(g.members);
+  it('有記法資料的組：對應到存在的易混淆組，成員一致（沒有資料的組面板只列字與諧音）', () => {
+    for (const m of mnemonics) {
+      const g = confusableGroups.find((x) => x.id === m.groupId);
+      expect(g).toBeDefined();
+      expect(m.members.map((x) => x.id)).toEqual(g!.members);
+      expect(mnemonicOf(g!.id)).toBe(m);
     }
-    expect(mnemonics.length).toBe(confusableGroups.length);
+    expect(mnemonics.length).toBeGreaterThanOrEqual(5);
   });
 
   it('每個組有怎麼分的一句話，每個字至少有紅色標記或差異提示', () => {

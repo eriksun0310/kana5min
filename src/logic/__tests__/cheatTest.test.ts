@@ -38,7 +38,8 @@ describe('作弊測試：找出所有（findall）', () => {
     const out: QuizDraft[] = [];
     for (let i = 0; i < N; i++) {
       const id = idList[i % idList.length];
-      out.push(buildFindAllQuestion(group(id), learnedOf(id), seededRng(i + 1))!);
+      // 固定用原本 5 組（片假名只湊得出 2 對）才有 4、6 兩種字形數可以比對
+      out.push(buildFindAllQuestion(group(id), learnedOf(id), seededRng(i + 1), new Set(), { groups: ALL_GROUPS.map(group) })!);
     }
     return out;
   };

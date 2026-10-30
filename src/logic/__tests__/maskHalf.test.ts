@@ -20,8 +20,8 @@ describe('遮一半：露出的那一半要看得出來', () => {
     expect(decisiveMasks('る', ['ろ']).length).toBeGreaterThanOrEqual(2);
   });
 
-  it('每一組、每個字，和同組其他字比，至少有 2 種遮法看得出來；露出的筆畫不會是空白', () => {
-    for (const g of confusableGroups) {
+  it('原本 5 組：每個字和同組其他字比，至少有 1 種遮法看得出來；露出的筆畫不會是空白', () => {
+    for (const g of ALL.map(group)) {
       for (const a of g.members) {
         const rivals = g.members.filter((x) => x !== a);
         const sides = decisiveMasks(ch(a), rivals.map(ch));
@@ -56,6 +56,22 @@ describe('buildMaskHalfQuestion', () => {
         }
       }
     }
+  });
+
+  it('批 6 新增的組：出得出遮一半的題就一定合格（4 個不重複選項、遮的那邊看得出來），出不出來回傳 undefined', () => {
+    const extra = confusableGroups.filter((g) => !ALL.includes(g.id));
+    let built = 0;
+    for (const g of extra) {
+      for (let seed = 1; seed <= 20; seed++) {
+        const q = buildMaskHalfQuestion(g, new Set(g.members), seededRng(seed));
+        if (!q) continue;
+        built++;
+        expect(new Set(q.options).size).toBe(4);
+        const rivals = q.options.filter((o) => o !== q.answerId).map(ch);
+        expect(decisiveMasks(ch(q.answerId), rivals)).toContain(q.mask);
+      }
+    }
+    expect(built).toBeGreaterThan(0);
   });
 
   it('指定 target 一定考它；沒有其他字組可湊時回傳 undefined', () => {

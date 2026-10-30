@@ -24,7 +24,7 @@ appId: com.ptalk.kana5min
     id: see-all-groups
 - assertVisible:
     id: catalog-count
-    text: "3 組.*"
+    text: "12 組.*"
 - assertVisible:
     id: group-wanere
 - tapOn:

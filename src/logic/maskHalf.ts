@@ -134,7 +134,9 @@ export function buildMaskHalfQuestion(
   const target = pickOne(fresh.length > 0 ? fresh : base, rng);
   const partner = pickOne(members.filter((id) => id !== target), rng);
   for (const g of shuffle(others, rng)) {
-    const decoy = shuffle(g.members.filter((id) => byId(id)), rng).slice(0, 2);
+    // 同一個字可能屬於好幾組：干擾字不能是目標字或同組的字，選項才不會重複
+    const decoy = shuffle(g.members.filter((id) => byId(id) && !members.includes(id)), rng).slice(0, 2);
+    if (decoy.length < 2) continue;
     const charOf = (id: string) => byId(id)!.char;
     const sides = decisiveMasks(charOf(target), [partner, ...decoy].map(charOf));
     if (sides.length === 0) continue;

@@ -57,18 +57,20 @@ describe('progressStore', () => {
     await store.getState().load(repo);
     await store.getState().recordWrongAnswer('h-nu', NOW);
     await store.getState().recordWrongAnswer('h-me', NOW + 1); // 同一組
-    await store.getState().recordWrongAnswer('h-a', NOW); // あ 不屬於任何組
+    await store.getState().recordWrongAnswer('h-i', NOW); // い 不屬於任何組
     const confusions = store.getState().confusions;
-    expect(confusions).toHaveLength(1);
-    expect(confusions[0]).toEqual({ groupId: 'nume', wrongCount: 2, updatedAt: NOW + 1 });
+    // め 同時屬於 ぬ・め 和 の・め，所以兩組都會累計
+    expect(confusions).toHaveLength(2);
+    expect(confusions.find((c) => c.groupId === 'nume')).toEqual({ groupId: 'nume', wrongCount: 2, updatedAt: NOW + 1 });
+    expect(confusions.find((c) => c.groupId === 'nome')?.wrongCount).toBe(1);
     expect(await repo.getConfusions()).toEqual(confusions);
 
     // 重新啟動後讀得回來；commitRound 不會重複累計
     const second = createProgressStore();
     await second.getState().load(repo);
-    expect(second.getState().confusions[0].wrongCount).toBe(2);
+    expect(second.getState().confusions.find((c) => c.groupId === 'nume')?.wrongCount).toBe(2);
     await second.getState().commitRound({ 'h-nu': [false, true] }, NOW);
-    expect(second.getState().confusions[0].wrongCount).toBe(2);
+    expect(second.getState().confusions.find((c) => c.groupId === 'nume')?.wrongCount).toBe(2);
   });
 
   it('わ・ね・れ 三個字共用同一組的答錯次數', async () => {

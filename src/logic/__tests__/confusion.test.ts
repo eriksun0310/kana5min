@@ -24,8 +24,11 @@ const learnedOf = (...ids: string[]) => new Set(ids);
 const hiraganaAll = () => seionOrder('hiragana').map((k) => prog(k.id));
 
 describe('易混淆字組資料', () => {
-  it('5 組、id 為 ascii、label 與 members 對得上', () => {
-    expect(confusableGroups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere', 'shitsu', 'son']);
+  it('18 組（原本 5 組＋批 6 的 13 組）、id 為 ascii 且不重複、label 與 members 對得上', () => {
+    expect(confusableGroups).toHaveLength(18);
+    expect(confusableGroups.slice(0, 5).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere', 'shitsu', 'son']);
+    expect(new Set(confusableGroups.map((g) => g.id)).size).toBe(18);
+    for (const g of confusableGroups) expect(g.id).toMatch(/^[a-z]+$/);
     expect(group('wanere').members).toEqual(['h-wa', 'h-ne', 'h-re']);
     expect(group('shitsu').members).toEqual(['k-shi', 'k-tsu']);
     expect(group('son').members).toEqual(['k-so', 'k-n']);
@@ -49,8 +52,11 @@ describe('isKatakanaUnlocked', () => {
 
 describe('availableGroups', () => {
   it('片假名組在解鎖前不出現，平假名組一律可用', () => {
-    expect(availableGroups([]).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
-    expect(availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    const hira = (ids: string[]) => ids.filter((id) => confusableGroupById(id)!.script === 'hiragana');
+    const all = availableGroups([]).map((g) => g.id);
+    expect(all.slice(0, 3)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(all).toEqual(hira(all));
+    expect(availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id)).toEqual(all);
   });
 
   it('片假名組：解鎖前不出現；解鎖後只有成員查得到資料（至少 2 個）的才出現', () => {
@@ -69,10 +75,11 @@ describe('availableGroups', () => {
 describe('sortGroupsByMisses', () => {
   it('答錯多的在前、同分維持預設順序、不改原陣列', () => {
     const groups = availableGroups([]);
+    const before = groups.map((g) => g.id);
     const sorted = sortGroupsByMisses(groups, { ruro: 4, nume: 2, wanere: 2 });
-    expect(sorted.map((g) => g.id)).toEqual(['ruro', 'nume', 'wanere']);
-    expect(groups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
-    expect(sortGroupsByMisses(groups, {}).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(sorted.map((g) => g.id).slice(0, 3)).toEqual(['ruro', 'nume', 'wanere']);
+    expect(groups.map((g) => g.id)).toEqual(before);
+    expect(sortGroupsByMisses(groups, {}).map((g) => g.id)).toEqual(before);
   });
 
   it('confusionCounts 把紀錄轉成 groupId → 次數', () => {
@@ -85,7 +92,9 @@ describe('groupsForWrongAnswer', () => {
     expect(groupsForWrongAnswer('h-nu').map((g) => g.id)).toEqual(['nume']);
     expect(groupsForWrongAnswer('h-ne').map((g) => g.id)).toEqual(['wanere']);
     expect(groupsForWrongAnswer('k-tsu').map((g) => g.id)).toEqual(['shitsu']);
-    expect(groupsForWrongAnswer('h-a')).toEqual([]);
+    // 一個字可以屬於好幾組：め 在 ぬ・め 和 の・め
+    expect(groupsForWrongAnswer('h-me').map((g) => g.id)).toEqual(['nume', 'nome']);
+    expect(groupsForWrongAnswer('h-i')).toEqual([]);
   });
 });
 
@@ -167,7 +176,7 @@ describe('buildAutoPractice10', () => {
   });
 
   it('沒有任何組有 2 個已學成員：不出 confuse 題，行為同簡版（5 個字 → 10 題 see／hear）', () => {
-    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o', 'h-nu', 'h-ru'].map((i) => prog(i));
+    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-ka', 'h-nu', 'h-ru'].map((i) => prog(i));
     const qs = buildAutoPractice10(progress, {}, seededRng(5))!;
     expect(qs).toHaveLength(AUTO_PRACTICE_SIZE);
     expect(qs.every((q) => q.type !== 'confuse')).toBe(true);
@@ -288,8 +297,12 @@ describe('片假名階段的易混淆字（資料加入後）', () => {
   });
 
   it('平假名清音學完前不出現；學完後兩個片假名組都出現（預設順序：平假名 3 組之後）', () => {
-    expect(availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
-    expect(availableGroups(hiraganaAll()).map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere', 'shitsu', 'son']);
+    const before = availableGroups(hiraganaAll().slice(0, 45)).map((g) => g.id);
+    expect(before.slice(0, 3)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(before).not.toContain('shitsu');
+    const after = availableGroups(hiraganaAll()).map((g) => g.id);
+    expect(after).toEqual(expect.arrayContaining(['shitsu', 'son']));
+    expect(after.indexOf('shitsu')).toBeGreaterThan(after.indexOf('wanere'));
   });
 
   it('片假名字答錯會累計到所屬的組', () => {
@@ -390,8 +403,11 @@ describe('groupsByTab（完整目錄的分類）', () => {
   it('依文字分成平假名、片假名；沒有組的分類不出現', () => {
     const tabs = groupsByTab(availableGroups(hiraganaAll()));
     expect(tabs.map((t) => t.tab)).toEqual(['hiragana', 'katakana']);
-    expect(tabs[0].groups.map((g) => g.id)).toEqual(['nume', 'ruro', 'wanere']);
-    expect(tabs[1].groups.map((g) => g.id)).toEqual(['shitsu', 'son']);
+    expect(tabs[0].groups.map((g) => g.id).slice(0, 3)).toEqual(['nume', 'ruro', 'wanere']);
+    expect(tabs[0].groups.length).toBeGreaterThan(3);
+    expect(tabs[1].groups.map((g) => g.id).slice(0, 2)).toEqual(['shitsu', 'son']);
+    expect(tabs[0].groups.every((g) => g.script === 'hiragana')).toBe(true);
+    expect(tabs[1].groups.every((g) => g.script === 'katakana')).toBe(true);
     // 片假名還沒解鎖：只有平假名分類
     expect(groupsByTab(availableGroups(hiraganaAll().slice(0, 10))).map((t) => t.tab)).toEqual(['hiragana']);
   });
@@ -415,7 +431,7 @@ describe('默寫自我檢查（recall）進自動練習', () => {
   });
 
   it('剛開始學（沒有易混淆字組可用）時不出 recall／maskhalf', () => {
-    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-o'].map((i) => prog(i));
+    const progress = ['h-a', 'h-i', 'h-u', 'h-e', 'h-ka'].map((i) => prog(i));
     for (let seed = 1; seed <= 30; seed++) {
       expect(buildAutoPractice10(progress, {}, seededRng(seed))!.every((q) => q.type === 'see' || q.type === 'hear')).toBe(true);
     }
