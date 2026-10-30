@@ -16,9 +16,9 @@ export const MAX_LENGTH_RATIO = 2.2;
 export const LENGTH_SLACK = 20;
 /** 標準筆畫數達到這個數字時，允許漏一筆 */
 export const ALLOW_MISS_FROM = 5;
-/** 容許多畫的筆數（超過就失敗，避免亂塗）；標準只有 1～2 筆的字只容許 1 筆，否則多筆的字常包含它 */
+/** 容許多畫的筆數（超過就失敗，避免亂塗）：標準 1～2 筆的字不容許多畫（多一筆就是寫錯了），3～4 筆容許 1 筆，5 筆以上容許 2 筆 */
 export const MAX_EXTRA_STROKES = 2;
-export const maxExtraFor = (refCount: number) => (refCount <= 2 ? 1 : MAX_EXTRA_STROKES);
+export const maxExtraFor = (refCount: number) => (refCount <= 2 ? 0 : refCount <= 4 ? 1 : MAX_EXTRA_STROKES);
 
 export type TraceFailReason = 'too-few' | 'shape' | 'too-many';
 

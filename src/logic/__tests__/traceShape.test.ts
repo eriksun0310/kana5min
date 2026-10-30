@@ -116,8 +116,8 @@ describe('描寫逐筆判定（真實 KanjiVG 資料）', () => {
       expect(evaluateTrace([dot], refsOf(c)).passed).toBe(false);
       expect(evaluateTrace([], refsOf(c)).passed).toBe(false);
     }
-    // ニ 的兩條橫線就在 Z 字的上下，多出的斜線在容許範圍內，這個字的標準寫法本身就包含在 Z 裡
-    expect(zigPassed).toEqual(['ニ']);
+    // 標準 2 筆的字不再容許多畫一筆，所以 ニ 也不會被 Z 字形騙過
+    expect(zigPassed).toEqual([]);
   });
 
   it('5. 漏一筆：≤4 筆失敗且 missing 指出那一筆；≥5 筆通過', () => {
@@ -171,5 +171,30 @@ describe('描寫逐筆判定（真實 KanjiVG 資料）', () => {
 
   it('沒有標準筆畫資料（拗音）時直接通過', () => {
     expect(evaluateTrace([], []).passed).toBe(true);
+  });
+});
+
+describe('描寫：多畫的筆（使用者回報的案例）', () => {
+  // い 標準 2 筆；使用者畫了 3 筆（左邊一筆、右邊兩筆都大致在淡色字附近）：
+  // 以前會通過（容許多畫 1 筆），現在標準 1～2 筆的字多畫一筆就算失敗。
+  const px = (pts: [number, number][]): Stroke =>
+    pts.map(([x, y]) => ({ x: (x - 66 - 36.7) / 6.065, y: (y - 390 - 36.7) / 6.065 }));
+  const left = px([[228, 570], [224, 640], [222, 720], [235, 820], [270, 905], [330, 925], [380, 905], [415, 850], [432, 800]]);
+  const rightA = px([[490, 620], [530, 660], [570, 730], [610, 820]]);
+  const rightB = px([[610, 535], [660, 590], [710, 680], [727, 780]]);
+  const refs = strokesOf('い')!.strokes;
+
+  it('2 筆的字：多畫一筆（3 筆）失敗，原因是 too-many', () => {
+    const r = evaluateTrace([left, rightA, rightB], refs);
+    expect(r.passed).toBe(false);
+    expect(r.reason).toBe('too-many');
+  });
+
+  it('同樣的線只畫 2 筆（沒有多的那一筆）仍然通過', () => {
+    expect(evaluateTrace([left, rightA], refs).passed).toBe(true);
+  });
+
+  it('容許多畫的筆數：1～2 筆 0 筆、3～4 筆 1 筆、5 筆以上 2 筆', () => {
+    expect([1, 2, 3, 4, 5, 6].map(maxExtraFor)).toEqual([0, 0, 1, 1, 2, 2]);
   });
 });
