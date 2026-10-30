@@ -73,26 +73,26 @@ appId: com.ptalk.kana5min
           commands:
             - assertVisible:
                 id: readseq-text
-            # 固定鍵盤：る・ろ 組已學（hiragana-almost）時鍵盤上一定有 ru、ro
+            # 固定鍵盤：快速辨識只放這一組的字，る・ろ 組一定有 ru、ro
             - assertVisible:
                 id: key-ru
             - assertVisible:
                 id: key-ro
-            # 第一次：故意全按 a，確認顯示正確拼音；之後全部答對
+            # 第一次：故意全按 ro（快速辨識的鍵盤只有這一組的字；序列至少含 2 種字，全按 ro 必錯），確認顯示正確拼音；之後全部答對
             - runFlow:
                 when:
                   true: ${output.rs == 0}
                 commands:
                   - tapOn:
-                      id: key-a
+                      id: key-ro
                   - tapOn:
-                      id: key-a
+                      id: key-ro
                   - tapOn:
-                      id: key-a
+                      id: key-ro
                   - tapOn:
-                      id: key-a
+                      id: key-ro
                   - tapOn:
-                      id: key-a
+                      id: key-ro
                   - tapOn:
                       id: quiz-confirm
                   - assertVisible:
