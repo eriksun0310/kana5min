@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playSequence, stopSequence } from '../audio/playSequence';
 import { mustById } from '../data';
@@ -57,6 +58,11 @@ export function QuizSeq({ question, onAnswered, onNext, isLast }: QuizSeqProps) 
   };
 
   let wrong = 0;
+  // DEV：自動選好正確的字串，再按「確認」
+  useDevAnswer(() => {
+    if (!answered) setSelected(answerIndex);
+  });
+
   return (
     <View style={styles.root}>
       <ScrollView

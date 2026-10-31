@@ -14,11 +14,16 @@ import { QuizSpotError } from '../src/components/QuizSpotError';
 import { QuizWordRead } from '../src/components/QuizWordRead';
 import { DEV_PLACEHOLDER_WORDS } from '../src/data/spotErrorWords';
 import { buildDevSpotQuestions } from '../src/logic/spotError';
-import { isLoanwordQuestion, type AnswerDetail } from '../src/logic/session';
+import { isLoanwordQuestion, type AnswerDetail, type QuizQuestion } from '../src/logic/session';
 import { recordConfusion } from '../src/scoring';
 import { elapsedMinutes, elapsedMs, EXTEND_MINUTES } from '../src/logic/practiceTimer';
 import { confirmExitFlow } from '../src/nav/exitToHome';
 import { currentProgressList, useSessionStore } from '../src/store/sessionStore';
+
+// 開發用按鈕只在 __DEV__ 載入，正式包的 bundle 不會包含 src/dev
+const QuizDevBar: React.ComponentType<{ question: QuizQuestion }> | null = __DEV__
+  ? require('../src/dev/QuizDevBar').default
+  : null;
 
 /**
  * 測驗（C2-08 看字選音／C2-09 聽音選字，依題型切換）。
@@ -153,6 +158,7 @@ export default function QuizScreen() {
         countLabel={`${qIndex + 1}/${questions.length}`}
         onClose={() => confirmExitFlow(router)}
       />
+      {QuizDevBar ? <QuizDevBar question={question} /> : null}
       <QuestionView key={question.id} question={question} onAnswered={onAnswered} onNext={onNext} isLast={isLast} />
     </Screen>
   );

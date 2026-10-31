@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playSequence, stopSequence } from '../audio/playSequence';
 import { byId, mustById, seionGrid } from '../data';
@@ -66,6 +67,11 @@ export function QuizReadSeq({ question, onAnswered, onNext, isLast }: QuizReadSe
     const ok = byId(typed[i] ?? '')?.romaji === byId(sequence[i])?.romaji;
     return optionColors(t, ok ? 'correct' : 'wrong');
   };
+
+  // DEV：自動填好正確拼音，再按「確認」
+  useDevAnswer(() => {
+    if (!confirmed) setTyped([...sequence]);
+  });
 
   return (
     <View style={styles.root}>

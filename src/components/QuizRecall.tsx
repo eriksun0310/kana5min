@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
@@ -40,6 +41,11 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
     setRated(ok);
     onAnswered(ok, { perKana: { [target.id]: ok } });
   };
+
+  // DEV：自動翻面，顯示正確的字，再自己評「寫對了」
+  useDevAnswer(() => {
+    if (rated === null) setFlipped(true);
+  });
 
   return (
     <View style={styles.root}>

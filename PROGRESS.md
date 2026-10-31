@@ -521,3 +521,10 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 只在 `__DEV__` 用 `require` 載入；已用 `dev=false&minify=true` 打出的 bundle 檢查，不含 `drop-dev-bar`、「套用進度」、「開發者選單」、`debug-all-done`、`dev-drop-pass`。
 - `phase13-drop.yaml` 加了鎖定狀態 → 套用進度 → 推薦字組出現的檢查。
 - 另外新增 `docs/release.md`（Dev Client 本機打包、安裝、連 Metro 的流程）。
+
+## 開發版的 DEV 按鈕（掉字遊戲、測驗）（2026-10-31）
+
+- 掉字遊戲畫面（`app/drop/play.tsx`）：標題下面一排虛線框「DEV」：「直接過關」「直接失敗」，以及「1 2 3…」跳到那個階段重新開始，不用真的玩。原本右上角淡淡的小字拿掉。
+- 測驗畫面（`app/quiz.tsx`，自動練習、每日練習、易混淆快速辨識都有）：上方虛線框「DEV　自動答案」（`src/dev/QuizDevBar.tsx`），並顯示題型與答案。點了會把這一題的正確答案選好／填好／翻開，再自己按「選這個／確認／下一題」看回饋對不對：看字選音、念出一串、找出所有、聽音選字串、抓錯字是「選好、等你確認」，聽音選字、看詞選拼音、看外來語、遮一半是「直接答對」，默寫是「翻開正確的字、等你自評」。各題型元件用 `useDevAnswer`（`src/logic/devAnswerBus.ts`）註冊，只在 `__DEV__` 才會註冊。
+- 都只在開發版出現：用 `dev=false&minify=true` 打出的 bundle 檢查，不含 `quiz-dev-bar`、`dev-auto-answer`、「自動答案」、`drop-dev-bar`、「直接過關」、`dev-drop-pass`、「套用進度」、「開發者選單」。
+- Maestro：`phase14-dev-auto-answer.yaml`（快速辨識整輪只靠 DEV 自動答案，每題都答對）；`phase13-drop.yaml` 的 dev 按鈕 testID 不變。

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
@@ -83,7 +84,16 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
     } else if (heard.includes(index)) {
       tag = '已聽';
     }
-    return (
+    // DEV：自動選好正確答案（不播放、不確認），再按「選這個」看回饋
+  useDevAnswer(() => {
+    if (answered) return;
+    const i = question.options.indexOf(question.answerId);
+    const next = pressSeeOption({ selected, heard }, i, answered);
+    setSelected(next.selected);
+    setHeard(next.heard);
+  });
+
+  return (
       <QuizSoundOption
         key={`${question.id}-${index}`}
         n={index + 1}

@@ -1,0 +1,51 @@
+# 開發版測驗畫面的「DEV 自動答案」：每一種題型點了都會把正確答案選好／填好／翻開，
+# 再自己按確認、下一題，整輪下來每一題都答對（結果頁沒有答錯的字）。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- tapOn:
+    id: quick-confuse
+- assertVisible:
+    id: quiz-dev-bar
+- repeat:
+    while:
+      notVisible:
+        id: result-home
+    times: 60
+    commands:
+      - tapOn:
+          id: dev-auto-answer
+      - runFlow:
+          when:
+            visible:
+              id: quiz-confirm
+          commands:
+            - tapOn:
+                id: quiz-confirm
+      - runFlow:
+          when:
+            visible:
+              id: recall-yes
+          commands:
+            - tapOn:
+                id: recall-yes
+      - runFlow:
+          when:
+            visible:
+              id: quiz-next
+          commands:
+            - tapOn:
+                id: quiz-next
+- assertVisible: 今天完成了
+- assertNotVisible: ".*答錯.*"

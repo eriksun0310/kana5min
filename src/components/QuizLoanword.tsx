@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { wordById } from '../data';
@@ -49,6 +50,10 @@ export function QuizLoanword({ question, onAnswered, onNext, isLast }: QuizLoanw
   };
 
   let wrongIndex = 0;
+  useDevAnswer(() => {
+    if (!answered) choose(correctIndex);
+  });
+
   return (
     <View style={styles.root}>
       <ScrollView

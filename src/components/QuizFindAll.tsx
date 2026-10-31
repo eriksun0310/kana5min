@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
@@ -70,6 +71,11 @@ export function QuizFindAll({ question, onAnswered, onNext, isLast }: QuizFindAl
   const feedback = correct
     ? `全部找到了！${target.char} 讀作 ${target.romaji}`
     : `${target.char} 讀作 ${target.romaji}。漏掉 ${missed} 個、多選 ${extra} 個，等一下會再出現`;
+
+  // DEV：自動勾好所有目標格，再按「確認」
+  useDevAnswer(() => {
+    if (!confirmed) setSelected([...targets]);
+  });
 
   return (
     <View style={styles.root}>

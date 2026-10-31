@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById, wordById } from '../data';
@@ -34,6 +35,11 @@ export function QuizSpotError({ question, onAnswered, onNext, isLast }: QuizSpot
   const [confirmed, setConfirmed] = useState(false);
 
   // 作答前不播放（聲音會洩漏答案）；揭曉時才播原本的詞
+
+  // DEV：自動點好被換掉的字，再按「確認」
+  useDevAnswer(() => {
+    if (!confirmed && spot) setSelected({ wordIndex: spot.wordIndex, charIndex: spot.charIndex });
+  });
 
   if (!spot) return null;
   const isTarget = (p: Pick) => p.wordIndex === spot.wordIndex && p.charIndex === spot.charIndex;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { ClipPath, Defs, G, Line, Path, Rect } from 'react-native-svg';
 import { mustById } from '../data';
@@ -59,6 +60,10 @@ export function QuizMaskHalf({ question, onAnswered, onNext, isLast }: QuizMaskH
   };
 
   let wrongIndex = 0;
+  useDevAnswer(() => {
+    if (picked === null) choose(correctIndex);
+  });
+
   return (
     <View style={styles.root}>
       <ScrollView

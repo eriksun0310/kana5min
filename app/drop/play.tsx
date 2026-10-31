@@ -504,6 +504,43 @@ export default function DropPlay() {
           <View style={styles.close} />
         </View>
         <Text style={[styles.hint, { color: t.muted }]}>{hint}</Text>
+        {__DEV__ ? (
+          // 開發版專用：不用真的玩，直接過關／失敗，或跳到某個階段（正式包的 bundle 不會有這一段）
+          <View testID="drop-dev-bar" style={[styles.devBar, { borderColor: t.accent }]}>
+            <Text style={{ color: t.accentText, fontSize: 12, fontWeight: '700' }}>DEV</Text>
+            <Pressable
+              testID="dev-drop-pass"
+              accessibilityRole="button"
+              onPress={() => devFinish(true)}
+              style={[styles.devBtn, { borderColor: t.correct, backgroundColor: t.correctSoft }]}
+            >
+              <Text style={{ color: t.correctText, fontSize: 13, fontWeight: '700' }}>直接過關</Text>
+            </Pressable>
+            <Pressable
+              testID="dev-drop-fail"
+              accessibilityRole="button"
+              onPress={() => devFinish(false)}
+              style={[styles.devBtn, { borderColor: t.wrong, backgroundColor: t.wrongSoft }]}
+            >
+              <Text style={{ color: t.wrongText, fontSize: 13, fontWeight: '700' }}>直接失敗</Text>
+            </Pressable>
+            {stages.map((s, i) => (
+              <Pressable
+                key={s.id}
+                testID={`dev-drop-stage-${i + 1}`}
+                accessibilityRole="button"
+                accessibilityLabel={`跳到階段 ${i + 1}，${s.title}`}
+                onPress={() => startRound(i)}
+                style={[
+                  styles.devBtn,
+                  { borderColor: t.line, backgroundColor: i === stageIdx ? t.accentSoft : t.surface },
+                ]}
+              >
+                <Text style={{ color: t.text, fontSize: 13, fontWeight: '700' }}>{i + 1}</Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
 
         <View style={styles.area} onLayout={onAreaLayout} testID="drop-area">
           {items.map((it) => (
@@ -545,17 +582,6 @@ export default function DropPlay() {
             />
           ))}
         </View>
-
-        {__DEV__ ? (
-          <View style={styles.dev}>
-            <Pressable testID="dev-drop-pass" onPress={() => devFinish(true)}>
-              <Text style={{ color: t.muted, fontSize: 11 }}>dev 全對</Text>
-            </Pressable>
-            <Pressable testID="dev-drop-fail" onPress={() => devFinish(false)}>
-              <Text style={{ color: t.muted, fontSize: 11 }}>dev 全錯</Text>
-            </Pressable>
-          </View>
-        ) : null}
 
         {phase === 'tutorial' ? (
           <View testID="drop-tutorial" style={[styles.overlay, { backgroundColor: t.bg, paddingHorizontal: 24 }]}>
@@ -662,7 +688,20 @@ const styles = StyleSheet.create({
   message: { position: 'absolute', left: 16, right: 16, top: 8, textAlign: 'center', fontSize: 15 },
   baskets: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 12, paddingBottom: 28, paddingTop: 8 },
   basket: { height: 76, borderRadius: 18, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  dev: { position: 'absolute', right: 8, top: 100, gap: 4, opacity: 0.6, zIndex: 3 },
+  devBar: {
+    marginHorizontal: 12,
+    marginBottom: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  devBtn: { minHeight: 36, minWidth: 36, paddingHorizontal: 10, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   overlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 },
   full: { width: '100%', paddingHorizontal: 24, paddingTop: 12, gap: 6 },
   mistakes: { alignSelf: 'stretch', paddingHorizontal: 40, paddingTop: 10, gap: 4 },

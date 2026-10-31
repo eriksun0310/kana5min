@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDevAnswer } from '../logic/devAnswerBus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
@@ -75,6 +76,10 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
   const rows: string[][] = [];
   for (let i = 0; i < question.options.length; i += cols) rows.push(question.options.slice(i, i + cols));
   const title = question.type === 'confuse' ? '這幾個字很像，聽聲音選出正確的字' : '聽聲音，選出正確的字';
+
+  useDevAnswer(() => {
+    if (!answered) choose(question.options.indexOf(question.answerId));
+  });
 
   return (
     <View style={styles.root}>
