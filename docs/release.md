@@ -1,5 +1,35 @@
 # 發布與開發流程
 
+## 速查：Dev Client 三步驟（打包 → 裝到手機 → 開 Metro）
+
+前提：手機用 USB 接上 Mac、解鎖、按過「信任」、開了開發者模式；`xcrun devicectl list devices` 看到你的手機是
+`available (paired)` 或 `connected`。`<UDID>` 換成你手機的裝置編號（就在上面那個指令的輸出裡）。
+
+**① 打包 Dev Client ipa（只要打一次，約 10～20 分鐘；輸出 `build-<時間戳>.ipa` 在專案根目錄）**
+
+```bash
+cd /Users/jiayu/Desktop/kana5min
+pnpm build:ios:dev
+```
+
+**② 安裝到手機**
+
+```bash
+cd /Users/jiayu/Desktop/kana5min
+xcrun devicectl device install app --device <UDID> "$(ls -t build-*.ipa | head -1)"
+```
+
+第一次裝完：手機 設定 → 一般 → VPN 與裝置管理 → 信任你的開發者帳號。
+
+**③ 裝好後，跑終端（開 Metro），手機連同一個 Wi-Fi，打開 App 連上**
+
+```bash
+cd /Users/jiayu/Desktop/kana5min
+pnpm exec expo start --dev-client
+```
+
+之後日常只要做 ③，不用再打包；換手機或改了原生設定才需要重做 ① ②。詳細說明與常見問題見下面。
+
 ## 一、Dev Client（裝在實體 iPhone，改 code 即時更新）
 
 用途：把「開發版 App」裝到實體 iPhone，之後改程式只要開 Metro、手機連上就會載到最新的，不用重新打包。
