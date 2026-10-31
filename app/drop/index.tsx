@@ -19,6 +19,9 @@ import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useBottomPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
+// 開發用進度按鈕只在 __DEV__ 載入，正式包的 bundle 不會包含 src/dev
+const DropDevBar: React.ComponentType | null = __DEV__ ? require('../../src/dev/DropDevBar').default : null;
+
 const SIDE = 24;
 const ORDER = seionOrder('hiragana').map((k) => k.id);
 
@@ -53,6 +56,7 @@ export default function DropSelectScreen() {
           字會從上面掉下來，把它放進對的籃子。練到不再搞混。
         </Text>
         <TextLink testID="drop-howto" label="怎麼玩" onPress={() => setHowto(true)} style={styles.link} />
+        {DropDevBar ? <DropDevBar /> : null}
 
         {locked ? (
           <Text testID="drop-locked" style={{ fontSize: 15, lineHeight: 23, color: t.text, paddingTop: 12 }}>

@@ -513,3 +513,11 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - 結果頁多一段「這一關放錯的」，列出每個放錯的字（例如「し　放成 tsu，應該是 shi」；掉到底的寫「掉到底了」），最多 6 個（`mistakesOf`）。
 - 影響：玩掉字故意全錯會改變練習頁前 3 組，所以 `phase13-drop.yaml` 進對比頁改從「看全部」進；新增「全錯一關後結果頁有放錯清單、對比頁次數增加」的檢查。
 - 沒有做：掉字遊戲目前不更新 SRS（複習排程），只累計答錯次數與 `kana_stat`；要不要讓它也影響複習排程，等使用者決定。
+
+## 掉字選字畫面的「DEV 套用進度」（2026-10-31）
+
+- 為了在手機的開發版上測掉字各階段，選字畫面「怎麼玩」下面多一個只有開發版才有的按鈕列：「DEV　套用進度（目前已學 N 個字）」，點開有四個預設——剛開始（あ～こ）、平假名差 ん（只玩平假名 2 關）、平假名學完＋片假名開始（6 關都能玩）、重設進度；點了就套用，不用離開這個畫面（`src/dev/DropDevBar.tsx`）。
+- 設定頁最下面的開發者選單也補上這三個進度預設。
+- 只在 `__DEV__` 用 `require` 載入；已用 `dev=false&minify=true` 打出的 bundle 檢查，不含 `drop-dev-bar`、「套用進度」、「開發者選單」、`debug-all-done`、`dev-drop-pass`。
+- `phase13-drop.yaml` 加了鎖定狀態 → 套用進度 → 推薦字組出現的檢查。
+- 另外新增 `docs/release.md`（Dev Client 本機打包、安裝、連 Metro 的流程）。

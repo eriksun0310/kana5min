@@ -6,6 +6,21 @@ appId: com.ptalk.kana5min
     file: common/onboard.yaml
     env:
       GOAL: '5'
+# 開發版選字畫面上的「DEV 套用進度」：什麼都沒學時鎖住，點按鈕套用進度後就能玩
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: open-drop
+- assertVisible:
+    id: drop-locked
+- tapOn:
+    id: dev-bar-toggle
+- tapOn:
+    id: dev-preset-hiragana-almost
+- assertVisible:
+    id: drop-preset-shitsu-son
+- tapOn:
+    id: back
 - runFlow:
     file: common/preset.yaml
     env:

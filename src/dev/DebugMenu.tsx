@@ -7,6 +7,9 @@ import { applyDebugPreset } from './applyPreset';
 import type { AnyDebugPreset } from './presets';
 
 const ACTIONS: { preset: AnyDebugPreset; label: string; testID: string }[] = [
+  { preset: 'hiragana-started', label: '剛開始（學了 あ～こ）', testID: 'debug-hiragana-started' },
+  { preset: 'hiragana-almost', label: '平假名差 ん（只差最後一個）', testID: 'debug-hiragana-almost' },
+  { preset: 'katakana-started', label: '片假名開始', testID: 'debug-katakana-started' },
   { preset: 'hiragana-done', label: '平假名全部完成', testID: 'debug-hiragana-done' },
   { preset: 'all-done', label: '全部完成', testID: 'debug-all-done' },
   { preset: 'reset', label: '重設進度', testID: 'debug-reset' },
