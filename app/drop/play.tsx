@@ -22,10 +22,12 @@ import {
   buildRound,
   faceOf,
   isPassed,
+  mistakesOf,
   scoreEvents,
   slotAtPoint,
   type DropEvent,
   type DropFace,
+  type DropMistake,
 } from '../../src/logic/dropGame';
 import { isKatakanaUnlocked } from '../../src/logic/confusion';
 import { recordConfusion, recordKanaResult } from '../../src/scoring';
@@ -253,7 +255,7 @@ export default function DropPlay() {
   const [flash, setFlash] = useState<Flash>(null);
   const [message, setMessage] = useState('');
   const [round, setRound] = useState(0);
-  const [outcome, setOutcome] = useState<{ wrong: number; passed: boolean } | null>(null);
+  const [outcome, setOutcome] = useState<{ wrong: number; passed: boolean; mistakes: DropMistake[] } | null>(null);
   const [showHowto, setShowHowto] = useState(false);
 
   const stage = stages[Math.min(stageIdx, stages.length - 1)];
@@ -300,12 +302,18 @@ export default function DropPlay() {
     s.active = [];
     setItems([]);
     const w = s.events.filter((e) => e.picked !== e.syllable).length;
-    setOutcome({ wrong: w, passed: isPassed(w) });
+    const st = stages[Math.min(stageIdx, stages.length - 1)];
+    setOutcome({ wrong: w, passed: isPassed(w), mistakes: mistakesOf(s.events, st) });
     setPhase('stageEnd');
     // 離開不計分：只有打完一關才寫進計分
-    const { results, confusions } = scoreEvents(s.events, stages[Math.min(stageIdx, stages.length - 1)]);
+    const { results, confusions } = scoreEvents(s.events, st);
     results.forEach((r) => void recordKanaResult(r.kanaId, r.correct));
     confusions.forEach((c) => void recordConfusion(c.truth, c.picked));
+    // 放錯的字和其他測驗一樣累計到易混淆字組的「最近答錯」次數（練習頁的排序與對比頁的次數）
+    const now = Date.now();
+    results
+      .filter((r) => !r.correct)
+      .forEach((r) => void useProgressStore.getState().recordWrongAnswer(r.kanaId, now).catch(() => {}));
   }, [stageIdx, stages]);
 
   const spawnOne = useCallback(() => {
@@ -603,6 +611,16 @@ export default function DropPlay() {
               答對 {ROUND_SIZE - outcome.wrong} / {ROUND_SIZE}
               {outcome.passed ? '' : `（要錯 ${MAX_WRONG_TO_PASS} 個以內才過關）`}
             </Text>
+            {outcome.mistakes.length > 0 ? (
+              <View testID="drop-mistakes" style={styles.mistakes}>
+                <Text style={{ color: t.muted, fontSize: 13 }}>這一關放錯的</Text>
+                {outcome.mistakes.slice(0, 6).map((m, i) => (
+                  <Text key={i} style={{ color: t.text, fontSize: 15 }}>
+                    {m.fell}　{m.put ? `放成 ${m.put}` : '掉到底了'}，應該是 {m.answer}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
             <View style={styles.full}>
               {outcome.passed && !isLast ? (
                 <PrimaryButton testID="drop-next" label={`下一階段：${stages[stageIdx + 1].title}`} onPress={() => startRound(stageIdx + 1)} />
@@ -647,5 +665,6 @@ const styles = StyleSheet.create({
   dev: { position: 'absolute', right: 8, top: 100, gap: 4, opacity: 0.6, zIndex: 3 },
   overlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 },
   full: { width: '100%', paddingHorizontal: 24, paddingTop: 12, gap: 6 },
+  mistakes: { alignSelf: 'stretch', paddingHorizontal: 40, paddingTop: 10, gap: 4 },
   linkBtn: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

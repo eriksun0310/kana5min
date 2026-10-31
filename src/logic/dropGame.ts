@@ -238,3 +238,23 @@ export function slotAtPoint(rects: readonly number[], px: number, py: number, sl
 export function basketColumns(n: number): number {
   return n <= 4 ? n : 3;
 }
+
+export interface DropMistake {
+  /** 掉下來的字（這一關掉下來的那種文字） */
+  fell: string;
+  /** 正確的籃子上的字 */
+  answer: string;
+  /** 放進的籃子上的字；掉到底沒歸類是 undefined */
+  put?: string;
+}
+
+/** 這一關放錯或掉到底的字，結果頁列出來讓使用者知道是哪幾個。 */
+export function mistakesOf(events: readonly DropEvent[], stage: DropStage): DropMistake[] {
+  return events
+    .filter((e) => e.picked !== e.syllable)
+    .map((e) => ({
+      fell: faceOf(e.syllable, stage.fall),
+      answer: faceOf(e.syllable, stage.basket),
+      put: e.picked ? faceOf(e.picked, stage.basket) : undefined,
+    }));
+}

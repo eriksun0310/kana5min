@@ -13,6 +13,7 @@ import {
   faceOf,
   isPassed,
   learnedSyllables,
+  mistakesOf,
   presetForGroup,
   randomSelection,
   recommendedPresets,
@@ -166,5 +167,22 @@ describe('dropGame', () => {
     expect(faceOf('h-ka', byId['romaji-hira'].fall)).toBe('ka');
     expect(faceOf('h-ka', byId['romaji-hira'].basket)).toBe('か');
     expect(faceOf('h-ka', byId['romaji-kata'].basket)).toBe('カ');
+  });
+
+  it('放錯的字：列出掉下來的字、放進的籃子、正確答案；掉到底沒有放進的籃子', () => {
+    const stage = stagesFor(true).find((s) => s.id === 'hira-romaji')!;
+    expect(
+      mistakesOf(
+        [
+          { syllable: 'h-tsu', picked: 'h-tsu' },
+          { syllable: 'h-shi', picked: 'h-tsu' },
+          { syllable: 'h-so' },
+        ],
+        stage,
+      ),
+    ).toEqual([
+      { fell: 'し', answer: 'shi', put: 'tsu' },
+      { fell: 'そ', answer: 'so', put: undefined },
+    ]);
   });
 });

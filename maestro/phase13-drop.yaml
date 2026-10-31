@@ -92,7 +92,11 @@ appId: com.ptalk.kana5min
     id: drop-leave
 - tapOn:
     id: back
-# 對比頁「用這一組玩掉字」
+# 對比頁「用這一組玩掉字」（前面故意全錯過，放錯的字累計到易混淆組，練習頁前 3 組會變，所以從「看全部」進）
+- tapOn:
+    id: see-all-groups
+- tapOn:
+    id: catalog-tab-katakana
 - tapOn:
     id: group-shitsu
 - assertVisible:
@@ -105,6 +109,8 @@ appId: com.ptalk.kana5min
     id: drop-pause
 - tapOn:
     id: drop-leave
+- tapOn:
+    id: back
 - tapOn:
     id: back
 # 設定改成「點籃子」
@@ -157,6 +163,27 @@ appId: com.ptalk.kana5min
 - assertVisible: "全部過關！"
 - tapOn:
     id: drop-done
+# 全部放錯一關：結果頁列出放錯的字，而且累計到「最近在這組答錯」
+- tapOn:
+    id: drop-preset-ruro-nume
+- extendedWaitUntil:
+    visible:
+      id: drop-stage
+    timeout: 5000
+- tapOn:
+    id: dev-drop-fail
+- assertVisible: "差一點"
+- assertVisible:
+    id: drop-mistakes
+- tapOn:
+    id: drop-done
+- tapOn:
+    id: back
+- tapOn:
+    id: group-ruro
+- assertVisible:
+    id: confuse-misses
+- assertVisible: "[1-9][0-9]* 次"
 - tapOn:
     id: back
 # 點籃子模式（上面已在設定改成「點籃子」）：真的玩一關。字掉下來時輪流點四個籃子，
