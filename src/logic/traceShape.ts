@@ -84,18 +84,18 @@ function prepare(points: Point[]): Prepared {
 }
 
 /** 使用者一筆與標準一筆的配對成本；不符合條件回傳 null。 */
-export function strokeMatchCost(user: Prepared, ref: Prepared): number | null {
+export function strokeMatchCost(user: Prepared, ref: Prepared, maxMean: number = MAX_MEAN_DISTANCE): number | null {
   // 短筆（點）手抖時長度會被灌大，所以上限加一個固定寬容量
   if (user.length < ref.length * MIN_LENGTH_RATIO) return null;
   if (user.length > ref.length * MAX_LENGTH_RATIO + LENGTH_SLACK) return null;
   const n = ref.pts.length;
-  const endLimit = MAX_MEAN_DISTANCE * ENDPOINT_FACTOR;
+  const endLimit = maxMean * ENDPOINT_FACTOR;
   if (dist(user.pts[0], ref.pts[0]) > endLimit) return null;
   if (dist(user.pts[n - 1], ref.pts[n - 1]) > endLimit) return null;
   let sum = 0;
   for (let i = 0; i < n; i++) sum += dist(user.pts[i], ref.pts[i]);
   const mean = sum / n;
-  return mean <= MAX_MEAN_DISTANCE ? mean : null;
+  return mean <= maxMean ? mean : null;
 }
 
 /**
@@ -103,7 +103,16 @@ export function strokeMatchCost(user: Prepared, ref: Prepared): number | null {
  * userStrokes：使用者畫的每一筆（viewBox 座標）。referencePaths：strokes.json 該字每一筆的 path。
  * 通過：標準筆畫數 ≤ 4 全部對上；≥ 5 允許漏 1 筆；且多畫的筆 ≤ 2。
  */
-export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[]): TraceEvaluation {
+export interface TraceOptions {
+  /** 每一筆平均點對點距離上限（預設 MAX_MEAN_DISTANCE；默寫比對已經先對齊大小與位置，可以收緊） */
+  maxMean?: number;
+  /** 容許多畫的筆數（預設依標準筆畫數，見 maxExtraFor） */
+  maxExtra?: number;
+}
+
+export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[], opts: TraceOptions = {}): TraceEvaluation {
+  const maxMean = opts.maxMean ?? MAX_MEAN_DISTANCE;
+  const extraLimit = (refCount: number) => opts.maxExtra ?? maxExtraFor(refCount);
   const refs = referencePaths.map((d) => prepare(samplePath(d)));
   const valid = userStrokes.filter((s) => s.length >= 2 && polylineLength(s) >= MIN_STROKE_LENGTH);
   const allRefs = refs.map((_, i) => i);
@@ -111,12 +120,12 @@ export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[]): 
 
   const allowedMiss = refs.length >= ALLOW_MISS_FROM ? 1 : 0;
   const need = refs.length - allowedMiss;
-  if (valid.length > refs.length + maxExtraFor(refs.length)) {
+  if (valid.length > refs.length + extraLimit(refs.length)) {
     return { passed: false, strokeCount: valid.length, matched: [], missing: allRefs, extra: valid.length, reason: 'too-many' };
   }
 
   const users = valid.map(prepare);
-  const cost = users.map((u) => refs.map((r) => strokeMatchCost(u, r)));
+  const cost = users.map((u) => refs.map((r) => strokeMatchCost(u, r, maxMean)));
 
   // 位元遮罩 DP：逐一處理使用者筆畫，決定它對上哪一筆標準筆畫（或不對）；
   // 目標：對上最多筆，其次總成本最小。
@@ -152,7 +161,7 @@ export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[]): 
   const extra = valid.length - matched.length;
 
   let reason: TraceFailReason | undefined;
-  if (extra > maxExtraFor(refs.length)) reason = 'too-many';
+  if (extra > extraLimit(refs.length)) reason = 'too-many';
   else if (matched.length < need) reason = valid.length < need ? 'too-few' : 'shape';
   return { passed: !reason, strokeCount: valid.length, matched, missing, extra, reason };
 }

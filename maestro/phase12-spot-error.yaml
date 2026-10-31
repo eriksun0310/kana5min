@@ -96,13 +96,26 @@ appId: com.ptalk.kana5min
           commands:
             - assertNotVisible:
                 id: recall-char
+            # 寫錯了可以按「重寫」清掉再寫（清掉之後什麼都沒寫，不會有比對結果）
+            - swipe:
+                start: 30%, 38%
+                end: 60%, 46%
+            - tapOn:
+                id: recall-clear
+            # 亂畫一條線再翻面：App 比對後說「看起來寫錯了」；判斷不準可以改成寫對了；按「下一題」才記錄
+            - swipe:
+                start: 30%, 38%
+                end: 60%, 46%
             - tapOn:
                 id: recall-flip
             - assertVisible:
                 id: recall-char
+            - assertVisible: "看起來寫錯了.*"
             - tapOn:
-                id: recall-yes
-            - assertVisible: 很好！之後會隔久一點再問你
+                id: recall-override
+            - assertVisible: "已改成寫對了"
+            - tapOn:
+                id: quiz-next
             - evalScript: ${output.recall = 1}
       - runFlow:
           when:
