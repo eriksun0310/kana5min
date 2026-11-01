@@ -111,6 +111,19 @@ appId: com.ptalk.kana5min
             - assertVisible:
                 id: recall-char
             - assertVisible: "看起來寫錯了.*"
+            # 判成寫錯之後可以按「重寫」：回到還沒翻面、畫布清空（不能只有「下一題」一條路）
+            - tapOn:
+                id: recall-retry
+            - assertVisible:
+                id: recall-flip
+            - assertNotVisible:
+                id: recall-char
+            - swipe:
+                start: 30%, 38%
+                end: 60%, 46%
+            - tapOn:
+                id: recall-flip
+            - assertVisible: "看起來寫錯了.*"
             - tapOn:
                 id: recall-override
             - assertVisible: "已改成寫對了"

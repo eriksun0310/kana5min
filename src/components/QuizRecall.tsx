@@ -55,6 +55,16 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
     setFlipped(true);
   };
 
+  // 翻面之後也能重寫：清掉畫布、回到還沒翻面的狀態（還沒按「下一題」之前都不記分）
+  const retry = () => {
+    if (rated !== null) return;
+    strokesRef.current = [];
+    setJudgement(null);
+    setFinalOk(null);
+    setFlipped(false);
+    setCanvasKey((k) => k + 1);
+  };
+
   const rate = (ok: boolean) => {
     if (rated !== null) return;
     setRated(ok);
@@ -119,7 +129,7 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
                   ? '看起來寫對了（跟標準寫法比對）'
                   : '已改成寫對了'
                 : judgement.verdict === 'wrong'
-                  ? '看起來寫錯了，亮起來的是漏掉的筆；跟淡色的標準寫法比比看'
+                  ? '看起來寫錯了，亮起來的是漏掉的筆；跟淡色的標準寫法比比看，可以按「重寫」再試一次'
                   : '已改成沒寫對'}
             </Text>
           ) : null}
@@ -153,33 +163,39 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
             </View>
           </View>
         ) : judgement && judgement.verdict !== 'none' && finalOk !== null ? (
-          // 有寫字：App 已經比對過，這裡確認結果（判斷不準可以改）再下一題
-          <View style={styles.rate}>
-            <View style={styles.flex}>
-              <SecondaryButton
-                testID="recall-override"
-                label={finalOk ? '其實沒寫對' : '我寫對了'}
-                onPress={() => setFinalOk(!finalOk)}
-              />
+          // 有寫字：App 已經比對過，這裡確認結果（判斷不準可以改、也可以重寫）再下一題
+          <View style={styles.stack}>
+            <View style={styles.rate}>
+              <View style={styles.flex}>
+                <SecondaryButton testID="recall-retry" label="重寫" onPress={retry} />
+              </View>
+              <View style={styles.flex}>
+                <SecondaryButton
+                  testID="recall-override"
+                  label={finalOk ? '其實沒寫對' : '我寫對了'}
+                  onPress={() => setFinalOk(!finalOk)}
+                />
+              </View>
             </View>
-            <View style={styles.flex}>
-              <PrimaryButton
-                testID="quiz-next"
-                label={isLast ? '完成，看結果' : '下一題'}
-                onPress={() => {
-                  rate(finalOk);
-                  onNext();
-                }}
-              />
-            </View>
+            <PrimaryButton
+              testID="quiz-next"
+              label={isLast ? '完成，看結果' : '下一題'}
+              onPress={() => {
+                rate(finalOk);
+                onNext();
+              }}
+            />
           </View>
         ) : (
-          <View style={styles.rate}>
-            <View style={styles.flex}>
-              <SecondaryButton testID="recall-no" label="沒寫出來" onPress={() => rate(false)} />
-            </View>
-            <View style={styles.flex}>
-              <PrimaryButton testID="recall-yes" label="我寫對了" onPress={() => rate(true)} />
+          <View style={styles.stack}>
+            <SecondaryButton testID="recall-retry" label="想再寫一次" onPress={retry} />
+            <View style={styles.rate}>
+              <View style={styles.flex}>
+                <SecondaryButton testID="recall-no" label="沒寫出來" onPress={() => rate(false)} />
+              </View>
+              <View style={styles.flex}>
+                <PrimaryButton testID="recall-yes" label="我寫對了" onPress={() => rate(true)} />
+              </View>
             </View>
           </View>
         )}
@@ -209,4 +225,5 @@ const styles = StyleSheet.create({
   feedback: { fontSize: 15, textAlign: 'center' },
   bottom: { paddingHorizontal: 24, paddingBottom: 44, paddingTop: 12 },
   rate: { flexDirection: 'row', gap: 10 },
+  stack: { gap: 10 },
 });
