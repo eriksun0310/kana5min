@@ -2,6 +2,7 @@
 // （spec 5.3、5.6，docs/architecture.md 第 9 節）。純函式；隨機一律透過注入的 rng。
 
 import { byId } from '../data';
+import { strokesOf } from '../data/strokes';
 import { confusableGroups, type ConfusableGroup } from '../data/confusables';
 import type { Progress } from '../data/types';
 import type { ConfusionRecord } from '../db/types';
@@ -284,10 +285,16 @@ export function buildAutoPractice10(
       if (!extra(type)) choice('see');
     } else if (type === 'recall') {
       // 默寫自我檢查：從已學字挑一個（占用看字選音／聽音選字的名額）
-      if (choiceLeft > 0) {
+      // 只挑有標準筆畫的字（翻面比對、亮起漏筆都靠它）；挑不到就改出看字選音
+      const writable = order.filter((id) => {
+        const k = byId(id);
+        return k !== undefined && strokesOf(k.char) !== undefined;
+      });
+      if (writable.length === 0) choice('see');
+      else if (choiceLeft > 0) {
         choiceLeft--;
-        drafts.push({ kanaId: order[nextKana++ % order.length], type: 'recall', options: [], answerId: '' });
-        drafts[drafts.length - 1].answerId = drafts[drafts.length - 1].kanaId;
+        const id = writable[nextKana++ % writable.length];
+        drafts.push({ kanaId: id, type: 'recall', options: [], answerId: id });
       }
     } else if (type === 'see' || type === 'hear') {
       if (!choice(type) && groups.length > 0) game(GROUP_GAME_TYPES[Math.floor(rng() * GROUP_GAME_TYPES.length)]);

@@ -1,5 +1,5 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { playKana } from '../src/audio/playKana';
 import { FlowHeader, Icon, PrimaryButton, Screen, SecondaryButton } from '../src/components';
@@ -72,7 +72,7 @@ function SpecialQuiz({ kind }: { kind: SpecialKind }) {
           }}
           onNext={() => {
             if (index + 1 >= questions.length) setFinished(true);
-            else setIndex((i) => i + 1);
+            else setIndex(index + 1); // 連點時用同一個值，不會連跳兩題
           }}
         />
       )}
@@ -96,6 +96,7 @@ function QuestionView({ question, isLast, onAnswered, onNext }: QuestionViewProp
   const t = useTheme();
   const defaultSlow = useSettingsStore((s) => s.audioSpeed) === 'slow';
   const [picked, setPicked] = useState<0 | 1 | null>(null);
+  const pickedRef = useRef(false);
   const answered = picked !== null;
   const info = specialSounds[question.kind];
 
@@ -107,7 +108,8 @@ function QuestionView({ question, isLast, onAnswered, onNext }: QuestionViewProp
   }, [question.id]);
 
   const choose = (i: 0 | 1) => {
-    if (answered) return;
+    if (answered || pickedRef.current) return;
+    pickedRef.current = true;
     setPicked(i);
     onAnswered(i === question.correctIndex);
   };

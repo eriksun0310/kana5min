@@ -43,6 +43,7 @@ export default function QuizScreen() {
   const [ownedSid, setOwnedSid] = useState<number | null>(null);
   const started = useRef(false);
   const finishing = useRef(false);
+  const advancedFrom = useRef<string | null>(null);
 
   const sid = useSessionStore((s) => s.sid);
   const active = useSessionStore((s) => s.active);
@@ -58,6 +59,7 @@ export default function QuizScreen() {
       router.replace('/result');
     } catch {
       finishing.current = false;
+      advancedFrom.current = null;
     }
   };
 
@@ -69,7 +71,14 @@ export default function QuizScreen() {
       undefined,
       [
         { text: '結束這一輪', onPress: finishRound },
-        { text: `再練 ${EXTEND_MINUTES} 分鐘`, onPress: () => useSessionStore.getState().extendTime(Date.now()) },
+        {
+          text: `再練 ${EXTEND_MINUTES} 分鐘`,
+          onPress: () => {
+            // 選擇繼續：這一題還沒前進，要讓「下一題」能再按
+            advancedFrom.current = null;
+            useSessionStore.getState().extendTime(Date.now());
+          },
+        },
       ],
       { cancelable: false },
     );
@@ -119,6 +128,8 @@ export default function QuizScreen() {
 
   const onAnswered = (correct: boolean, detail?: AnswerDetail) => {
     const store = useSessionStore.getState();
+    // 連點選項、確認：同一題只記一次（畫面的 answered 狀態要等下一次 render 才更新，連點會漏過去）
+    if (store.qAnswered) return;
     if (isLoanwordQuestion(question)) store.recordLoanwordAnswer(correct);
     else if (detail?.perKana) store.recordAnswers(detail.perKana);
     else store.recordAnswer(question.kanaId, correct);
@@ -129,6 +140,9 @@ export default function QuizScreen() {
 
   const onNext = async () => {
     if (finishing.current) return;
+    // 連點「下一題」：還沒作答不能跳；同一題只前進一次（不然會跳過一題沒作答的題目）
+    if (!useSessionStore.getState().qAnswered || advancedFrom.current === question.id) return;
+    advancedFrom.current = question.id;
     const outcome = useSessionStore.getState().advanceQuiz(Date.now());
     if (outcome === 'next') return;
     if (outcome === 'timeup') askTimeUp();

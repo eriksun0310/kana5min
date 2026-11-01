@@ -26,7 +26,7 @@ function boxOf(points: readonly Point[]): Box | null {
 }
 
 /** 默寫比對每一筆平均距離上限（viewBox 單位，描寫是 18）：對齊之後還差這麼多，就是形狀不一樣 */
-export const RECALL_MAX_MEAN = 11;
+export const RECALL_MAX_MEAN = 9;
 
 /** 使用者的字最大邊至少要有標準字的這個比例，太小（只點幾下、畫一小撇）直接當作寫錯。 */
 export const MIN_SIZE_RATIO = 0.35;
@@ -73,6 +73,6 @@ export function judgeRecall(user: readonly Stroke[], referencePaths: readonly st
   // 有寫但太小：算寫錯，每一筆都算漏掉
   if (!normalized) return { verdict: 'wrong', missing: referencePaths.map((_, i) => i) };
   // 已經對齊大小與位置，所以比描寫嚴格：每一筆要更貼近標準寫法，也不能多畫
-  const evaluation = evaluateTrace(normalized, [...referencePaths], { maxMean: RECALL_MAX_MEAN, maxExtra: 0 });
+  const evaluation = evaluateTrace(normalized, [...referencePaths], { maxMean: RECALL_MAX_MEAN, maxExtra: 0, allowMiss: 0 });
   return { verdict: evaluation.passed ? 'right' : 'wrong', missing: evaluation.missing, evaluation };
 }

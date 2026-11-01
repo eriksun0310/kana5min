@@ -1,0 +1,60 @@
+# 防呆：連點不會壞。快速連點「下一題」只能前進一題（不能跳過沒作答的題目）。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+- runFlow:
+    file: common/preset.yaml
+    env:
+      PRESET: hiragana-almost
+- tapOn:
+    id: tab-practice
+- tapOn:
+    id: group-ruro
+- tapOn:
+    id: quick-confuse
+- assertVisible: "1/10"
+# 還沒作答就連點「下一題」按鈕不存在，所以先自動答案，再確認／自評
+- tapOn:
+    id: dev-auto-answer
+- runFlow:
+    when:
+      visible:
+        id: quiz-confirm
+    commands:
+      - tapOn:
+          id: quiz-confirm
+- runFlow:
+    when:
+      visible:
+        id: recall-yes
+    commands:
+      - tapOn:
+          id: recall-yes
+- doubleTapOn:
+    id: quiz-next
+- assertVisible: "2/10"
+- assertNotVisible: "3/10"
+# 第二題一樣
+- tapOn:
+    id: dev-auto-answer
+- runFlow:
+    when:
+      visible:
+        id: quiz-confirm
+    commands:
+      - tapOn:
+          id: quiz-confirm
+- runFlow:
+    when:
+      visible:
+        id: recall-yes
+    commands:
+      - tapOn:
+          id: recall-yes
+- doubleTapOn:
+    id: quiz-next
+- assertVisible: "3/10"
+- assertNotVisible: "4/10"

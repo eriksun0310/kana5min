@@ -108,6 +108,8 @@ export interface TraceOptions {
   maxMean?: number;
   /** 容許多畫的筆數（預設依標準筆畫數，見 maxExtraFor） */
   maxExtra?: number;
+  /** 容許漏掉的筆數（預設：標準筆畫數 ≥ ALLOW_MISS_FROM 允許漏 1 筆；默寫是憑記憶寫，漏一筆就是寫錯，傳 0） */
+  allowMiss?: number;
 }
 
 export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[], opts: TraceOptions = {}): TraceEvaluation {
@@ -118,7 +120,7 @@ export function evaluateTrace(userStrokes: Stroke[], referencePaths: string[], o
   const allRefs = refs.map((_, i) => i);
   if (refs.length === 0) return { passed: true, strokeCount: valid.length, matched: [], missing: [], extra: 0 };
 
-  const allowedMiss = refs.length >= ALLOW_MISS_FROM ? 1 : 0;
+  const allowedMiss = opts.allowMiss ?? (refs.length >= ALLOW_MISS_FROM ? 1 : 0);
   const need = refs.length - allowedMiss;
   if (valid.length > refs.length + extraLimit(refs.length)) {
     return { passed: false, strokeCount: valid.length, matched: [], missing: allRefs, extra: valid.length, reason: 'too-many' };
