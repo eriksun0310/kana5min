@@ -22,10 +22,9 @@ export interface QuizRecallProps {
 }
 
 /**
- * 默寫：看拼音與聽聲音，用手指在框裡寫出那個字，按「翻面核對」才顯示正確的字（淡色疊在你寫的字底下）。
- * 有寫的話，App 會把你寫的字和標準寫法比對（先對齊大小與位置，見 recallJudge），直接告訴你看起來寫對還是寫錯，
- * 寫錯時亮起漏掉的筆；判斷不準可以按「改成…」，按「下一題」才把結果記進複習排程。
- * 沒寫任何筆畫（在紙上或腦中寫）就維持自評：「我寫對了」或「沒寫出來」。
+ * 默寫：看拼音與聽聲音，用手指在框裡寫出那個字，按「翻面核對」後 App 把你寫的字和標準寫法比對
+ * （先對齊大小與位置，見 recallJudge），直接告訴你寫對還是寫錯，寫錯時亮起漏掉的筆；結果由 App 判定，不能自評。
+ * 沒寫任何筆畫不能翻面；真的不會寫可以按「不會寫，看答案」（算寫錯）。翻面後可以「重寫」，按「下一題」才記進複習排程。
  */
 export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallProps) {
   const t = useTheme();
@@ -38,8 +37,8 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
   const strokesRef = useRef<Stroke[]>([]);
   // 翻面時比對出的結果；none 代表沒寫任何筆畫，由使用者自評
   const [judgement, setJudgement] = useState<RecallJudgement | null>(null);
-  // 比對結果可以被使用者改掉（判斷不準時）
-  const [finalOk, setFinalOk] = useState<boolean | null>(null);
+  // 畫布上有沒有寫任何筆畫（沒寫不能翻面核對）
+  const [hasInk, setHasInk] = useState(false);
 
   useEffect(() => {
     void playKana(target.id, { slow });
@@ -47,11 +46,20 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.id]);
 
+  // 比對結果：寫對才是對；沒寫完整（只點幾下）也算寫錯
+  const passed = judgement?.verdict === 'right';
+
   const flip = () => {
+    if (flipped || !hasInk) return;
+    setJudgement(judgeRecall(strokesRef.current, strokesOf(target.char)?.strokes ?? []));
+    setFlipped(true);
+  };
+
+  // 真的不會寫：直接看答案，算寫錯（每一筆都算漏掉）
+  const giveUp = () => {
     if (flipped) return;
-    const j = judgeRecall(strokesRef.current, strokesOf(target.char)?.strokes ?? []);
-    setJudgement(j);
-    setFinalOk(j.verdict === 'none' ? null : j.verdict === 'right');
+    const refs = strokesOf(target.char)?.strokes ?? [];
+    setJudgement({ verdict: 'wrong', missing: refs.map((_, i) => i) });
     setFlipped(true);
   };
 
@@ -59,21 +67,24 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
   const retry = () => {
     if (rated !== null) return;
     strokesRef.current = [];
+    setHasInk(false);
     setJudgement(null);
-    setFinalOk(null);
     setFlipped(false);
     setCanvasKey((k) => k + 1);
   };
 
-  const rate = (ok: boolean) => {
-    if (rated !== null) return;
-    setRated(ok);
-    onAnswered(ok, { perKana: { [target.id]: ok } });
+  const next = () => {
+    if (rated !== null || !judgement) return;
+    setRated(passed);
+    onAnswered(passed, { perKana: { [target.id]: passed } });
+    onNext();
   };
 
-  // DEV：自動翻面，顯示正確的字，再自己評「寫對了」
+  // DEV：直接當作寫對（翻面、判定為對），再按「下一題」
   useDevAnswer(() => {
-    if (rated === null) flip();
+    if (rated !== null || flipped) return;
+    setJudgement({ verdict: 'right', missing: [] });
+    setFlipped(true);
   });
 
   return (
@@ -110,93 +121,51 @@ export function QuizRecall({ question, onAnswered, onNext, isLast }: QuizRecallP
             char={target.char}
             size={280}
             guide={flipped}
-            highlight={flipped && judgement?.verdict === 'wrong' ? judgement.missing : undefined}
+            highlight={flipped && !passed ? judgement?.missing : undefined}
             onStrokesChange={(strokes) => {
-              if (!flipped) strokesRef.current = strokes;
+              if (flipped) return;
+              strokesRef.current = strokes;
+              setHasInk(strokes.length > 0);
             }}
             testID="recall-canvas"
           />
           <Text testID={flipped ? 'recall-char' : 'recall-hint'} style={[styles.hint, { color: t.muted }]}>
             {flipped ? `正確的字：${target.char}（淡色的就是標準寫法）` : '用手指在框裡寫寫看，寫完再翻面核對'}
           </Text>
-          {flipped && judgement && judgement.verdict !== 'none' ? (
+          {flipped && judgement ? (
             <Text
               testID="recall-verdict"
-              style={[styles.feedback, { color: finalOk ? t.correctText : t.wrongText }]}
+              style={[styles.feedback, { color: passed ? t.correctText : t.wrongText }]}
             >
-              {finalOk
-                ? judgement.verdict === 'right'
-                  ? '看起來寫對了（跟標準寫法比對）'
-                  : '已改成寫對了'
-                : judgement.verdict === 'wrong'
-                  ? '看起來寫錯了，亮起來的是漏掉的筆；跟淡色的標準寫法比比看，可以按「重寫」再試一次'
-                  : '已改成沒寫對'}
-            </Text>
-          ) : null}
-          {rated !== null ? (
-            <Text
-              testID="quiz-feedback"
-              style={[styles.feedback, { color: rated ? t.correctText : t.wrongText }]}
-            >
-              {rated ? '很好！之後會隔久一點再問你' : '沒關係，等一下會再出現'}
+              {passed
+                ? '寫對了！（跟標準寫法比對）'
+                : '看起來寫錯了，亮起來的是漏掉的筆；跟淡色的標準寫法比比看，可以按「重寫」再試一次'}
             </Text>
           ) : null}
         </View>
       </ScrollView>
       <View style={styles.bottom}>
-        {rated !== null ? (
-          <PrimaryButton testID="quiz-next" label={isLast ? '完成，看結果' : '下一題'} onPress={onNext} />
-        ) : !flipped ? (
-          <View style={styles.rate}>
-            <View style={styles.flex}>
-              <SecondaryButton
-                testID="recall-clear"
-                label="重寫"
-                onPress={() => {
-                  strokesRef.current = [];
-                  setCanvasKey((k) => k + 1);
-                }}
-              />
-            </View>
-            <View style={styles.flex2}>
-              <PrimaryButton testID="recall-flip" label="想好了，翻面核對" onPress={flip} />
-            </View>
-          </View>
-        ) : judgement && judgement.verdict !== 'none' && finalOk !== null ? (
-          // 有寫字：App 已經比對過，這裡確認結果（判斷不準可以改、也可以重寫）再下一題
+        {!flipped ? (
           <View style={styles.stack}>
             <View style={styles.rate}>
               <View style={styles.flex}>
-                <SecondaryButton testID="recall-retry" label="重寫" onPress={retry} />
+                <SecondaryButton testID="recall-clear" label="重寫" onPress={retry} disabled={!hasInk} />
               </View>
-              <View style={styles.flex}>
-                <SecondaryButton
-                  testID="recall-override"
-                  label={finalOk ? '其實沒寫對' : '我寫對了'}
-                  onPress={() => setFinalOk(!finalOk)}
+              <View style={styles.flex2}>
+                <PrimaryButton
+                  testID="recall-flip"
+                  label={hasInk ? '想好了，翻面核對' : '先在框裡寫寫看'}
+                  onPress={flip}
+                  disabled={!hasInk}
                 />
               </View>
             </View>
-            <PrimaryButton
-              testID="quiz-next"
-              label={isLast ? '完成，看結果' : '下一題'}
-              onPress={() => {
-                rate(finalOk);
-                onNext();
-              }}
-            />
+            <SecondaryButton testID="recall-giveup" label="不會寫，看答案" onPress={giveUp} />
           </View>
         ) : (
           <View style={styles.stack}>
-            <SecondaryButton testID="recall-retry" label="想再寫一次" onPress={retry} />
-            <View style={styles.rate}>
-              <View style={styles.flex}>
-                <SecondaryButton testID="recall-no" label="沒寫出來" onPress={() => rate(false)} />
-              </View>
-              <View style={styles.flex}>
-                <PrimaryButton testID="recall-yes" label="我寫對了" onPress={() => rate(true)} />
-              </View>
-            </View>
+            <SecondaryButton testID="recall-retry" label="重寫" onPress={retry} />
+            <PrimaryButton testID="quiz-next" label={isLast ? '完成，看結果' : '下一題'} onPress={next} />
           </View>
         )}
       </View>

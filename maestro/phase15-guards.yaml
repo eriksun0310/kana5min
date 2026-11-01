@@ -26,13 +26,6 @@ appId: com.ptalk.kana5min
     commands:
       - tapOn:
           id: quiz-confirm
-- runFlow:
-    when:
-      visible:
-        id: recall-yes
-    commands:
-      - tapOn:
-          id: recall-yes
 - doubleTapOn:
     id: quiz-next
 - assertVisible: "2/10"
@@ -47,13 +40,6 @@ appId: com.ptalk.kana5min
     commands:
       - tapOn:
           id: quiz-confirm
-- runFlow:
-    when:
-      visible:
-        id: recall-yes
-    commands:
-      - tapOn:
-          id: recall-yes
 - doubleTapOn:
     id: quiz-next
 - assertVisible: "3/10"

@@ -37,9 +37,7 @@ appId: com.ptalk.kana5min
         id: quiz-recall
     commands:
       - tapOn:
-          id: recall-flip
-      - tapOn:
-          id: recall-yes
+          id: dev-auto-answer
 - runFlow:
     when:
       visible:
