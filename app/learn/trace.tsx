@@ -83,7 +83,7 @@ export default function LearnTrace() {
     router.replace(next === 'next' ? '/learn/intro' : '/quiz');
   };
 
-  // 通過：短暫顯示「描得很好」再進下一步（不擋住畫面）
+  // 通過：在標題位置短暫顯示「描得很好」再進下一步（不擋住畫布）
   const pass = () => {
     if (advancing.current) return;
     advancing.current = true;
@@ -132,19 +132,19 @@ export default function LearnTrace() {
         <Text testID="trace-attempt" style={[styles.sub, { color: t.muted }]}>
           {snap.standalone ? '描寫' : `第 ${attempt} 次／共 ${rounds} 次`}
         </Text>
-        <Text style={[styles.title, { color: t.text }]}>照著淡色的字描一次</Text>
+        {/* 通過時把標題換成「描得很好」，放在畫布上方，不擋住要描的字 */}
+        {praise ? (
+          <View style={styles.praiseRow}>
+            <Icon name="check" size={22} color={t.accentText} strokeWidth={3} />
+            <Text testID="trace-praise" style={[styles.title, { color: t.accentText }]}>
+              描得很好
+            </Text>
+          </View>
+        ) : (
+          <Text style={[styles.title, { color: t.text }]}>照著淡色的字描一次</Text>
+        )}
       </View>
       <View style={styles.canvasWrap}>
-        {praise ? (
-          <View style={styles.praiseOverlay} pointerEvents="none" testID="trace-praise-overlay">
-            <View style={[styles.praiseBadge, { backgroundColor: t.surface, borderColor: t.accent }]}>
-              <Icon name="check" size={44} color={t.accentText} strokeWidth={3} />
-              <Text testID="trace-praise" style={{ fontSize: 20, fontWeight: '700', color: t.accentText }}>
-                描得很好
-              </Text>
-            </View>
-          </View>
-        ) : null}
         <TraceCanvas
           key={canvasKey}
           char={kana.char}
@@ -202,20 +202,7 @@ const styles = StyleSheet.create({
   sub: { fontSize: 13 },
   title: { fontSize: 22, fontWeight: '700' },
   canvasWrap: { paddingTop: 18, paddingHorizontal: 24, alignItems: 'center' },
-  praiseOverlay: {
-    ...StyleSheet.absoluteFill,
-    zIndex: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  praiseBadge: {
-    paddingVertical: 20,
-    paddingHorizontal: 36,
-    borderRadius: 24,
-    borderWidth: 2,
-    alignItems: 'center',
-    gap: 8,
-  },
+  praiseRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   hintBox: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   hint: { fontSize: 15, textAlign: 'center' },
   skip: { marginTop: 12, alignSelf: 'center', paddingHorizontal: 24 },

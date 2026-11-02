@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDevAnswer } from '../logic/devAnswerBus';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { playKana } from '../audio/playKana';
+import { playKana, preloadKana } from '../audio/playKana';
 import { mustById } from '../data';
 import { pressSeeOption, revealTag } from '../logic/quizSee';
 import { shouldShowRomaji } from '../logic/romaji';
@@ -38,6 +38,13 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
   const [selected, setSelected] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
   const answered = picked !== null;
+
+  // 進題就預載所有選項的聲音：第一次點任何一個都立刻有聲音（不用等音檔載入）
+  useEffect(() => {
+    preloadKana(question.options, { slow });
+    // 只在換題（或換速度）時預載
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id, slow]);
 
   const show = (id: string) => shouldShowRomaji(progress[id], { romajiAutoHide: autoHide });
   const ids = optionTestIds(question.options, question.answerId);

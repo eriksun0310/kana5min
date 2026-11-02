@@ -6,10 +6,22 @@ export interface PlayOptions {
   slow?: boolean;
 }
 
-/** 目前正在播的播放器；新的一次播放開始前會先停掉並釋放它。 */
-let current: AudioPlayer | null = null;
-/** 目前播放器的狀態監聽，釋放播放器時一起移除。 */
-let currentSub: { remove: () => void } | null = null;
+/** 一個聲音對應一個固定的播放器（預載之後點一下就有聲音，不用等音檔載入）。 */
+interface Entry {
+  player: AudioPlayer;
+  /** 音檔已載入完成 */
+  loaded: boolean;
+  /** 使用者想播但還沒開始播（載入完成時要補一次 play） */
+  want: boolean;
+  sub: { remove: () => void } | null;
+}
+
+/** 最多同時保留幾個播放器；超過時釋放最久沒用的（目前正在播的不釋放）。 */
+export const MAX_PLAYERS = 24;
+
+/** key = `${id}|${slow ? 's' : 'n'}`；Map 依插入順序，最近用過的會被移到最後面。 */
+const cache = new Map<string, Entry>();
+let playing: Entry | null = null;
 /** 每次呼叫遞增；await 之後若發現已被更新的一次呼叫取代，就放棄這次（連點時以最後一次為準）。 */
 let latestCall = 0;
 let modeReady = false;
@@ -25,68 +37,136 @@ async function ensureAudioMode() {
   }
 }
 
-function releaseCurrent() {
-  const p = current;
-  current = null;
+function destroy(e: Entry) {
   try {
-    currentSub?.remove();
+    e.sub?.remove();
   } catch {
     // 已經移除過就略過
   }
-  currentSub = null;
-  if (!p) return;
   try {
-    p.pause();
+    e.player.pause();
   } catch {
     // 已經釋放過就略過
   }
   try {
-    p.remove();
+    e.player.remove();
   } catch {
     // 已經釋放過就略過
+  }
+}
+
+function sourceOf(id: string, slow: boolean | undefined) {
+  const entry = audioMap[id];
+  if (!entry) return undefined;
+  return slow ? (entry.slow ?? entry.normal) : entry.normal;
+}
+
+function entryFor(id: string, slow: boolean | undefined): Entry | undefined {
+  const source = sourceOf(id, slow);
+  if (source === undefined) return undefined;
+  const key = `${id}|${slow ? 's' : 'n'}`;
+  const hit = cache.get(key);
+  if (hit) {
+    cache.delete(key);
+    cache.set(key, hit);
+    return hit;
+  }
+  const player = createAudioPlayer(source);
+  const e: Entry = { player, loaded: false, want: false, sub: null };
+  try {
+    e.sub = player.addListener('playbackStatusUpdate', (st) => {
+      if (st.isLoaded) e.loaded = true;
+      if (st.playing || st.didJustFinish) {
+        e.want = false;
+        return;
+      }
+      // 還沒載入完就被要求播放：載入完成的當下補一次 play
+      if (st.isLoaded && e.want) player.play();
+    });
+  } catch {
+    // 監聽失敗就維持直接播放的行為
+  }
+  cache.set(key, e);
+  // 超過上限：釋放最久沒用的（跳過正在播的）
+  for (const [k, old] of cache) {
+    if (cache.size <= MAX_PLAYERS) break;
+    if (old === playing || old === e) continue;
+    cache.delete(k);
+    destroy(old);
+  }
+  return e;
+}
+
+/**
+ * 預載一批聲音（進題時呼叫）：先建立播放器讓音檔開始載入，使用者第一次點就不會因為還沒載入而沒聲音。
+ * 找不到音檔的 id 略過；不會播放。
+ */
+export function preloadKana(ids: readonly string[], options: PlayOptions = {}): void {
+  for (const id of ids) {
+    try {
+      entryFor(id, options.slow);
+    } catch (err) {
+      if (__DEV__) console.warn(`preloadKana(${id}) 失敗`, err);
+    }
   }
 }
 
 /**
  * App 內所有發音都經過這個函式（kana id 或例字 id）。
- * 每次播放都建立新的播放器、釋放舊的：不重用同一個播放器做 replace／seekTo，
- * 避免真機上音檔還沒載入完或連續點擊時，後一次呼叫被前一次的非同步動作打斷而沒有聲音。
+ * 每個聲音有自己固定的播放器（不在同一個播放器上換檔），播放時先停掉另一個正在播的，
+ * 播同一個聲音就從頭再播。還沒載入完就點的話，載入完成時會自動補播。
  * 找不到音檔或播放失敗時不丟錯（開發版會在 console 留下警告）。
  */
 export async function playKana(id: string, options: PlayOptions = {}): Promise<void> {
-  const entry = audioMap[id];
-  if (!entry) return;
-  const source = options.slow ? (entry.slow ?? entry.normal) : entry.normal;
+  if (!audioMap[id]) return;
   const call = ++latestCall;
   try {
     await ensureAudioMode();
     if (call !== latestCall) return; // 有更新的一次點擊接手了
-    releaseCurrent();
-    const player = createAudioPlayer(source);
-    current = player;
-    player.play();
-    // 真機上偶爾 play() 剛好發生在音檔載入完成之前，結果沒有聲音（要換點別的再點回來才有）：
-    // 還沒開始播的話，等音檔載入完成再叫一次 play()；開始播或播完就不再管。
-    let started = false;
-    try {
-      currentSub = player.addListener('playbackStatusUpdate', (st) => {
-        if (current !== player) return;
-        if (st.playing || st.didJustFinish) {
-          started = true;
-          return;
-        }
-        if (st.isLoaded && !started) player.play();
-      });
-    } catch {
-      // 監聽失敗就維持原本的行為
+    const e = entryFor(id, options.slow);
+    if (!e) return;
+    if (playing && playing !== e) {
+      playing.want = false;
+      try {
+        playing.player.pause();
+      } catch {
+        // 略過
+      }
     }
+    playing = e;
+    e.want = true;
+    if (e.loaded) {
+      // 已經播過或預載完成：回到開頭再播（播完的播放器不先回到開頭就不會再出聲）
+      try {
+        await e.player.seekTo(0);
+      } catch {
+        // seekTo 失敗仍然嘗試播放
+      }
+      if (call !== latestCall) return;
+    }
+    e.player.play();
   } catch (err) {
     if (__DEV__) console.warn(`playKana(${id}) 播放失敗`, err);
   }
 }
 
-/** 停止目前的發音（離開畫面等情況用）。 */
+/** 停止目前的發音（離開畫面等情況用）。播放器保留，下次還能直接播。 */
 export function stopKana(): void {
   latestCall += 1;
-  releaseCurrent();
+  if (!playing) return;
+  playing.want = false;
+  try {
+    playing.player.pause();
+  } catch {
+    // 略過
+  }
+  playing = null;
+}
+
+/** 釋放所有播放器（測試用）。 */
+export function releaseAllKana(): void {
+  latestCall += 1;
+  playing = null;
+  for (const e of cache.values()) destroy(e);
+  cache.clear();
 }

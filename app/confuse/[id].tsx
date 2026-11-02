@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { playKana } from '../../src/audio/playKana';
+import { playKana, preloadKana } from '../../src/audio/playKana';
 import { BackHeader, Card, Icon, KanaText, MnemonicSheet, PrimaryButton, PunUnlockSheet, Screen, SecondaryButton } from '../../src/components';
 import { mustById, seionOrder, soundOf } from '../../src/data';
 import { mnemonicOf } from '../../src/data/mnemonics';
@@ -55,6 +55,13 @@ export default function ConfuseScreen() {
     const x = groupId ? pillX.current[groupId] : undefined;
     if (x !== undefined) pillsRef.current?.scrollTo({ x: Math.max(0, x - SIDE), animated: true });
   }, [groupId]);
+
+  // 換組就預載這組每個字的聲音：第一次點卡片就有聲音
+  useEffect(() => {
+    if (group) preloadKana(resolvedMembers(group), { slow });
+    // 只在換組（或換速度）時預載
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId, slow]);
 
   if (!group) {
     return (
