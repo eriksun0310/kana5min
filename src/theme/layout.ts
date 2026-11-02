@@ -15,3 +15,10 @@ export function useTopPad(design: number): number {
 export function useBottomPad(design: number): number {
   return capInset(design, useSafeAreaInsets().bottom);
 }
+
+/** 矮螢幕（iPhone SE 667pt 這類）：大字與選項要縮小，不然選項會被底部按鈕蓋住。 */
+export const COMPACT_HEIGHT = 700;
+
+export function isCompactHeight(windowHeight: number): boolean {
+  return windowHeight < COMPACT_HEIGHT;
+}

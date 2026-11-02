@@ -183,7 +183,8 @@ const styles = StyleSheet.create({
   box: { width: BOX, height: BOX, borderRadius: 20, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   options: { paddingTop: 20, paddingHorizontal: 24, flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   option: {
-    width: '48.5%',
+    // 兩欄：基準寬度留一點餘裕（兩欄 + 間距不能超過容器，否則窄螢幕會掉成單欄）
+    flexBasis: '47%',
     flexGrow: 1,
     minHeight: 64,
     borderRadius: 18,

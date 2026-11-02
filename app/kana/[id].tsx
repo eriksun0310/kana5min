@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
 import {
   BackHeader,
@@ -15,7 +15,7 @@ import {
 } from '../../src/components';
 import { byId, exampleWordOf } from '../../src/data';
 import { compareAction, counterpartId } from '../../src/logic/counterpart';
-import { useBottomPad } from '../../src/theme/layout';
+import { isCompactHeight, useBottomPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
 /** C2-04 詳情：大字、發音（含慢速）、筆畫數、容易搞混的字、例字，底部看筆順／描寫練習。 */
@@ -24,6 +24,8 @@ export default function KanaDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const bottom = useBottomPad(44);
+  // 矮螢幕（iPhone SE）內容比畫面長，「看筆順／描寫練習」放在最下面會看不到：改放在筆畫數下面
+  const compact = isCompactHeight(useWindowDimensions().height);
   const params = useLocalSearchParams<{ id?: string }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const kana = id ? byId(id) : undefined;
@@ -56,6 +58,23 @@ export default function KanaDetailScreen() {
   const otherChar = otherId ? byId(otherId)?.char : undefined;
   const goFlow = (pathname: '/learn/stroke' | '/learn/trace') =>
     router.push({ pathname, params: { id: kana.id, standalone: '1' } });
+
+  const actions = (
+    <View style={styles.actions}>
+      <SecondaryButton
+        testID="detail-stroke"
+        label="看筆順"
+        style={{ flex: 1 }}
+        onPress={() => goFlow('/learn/stroke')}
+      />
+      <PrimaryButton
+        testID="detail-trace"
+        label="描寫練習"
+        style={{ flex: 1 }}
+        onPress={() => goFlow('/learn/trace')}
+      />
+    </View>
+  );
 
   return (
     <Screen>
@@ -101,6 +120,7 @@ export default function KanaDetailScreen() {
         <Text testID="detail-strokes" style={[styles.strokes, { color: t.muted }]}>
           筆畫 {kana.strokes} 畫
         </Text>
+        {compact ? actions : null}
 
         {otherId && otherChar ? (
           <>
@@ -177,20 +197,7 @@ export default function KanaDetailScreen() {
 
         <View style={{ flex: 1, minHeight: 16 }} />
 
-        <View style={styles.actions}>
-          <SecondaryButton
-            testID="detail-stroke"
-            label="看筆順"
-            style={{ flex: 1 }}
-            onPress={() => goFlow('/learn/stroke')}
-          />
-          <PrimaryButton
-            testID="detail-trace"
-            label="描寫練習"
-            style={{ flex: 1 }}
-            onPress={() => goFlow('/learn/trace')}
-          />
-        </View>
+        {compact ? null : actions}
       </ScrollView>
     </Screen>
   );

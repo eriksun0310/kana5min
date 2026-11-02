@@ -147,7 +147,8 @@ const styles = StyleSheet.create({
   },
   options: { paddingTop: 24, paddingHorizontal: 24, flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   option: {
-    width: '48.5%',
+    // 兩欄：基準寬度留一點餘裕（兩欄 + 間距不能超過容器，否則窄螢幕會掉成單欄）
+    flexBasis: '47%',
     flexGrow: 1,
     minHeight: 72,
     borderRadius: 18,

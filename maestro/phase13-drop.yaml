@@ -42,7 +42,10 @@ appId: com.ptalk.kana5min
     id: drop-howto
 - assertVisible:
     id: drop-start-custom
-# 自己選：選 3 個字才能開始
+# 自己選：選 3 個字才能開始（小螢幕字格在畫面下方，先往上捲一小段，あ行還要看得到）
+- swipe:
+    start: 50%, 75%
+    end: 50%, 58%
 - tapOn:
     id: drop-pick-h-a
 - tapOn:
@@ -158,6 +161,10 @@ appId: com.ptalk.kana5min
     id: tab-practice
 - tapOn:
     id: open-drop
+# 小螢幕字格在畫面下方，先往上捲一小段（あ行還要看得到）
+- swipe:
+    start: 50%, 75%
+    end: 50%, 58%
 - tapOn:
     id: drop-pick-h-a
 - tapOn:

@@ -171,7 +171,9 @@ const styles = StyleSheet.create({
   wordsTitle: { marginTop: 8, fontSize: 15, fontWeight: '700' },
   words: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   word: {
-    width: '48.5%',
+    // 兩欄：基準寬度留一點餘裕，窄螢幕不會掉成單欄
+    flexBasis: '47%',
+    flexGrow: 1,
     borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 12,

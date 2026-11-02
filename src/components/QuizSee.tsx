@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDevAnswer } from '../logic/devAnswerBus';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { playKana, preloadKana } from '../audio/playKana';
 import { mustById } from '../data';
 import { pressSeeOption, revealTag } from '../logic/quizSee';
@@ -8,6 +8,7 @@ import { shouldShowRomaji } from '../logic/romaji';
 import type { AnswerDetail, QuizQuestion } from '../logic/session';
 import { useProgressStore } from '../store/progressStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { isCompactHeight } from '../theme/layout';
 import { useTheme } from '../theme/useTheme';
 import { PrimaryButton } from './Buttons';
 import { KanaText } from './KanaText';
@@ -29,6 +30,8 @@ export interface QuizSeeProps {
  */
 export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) {
   const t = useTheme();
+  // 矮螢幕（iPhone SE）把大字與間距縮小，4 個選項才不會被底部按鈕蓋住
+  const compact = isCompactHeight(useWindowDimensions().height);
   const slow = useSettingsStore((s) => s.audioSpeed) === 'slow';
   const autoHide = useSettingsStore((s) => s.romajiAutoHide);
   const progress = useProgressStore((s) => s.progress);
@@ -122,13 +125,13 @@ export function QuizSee({ question, onAnswered, onNext, isLast }: QuizSeeProps) 
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.prompt}>
+        <View style={[styles.prompt, compact && styles.promptCompact]}>
           <Text style={[styles.promptText, { color: t.muted }]}>這個字怎麼念？</Text>
-          <KanaText size={170} lineHeightRatio={1.1} testID="quiz-kana">
+          <KanaText size={compact ? 104 : 170} lineHeightRatio={1.1} testID="quiz-kana">
             {target.char}
           </KanaText>
         </View>
-        <View style={styles.options}>{question.options.map(optionView)}</View>
+        <View style={[styles.options, compact && styles.optionsCompact]}>{question.options.map(optionView)}</View>
       </ScrollView>
       <View style={styles.bottom}>
         {answered ? (
@@ -153,6 +156,8 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1 },
   prompt: { paddingTop: 34, paddingHorizontal: 24, alignItems: 'center', gap: 6 },
   promptText: { fontSize: 15 },
+  promptCompact: { paddingTop: 12 },
   options: { paddingTop: 20, paddingHorizontal: 24, gap: 10 },
+  optionsCompact: { paddingTop: 8, gap: 8 },
   bottom: { paddingHorizontal: 24, paddingBottom: 44, paddingTop: 12 },
 });

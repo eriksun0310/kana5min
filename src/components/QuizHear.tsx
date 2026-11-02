@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDevAnswer } from '../logic/devAnswerBus';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { playKana } from '../audio/playKana';
 import { mustById } from '../data';
 import { shouldShowRomaji } from '../logic/romaji';
 import type { AnswerDetail, QuizQuestion } from '../logic/session';
 import { useProgressStore } from '../store/progressStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { isCompactHeight } from '../theme/layout';
 import { useTheme } from '../theme/useTheme';
 import { PrimaryButton } from './Buttons';
 import { Icon } from './Icon';
@@ -30,6 +31,8 @@ export function optionColumns(count: number): number {
  */
 export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps) {
   const t = useTheme();
+  // 矮螢幕（iPhone SE）縮小喇叭與字卡，兩排字卡才不會被底部按鈕蓋住
+  const compact = isCompactHeight(useWindowDimensions().height);
   const defaultSlow = useSettingsStore((s) => s.audioSpeed) === 'slow';
   const autoHide = useSettingsStore((s) => s.romajiAutoHide);
   const progress = useProgressStore((s) => s.progress);
@@ -89,7 +92,7 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.prompt}>
+        <View style={[styles.prompt, compact && styles.promptCompact]}>
           <Text style={[styles.title, { color: t.text }]}>{title}</Text>
           <Pressable
             testID="replay-audio"
@@ -98,10 +101,11 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
             onPress={() => playKana(question.answerId, { slow: defaultSlow })}
             style={({ pressed }) => [
               styles.replay,
+              compact && styles.replayCompact,
               { borderColor: t.line, backgroundColor: t.surface, opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Icon name="speaker" size={52} color={t.text} strokeWidth={1.8} />
+            <Icon name="speaker" size={compact ? 38 : 52} color={t.text} strokeWidth={1.8} />
           </Pressable>
           <Pressable
             testID="play-slow"
@@ -114,7 +118,7 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
             <Text style={[styles.slowLabel, { color: t.muted }]}>慢速播放</Text>
           </Pressable>
         </View>
-        <View style={styles.grid}>
+        <View style={[styles.grid, compact && styles.gridCompact]}>
           {rows.map((row, r) => (
             <View key={r} style={styles.gridRow}>
               {row.map((id, c) => {
@@ -125,6 +129,7 @@ export function QuizHear({ question, onAnswered, onNext, isLast }: QuizHearProps
                     char={mustById(id).char}
                     status={statusOf(id, index)}
                     disabled={answered}
+                    compact={compact}
                     testID={ids[index]}
                     onPress={() => choose(index)}
                   />
@@ -168,6 +173,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  promptCompact: { paddingTop: 12, gap: 8 },
+  replayCompact: { width: 84, height: 84 },
+  gridCompact: { paddingTop: 8, gap: 10 },
   slow: {
     minHeight: 44,
     paddingHorizontal: 14,

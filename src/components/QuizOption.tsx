@@ -95,10 +95,12 @@ export interface QuizKanaCardProps {
   onPress: () => void;
   disabled?: boolean;
   testID?: string;
+  /** 矮螢幕（iPhone SE）：字卡變矮、字變小，兩排字卡才不會被底部按鈕蓋住 */
+  compact?: boolean;
 }
 
 /** 聽音選字的字卡（C2-09）：高 116、radius 22、border 2、Klee One 60。 */
-export function QuizKanaCard({ char, status, onPress, disabled, testID }: QuizKanaCardProps) {
+export function QuizKanaCard({ char, status, onPress, disabled, testID, compact }: QuizKanaCardProps) {
   const t = useTheme();
   const c = optionColors(t, status);
   return (
@@ -110,10 +112,11 @@ export function QuizKanaCard({ char, status, onPress, disabled, testID }: QuizKa
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
+        compact && styles.cardCompact,
         { borderColor: c.border, backgroundColor: c.bg, opacity: pressed ? 0.85 : 1 },
       ]}
     >
-      <Text style={[styles.cardChar, { color: t.text }]}>{char}</Text>
+      <Text style={[styles.cardChar, compact && styles.cardCharCompact, { color: t.text }]}>{char}</Text>
     </Pressable>
   );
 }
@@ -140,5 +143,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardCompact: { height: 84 },
   cardChar: { fontFamily: KANA_FONT, fontSize: 60, lineHeight: 72 },
+  cardCharCompact: { fontSize: 46, lineHeight: 56 },
 });
