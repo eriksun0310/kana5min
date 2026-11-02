@@ -201,7 +201,7 @@ appId: com.ptalk.kana5min
                   true: ${output.wrongDone == 1}
                 commands:
                   - evalScript: ${output.wrongDone = 2}
-- assertVisible: 今天完成了
+- assertVisible: 練習完成
 - assertVisible:
     id: stat-correct
 - tapOn:

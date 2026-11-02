@@ -31,6 +31,12 @@ appId: com.ptalk.kana5min
 - runFlow: common/learn-one-kana.yaml
 - runFlow: common/learn-one-kana.yaml
 - runFlow: common/answer-quiz.yaml
+# 學完新字的結果頁：今天完成了、練剛學的字、自動練習連結
+- assertVisible: 今天完成了
+- assertVisible:
+    id: result-focus
+- assertVisible: "練剛學的字（あ い う）"
+- assertVisible: "做一份自動練習（10 題）"
 - tapOn:
     id: result-home
 # 學完一輪後：標籤、再學 3 個、練剛學的字（あ い う）
@@ -70,6 +76,11 @@ appId: com.ptalk.kana5min
 - tapOn:
     id: home-practice-link
 - runFlow: common/answer-quiz.yaml
+# 練剛學的字的結果頁：練習完成、再練一次這 3 個字，沒有練剛學的字按鈕
+- assertVisible: 練習完成
+- assertVisible: "再練一次這 3 個字"
+- assertNotVisible:
+    id: result-focus
 - tapOn:
     id: result-home
 # 練習頁：最上面「練剛學的字」卡

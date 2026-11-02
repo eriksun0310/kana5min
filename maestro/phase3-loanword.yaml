@@ -133,7 +133,7 @@ appId: com.ptalk.kana5min
           commands:
             - tapOn:
                 id: quiz-next
-- assertVisible: 今天完成了
+- assertVisible: 練習完成
 - assertVisible:
     id: stat-correct
 - assertTrue: ${output.loanSeen == 1}

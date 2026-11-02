@@ -593,3 +593,14 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **順手修**：學新字第一頁在 iPhone SE 上大字太大，新手提示氣泡被諧音卡蓋住、點不到；矮螢幕大字縮成 120。
 - **假設**：「剛學的字」以本地時區的「今天」、`learnedAt` 判斷；沒有新字時，「再學 N 個」的 N 取剩餘的新字數（最多 3）。
 - **測試**：新增 `justLearned.test.ts`（9 個）；Maestro 新增 `phase16-guidance.yaml`；因為練習頁入口改變，更新了 `phase2-confuse`、`phase2-special`、`phase3-unlock`、`phase10-affordance`、`phase10-mnemonic`、`phase11`、`phase13`、`phase14`、`phase15`、`phase7-tour` 與截圖流程；`run-small-screen.sh` 加到 16 支。iPhone SE 與 iPhone 17 各 15 支流程全部通過。截圖尚未重拍（待補：首頁、練習頁、幫助頁，亮暗各一）。
+
+## 結果頁引導到練習（2026-11-02）
+
+- 使用者問：第一次學完今天的字，會引導到練習嗎？原本結果頁只有「回首頁」與「再練一輪」，沒有任何提示；而「再練一輪」不論從哪裡來都跳自動練習（易混淆字除外），學完新字後按它練的不是剛學的字。
+- 改成依剛做完的練習種類（`src/logic/resultCopy.ts`，有單元測試）：
+  - 今天的學習（有新字）：標題「今天完成了」；「回首頁」上方多一個次要按鈕「練剛學的字（か き く）」（`result-focus`，上有一行小字說明）；連結「做一份自動練習（10 題）」。只複習、沒學新字時沒有練剛學的字按鈕。
+  - 自動練習：標題「練習完成」；連結「再做一份自動練習」。
+  - 易混淆字快速辨識：「練習完成」；「再練一次這一組（ぬ・め）」，回同一組。
+  - 練剛學的字：「練習完成」；「再練一次這 3 個字」，回 focus 模式。
+- 新增 session 模式 `focus`（`startFocus` 原本記成 `auto`，結果頁分不出來）。
+- Maestro：自動練習、易混淆字、外來語、phase14 的結果頁斷言由「今天完成了」改成「練習完成」；phase16 加驗結果頁的三處文字。iPhone SE 上 phase16、2-auto-practice、14、2-confuse、3-loanword、1-daily-practice 通過；iPhone 17 未重跑（只改結果頁文字與導向）。

@@ -50,7 +50,7 @@ import { clearSavedSession, readSavedSession, writeSavedSession } from './sessio
 import { useSettingsStore } from './settingsStore';
 
 /** daily = 每日練習；auto = 自動練習；confuse = 易混淆字組快速辨識 */
-export type SessionMode = 'daily' | 'auto' | 'confuse';
+export type SessionMode = 'daily' | 'auto' | 'confuse' | 'focus';
 export type SessionPhase = 'learn' | 'quiz';
 
 /** 每輪最多帶入的到期複習字數（其餘留到下一輪，避免一次出太多題） */
@@ -304,7 +304,7 @@ export const useSessionStore = create<SessionState>()((set, get) => {
       ...empty,
       sid: s.sid + 1,
       active: true,
-      mode: 'auto',
+      mode: 'focus',
       phase: 'quiz',
       reviewKanaIds: [...new Set(questions.map((q) => q.kanaId))],
       learnedIds: [...learnedIdSet(allProgress)],

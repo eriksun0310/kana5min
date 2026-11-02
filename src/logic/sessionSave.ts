@@ -11,7 +11,7 @@ export interface SavedSession {
   /** 存檔當天（本地 YYYY-MM-DD）；日期變了就作廢 */
   day: string;
   savedAt: number;
-  mode: 'daily' | 'auto' | 'confuse';
+  mode: 'daily' | 'auto' | 'confuse' | 'focus';
   groupId: string | null;
   phase: 'learn' | 'quiz';
   newKanaIds: string[];
@@ -53,7 +53,7 @@ function isSavedSession(d: unknown): d is SavedSession {
   return (
     s.version === SESSION_SAVE_VERSION &&
     typeof s.day === 'string' &&
-    (s.mode === 'daily' || s.mode === 'auto' || s.mode === 'confuse') &&
+    (s.mode === 'daily' || s.mode === 'auto' || s.mode === 'confuse' || s.mode === 'focus') &&
     (s.phase === 'learn' || s.phase === 'quiz') &&
     Array.isArray(s.newKanaIds) &&
     Array.isArray(s.reviewKanaIds) &&
@@ -71,7 +71,7 @@ function isSavedSession(d: unknown): d is SavedSession {
 
 /** 有沒有值得存的進度（什麼都沒做就離開不留存檔）。 */
 export function hasSessionProgress(s: {
-  mode: 'daily' | 'auto' | 'confuse';
+  mode: 'daily' | 'auto' | 'confuse' | 'focus';
   phase: 'learn' | 'quiz';
   newKanaIds: readonly string[];
   newIndex: number;

@@ -1,13 +1,14 @@
 import { Redirect, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Icon, KanaText, PrimaryButton, Screen, StatCard, TextLink } from '../src/components';
+import { Icon, KanaText, PrimaryButton, Screen, SecondaryButton, StatCard, TextLink } from '../src/components';
 import { mustById } from '../src/data';
 import { exitToHome } from '../src/nav/exitToHome';
 import { shouldAskReminder } from '../src/notifications/reminderPlan';
 import { turnOnReminder } from '../src/notifications/syncReminders';
 import { useSettingsStore } from '../src/store/settingsStore';
 import { useSessionStore } from '../src/store/sessionStore';
+import { resultCopy } from '../src/logic/resultCopy';
 import { useTheme } from '../src/theme/useTheme';
 import { useTopPad } from '../src/theme/layout';
 
@@ -35,6 +36,13 @@ export default function ResultScreen() {
 
   if (!result) return <Redirect href="/" />;
   const { summary } = result;
+  const copy = resultCopy({
+    mode: result.mode,
+    groupId: result.groupId,
+    newCount: summary.newCount,
+    after: result.after,
+    now: Date.now(),
+  });
 
   // 這一輪剛好學完某一行：先看一行學完畫面，再回首頁
   const goHome = () => {
@@ -67,7 +75,7 @@ export default function ResultScreen() {
         </Pressable>
       </View>
       <View style={styles.titleBox}>
-        <Text style={[styles.title, { color: t.text }]}>今天完成了</Text>
+        <Text style={[styles.title, { color: t.text }]}>{copy.title}</Text>
         <Text testID="result-desc" style={[styles.desc, { color: t.muted }]}>
           {describe(summary.newCount, summary.reviewCount, summary.correct, summary.total)}
         </Text>
@@ -128,18 +136,31 @@ export default function ResultScreen() {
         </View>
       ) : null}
       <View style={styles.primary}>
+        {copy.focus ? (
+          <>
+            <Text style={[styles.focusHint, { color: t.muted }]}>剛學的字，馬上練比較不會忘</Text>
+            <SecondaryButton
+              testID="result-focus"
+              label={copy.focus.label}
+              onPress={() => router.replace({ pathname: '/quiz', params: { mode: 'focus' } })}
+              style={styles.focusBtn}
+            />
+          </>
+        ) : null}
         <PrimaryButton testID="result-home" label="回首頁" onPress={goHome} />
       </View>
       <View style={styles.secondary}>
         <TextLink
           testID="result-again"
-          label="再練一輪"
+          label={copy.again.label}
           onPress={() =>
-            router.replace(
-              result.mode === 'confuse' && result.groupId
-                ? { pathname: '/quiz', params: { mode: 'confuse', group: result.groupId } }
-                : { pathname: '/quiz', params: { mode: 'auto' } },
-            )
+            router.replace({
+              pathname: '/quiz',
+              params:
+                copy.again.target.mode === 'confuse'
+                  ? { mode: 'confuse', group: copy.again.target.group }
+                  : { mode: copy.again.target.mode },
+            })
           }
         />
       </View>
@@ -154,6 +175,8 @@ const styles = StyleSheet.create({
   titleBox: { paddingTop: 8, paddingHorizontal: 24, gap: 6 },
   title: { fontSize: 28, fontWeight: '700' },
   desc: { fontSize: 15 },
+  focusHint: { fontSize: 13, textAlign: 'center', marginBottom: 8 },
+  focusBtn: { marginBottom: 10 },
   stats: { paddingTop: 20, paddingHorizontal: 24, flexDirection: 'row', gap: 10 },
   listTitle: { paddingTop: 22, paddingBottom: 8, paddingHorizontal: 24, fontSize: 15, fontWeight: '700' },
   list: { paddingHorizontal: 24, paddingBottom: 12, gap: 8 },

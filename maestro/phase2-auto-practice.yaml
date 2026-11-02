@@ -104,7 +104,7 @@ appId: com.ptalk.kana5min
           commands:
             - tapOn:
                 id: quiz-next
-- assertVisible: 今天完成了
+- assertVisible: 練習完成
 - assertVisible:
     id: stat-correct
 # 新題型每個假名各自計分，總數不固定（例如 18 / 18），所以只確認有答對統計
