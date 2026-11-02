@@ -14,6 +14,8 @@ appId: com.ptalk.kana5min
 - tapOn:
     id: tab-practice
 - tapOn:
+    id: see-all-groups
+- tapOn:
     id: group-ruro
 - assertVisible:
     id: quick-confuse

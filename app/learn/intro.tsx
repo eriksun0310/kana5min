@@ -1,6 +1,6 @@
 import { Redirect, Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { playKana } from '../../src/audio/playKana';
 import {
   Card,
@@ -18,6 +18,7 @@ import { confirmExitFlow } from '../../src/nav/exitToHome';
 import { shouldShowRomaji } from '../../src/logic/romaji';
 import { useProgressStore } from '../../src/store/progressStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
+import { isCompactHeight } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 
 /**
@@ -69,6 +70,8 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
   const autoHide = useSettingsStore((s) => s.romajiAutoHide);
   const progress = useProgressStore((s) => s.progress);
   useAutoPlay(kana.id);
+  // 矮螢幕（iPhone SE）大字縮小，不然提示氣泡會被下面的諧音卡蓋住
+  const compact = isCompactHeight(useWindowDimensions().height);
 
   const showRomaji = shouldShowRomaji(progress[kana.id], { romajiAutoHide: autoHide });
 
@@ -84,7 +87,7 @@ function HiraganaIntro({ kana, snap }: IntroProps) {
         <View style={styles.chip}>
           <Text style={[styles.chipText, { color: t.accentText }]}>新字</Text>
         </View>
-        <KanaText size={200} testID="learn-kana">
+        <KanaText size={compact ? 120 : 200} testID="learn-kana">
           {kana.char}
         </KanaText>
         <Text style={[styles.romaji, { color: t.muted }]} testID="learn-romaji">

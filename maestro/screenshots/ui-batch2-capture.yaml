@@ -18,6 +18,8 @@ tags:
 - tapOn:
     id: tab-practice
 - tapOn:
+    id: see-all-groups
+- tapOn:
     id: group-ruro
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/ui-batch2/1-Confuse-${THEME}

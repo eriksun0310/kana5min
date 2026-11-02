@@ -9,14 +9,10 @@ appId: com.ptalk.kana5min
 - tapOn:
     id: tab-practice
 - assertVisible:
-    id: special-long
-- assertVisible:
-    id: special-sokuon
-- assertVisible:
-    id: special-youon
-# 長音
+    id: open-special
+# 長音（特殊音入口一行，進去再切長音／促音／拗音）
 - tapOn:
-    id: special-long
+    id: open-special
 - assertVisible:
     id: seg-long
 - assertVisible: 長音

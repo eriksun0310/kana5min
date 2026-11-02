@@ -7,8 +7,8 @@ appId: com.ptalk.kana5min
     clearState: true
 - assertVisible:
     id: tour-page-1
-- assertVisible: 每天只學 3 個字
-- assertVisible: 看、聽、寫，最後小測驗。5 分鐘就夠，不用硬撐。
+- assertVisible: 建議每天學 3 個字
+- assertVisible: 看字、聽音、寫筆順，最後小測驗。5 分鐘就夠，不用硬撐。
 - assertVisible:
     id: tour-skip
 - tapOn:
@@ -45,7 +45,7 @@ appId: com.ptalk.kana5min
     id: home-help
 - assertVisible:
     id: home-help-sheet
-- assertVisible: 快忘記、該複習的字，按開始會先考你。
+- assertVisible: 快忘記、該複習的字，只有在需要複習時才會出現。
 - assertVisible: 開始今天的 5 分鐘
 - tapOn:
     id: home-help-close
@@ -145,6 +145,7 @@ appId: com.ptalk.kana5min
 - scrollUntilVisible:
     element:
       id: row-replay-tour
+    centerElement: true
 - tapOn:
     id: row-replay-tour
 - assertVisible:

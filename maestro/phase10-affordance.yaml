@@ -1,4 +1,4 @@
-# 能按與不能按整理：首頁統計可點（待複習／今天新字面板、已學到五十音表）、五十音表已學紅勾、
+# 能按與不能按整理：首頁可點（待複習只在有到期字時出現、今天要學的面板、進度條到五十音表）、五十音表已學紅勾、
 # 字詳情「容易搞混」可點、自動練習鎖定說明（還沒學任何字）、易混淆快速辨識（找不同系列題型）整輪答完。
 appId: com.ptalk.kana5min
 ---
@@ -35,7 +35,16 @@ appId: com.ptalk.kana5min
     notVisible:
       id: new-sheet
     timeout: 5000
-# 待複習面板：重開 App 再測（Maestro 在同一次啟動裡讀不到第二個 Modal 的內容，實機沒有這個問題）
+# 沒有到期的字：首頁不顯示待複習（0 個字不佔版面）
+- assertNotVisible:
+    id: stat-due
+# 待複習面板：全部到期的進度（重開 App 再測：Maestro 在同一次啟動裡讀不到第二個 Modal 的內容，實機沒有這個問題）
+- openLink: kana5min://debug?preset=hiragana-started&due=1
+- runFlow:
+    when:
+      visible: "(打開|Open)"
+    commands:
+      - tapOn: "(打開|Open)"
 - launchApp:
     stopApp: true
 - extendedWaitUntil:
@@ -48,7 +57,7 @@ appId: com.ptalk.kana5min
     visible:
       id: due-sheet
     timeout: 5000
-- assertVisible: 今天沒有要複習的字
+- assertVisible: 這些字今天要複習，隔太久會忘
 - tapOn:
     id: due-sheet-close
 - waitForAnimationToEnd
@@ -85,21 +94,21 @@ appId: com.ptalk.kana5min
 - assertVisible:
     id: detail-char
     text: き
-# 練習頁「最常搞混的」只放 3 組，下面「看全部」進完整目錄
+# 練習頁「易混淆字」一行進完整目錄，目錄列出全部組
 - tapOn:
     id: back
 - tapOn:
     id: tab-practice
-- assertVisible: 最常搞混的
-- assertVisible:
-    id: group-nume
-- assertVisible:
-    id: group-ruro
 - assertVisible:
     id: see-all-groups
 - tapOn:
     id: see-all-groups
+- assertVisible: 易混淆字
 - assertVisible:
     id: catalog-count
+- assertVisible:
+    id: group-nume
+- assertVisible:
+    id: group-ruro
 - assertVisible:
     id: group-wanere

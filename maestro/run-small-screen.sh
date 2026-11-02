@@ -8,7 +8,8 @@ UDID="${1:-42F9217D-024C-40E3-B77F-F6932DC45555}"   # iPhone SE (3rd generation)
 xcrun simctl boot "$UDID" 2>/dev/null || true
 xcrun simctl bootstatus "$UDID" -b >/dev/null
 for f in phase12-spot-error phase11-new-quiz-types phase13-drop phase14-dev-auto-answer phase15-guards \
-         phase2-auto-practice phase3-loanword phase9-trace phase10-mnemonic phase2-confuse; do
+         phase2-auto-practice phase3-loanword phase9-trace phase10-mnemonic phase2-confuse \
+         phase16-guidance phase2-special phase3-unlock phase10-affordance phase7-tour phase1-daily-practice; do
   echo "== $f"
   maestro --udid "$UDID" test "maestro/$f.yaml"
 done

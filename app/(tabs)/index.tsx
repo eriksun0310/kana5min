@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import {
   HomeHelpSheet,
   Icon,
@@ -8,18 +8,18 @@ import {
   KanaText,
   PrimaryButton,
   Screen,
-  StatCard,
   TextLink,
   type KanaListItem,
 } from '../../src/components';
 import { byId, scriptLabel } from '../../src/data';
 import { isGraduated } from '../../src/logic/graduate';
+import { justLearnedIds, learnedTooFast } from '../../src/logic/justLearned';
 import { DAY_MS } from '../../src/logic/srs';
 import { computeHomeStats, computeStreak } from '../../src/logic/progressStats';
 import { currentScript, defaultLearningOrder, dueKanaIds, NEW_PER_SESSION, nextNewKanaIds } from '../../src/logic/session';
 import { useProgressStore, useSettingsStore } from '../../src/store';
 import { useSessionStore } from '../../src/store/sessionStore';
-import { useTopPad } from '../../src/theme/layout';
+import { isCompactHeight, useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
 import { resumeSavedAndGo, startDailyAndGo } from '../../src/nav/startDaily';
 
@@ -35,6 +35,7 @@ export default function HomeScreen() {
   const t = useTheme();
   const router = useRouter();
   const top = useTopPad(56);
+  const compact = isCompactHeight(useWindowDimensions().height);
   const progress = useProgressStore((s) => s.progress);
   const goal = useSettingsStore((s) => s.dailyGoalMinutes);
   const practiceDates = useSettingsStore((s) => s.practiceDates);
@@ -117,6 +118,14 @@ export default function HomeScreen() {
     else startDailyAndGo(router, 'push');
   };
 
+  // 今天最近一輪剛學的字、今天是否學太快
+  const justLearned = useMemo(() => justLearnedIds(list, now), [list, now]);
+  const tooFast = useMemo(() => learnedTooFast(list, now), [list, now]);
+  const learnedKana = justLearned.map((id) => byId(id)?.char).filter((c): c is string => !!c);
+  const nextKana = newItems.map((i) => i.char);
+  // 今天已經學過新字：主按鈕變成「再學 N 個」（沒有每日上限，不會擋住）
+  const learnedAlready = justLearned.length > 0;
+
   const next = stats.nextKanaId ? byId(stats.nextKanaId) : undefined;
   // 沒有新字、也沒有到期複習 = 今天完成
   const allDone = !next && stats.dueCount === 0;
@@ -145,14 +154,53 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <Pressable
+        testID="stat-learned"
+        accessibilityRole="button"
+        accessibilityHint="看五十音表和各行進度"
+        onPress={() => router.push('/chart')}
+        style={styles.map}
+      >
+        <View style={[styles.mapTrack, { backgroundColor: t.track }]}>
+          <View
+            style={{
+              width: `${(stats.learnedCount / Math.max(1, stats.total)) * 100}%`,
+              height: '100%',
+              backgroundColor: t.accent,
+            }}
+          />
+        </View>
+        <Text style={{ fontSize: 13, fontWeight: '600', color: t.muted }}>{`${stats.learnedCount} / ${stats.total}`}</Text>
+        <Icon name="chevronRight" size={14} color={t.muted} />
+      </Pressable>
+
       <View style={styles.center}>
         {next ? (
           <>
+            {learnedAlready ? (
+              <View testID="home-learned-tag" style={[styles.tag, { backgroundColor: t.accentSoft }]}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: t.accentText }}>今天已學 {justLearned.length} 個</Text>
+              </View>
+            ) : null}
             <Text style={{ fontSize: 14, color: t.muted }}>下一個新字</Text>
-            <KanaText size={190} testID="home-next-kana">
+            <KanaText size={compact ? 120 : 160} testID="home-next-kana">
               {next.char}
             </KanaText>
             <Text style={{ fontSize: 18, color: t.muted, letterSpacing: 2 }}>{next.romaji}</Text>
+            <Pressable
+              testID="stat-new"
+              accessibilityRole="button"
+              accessibilityLabel={`${learnedAlready ? '再學' : '今天學'} ${nextKana.join('、')}，點一下看內容`}
+              onPress={() => setSheet('new')}
+              hitSlop={8}
+              style={styles.nextLine}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>
+                {learnedAlready ? '想多學：再學 ' : '今天學 '}
+                <Text style={{ fontWeight: '700' }}>{nextKana.join('、')}</Text>
+              </Text>
+              <Icon name="chevronRight" size={14} color={t.muted} />
+            </Pressable>
           </>
         ) : (
           <View style={styles.done} testID="home-complete">
@@ -169,67 +217,48 @@ export default function HomeScreen() {
             </Text>
           </View>
         )}
-      </View>
-
-      <View style={styles.stats}>
-        <StatCard
-          style={styles.stat}
-          testID="stat-learned"
-          value={String(stats.learnedCount)}
-          unit={` / ${stats.total}`}
-          label="已學"
-          onPress={() => router.push('/chart')}
-        />
-        <StatCard
-          style={styles.stat}
-          testID="stat-due"
-          value={String(stats.dueCount)}
-          label="待複習"
-          onPress={() => setSheet('due')}
-        />
-        <StatCard
-          style={styles.stat}
-          testID="stat-new"
-          value={String(stats.newTodayCount)}
-          label="今天新字"
-          onPress={() => setSheet('new')}
-        />
-      </View>
-
-      <View style={styles.rows} testID="home-rows">
-        <View style={styles.rowsHeader}>
-          <Text style={{ fontSize: 13, color: t.muted }}>各行進度</Text>
-          {stats.currentRowLabel ? (
-            <Text style={{ fontSize: 13, fontWeight: '600', color: t.accent }}>學到{stats.currentRowLabel}</Text>
-          ) : null}
-        </View>
-        <View style={styles.rowsBars} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {stats.rows.map((r) => (
-            <View key={r.row} style={styles.rowCell}>
-              <View style={[styles.rowTrack, { backgroundColor: t.track }]}>
-                <View
-                  style={{
-                    width: `${(r.learned / Math.max(1, r.total)) * 100}%`,
-                    height: '100%',
-                    backgroundColor: t.accent,
-                  }}
-                />
-              </View>
-              <Text style={{ fontSize: 12, marginTop: 4, color: r.current ? t.accent : t.muted }}>{r.head}</Text>
-            </View>
-          ))}
-        </View>
+        {stats.dueCount > 0 ? (
+          <Pressable
+            testID="stat-due"
+            accessibilityRole="button"
+            onPress={() => setSheet('due')}
+            style={[styles.duePill, { backgroundColor: t.surface, borderColor: t.line }]}
+          >
+            <Text style={{ fontSize: 14, fontWeight: '700', color: t.accentText }}>{stats.dueCount} 個字待複習</Text>
+            <Icon name="chevronRight" size={14} color={t.muted} />
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.cta}>
         <PrimaryButton
           testID="start-today"
-          label={saved ? '繼續今天的練習' : allDone ? '今天完成了' : `開始今天的 ${goal} 分鐘`}
+          label={
+            saved
+              ? '繼續今天的練習'
+              : allDone
+                ? '今天完成了'
+                : learnedAlready && next
+                  ? `再學 ${stats.newTodayCount} 個`
+                  : `開始今天的 ${goal} 分鐘`
+          }
           disabled={allDone && !saved}
           onPress={() => (saved ? resumeSavedAndGo(router, 'push') : startDailyAndGo(router, 'push'))}
         />
         {saved ? (
           <TextLink testID="restart-today" label="從頭開始" onPress={() => startDailyAndGo(router, 'push')} />
+        ) : null}
+        {learnedAlready && !saved ? (
+          <TextLink
+            testID="home-practice-link"
+            label={`練剛學的字（${learnedKana.join(' ')}）`}
+            onPress={() => router.push({ pathname: '/quiz', params: { mode: 'focus' } })}
+          />
+        ) : null}
+        {tooFast ? (
+          <Text testID="home-fast-warning" style={{ fontSize: 13, color: t.muted, textAlign: 'center', marginTop: 4 }}>
+            一次學太多容易忘，明天記得回來複習
+          </Text>
         ) : null}
         {graduated ? (
           <TextLink testID="home-next-link" label="下一步：壽司日檢" onPress={() => router.push('/next')} />
@@ -293,12 +322,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 8,
   },
-  stats: { paddingHorizontal: 24, flexDirection: 'row', gap: 10 },
-  stat: { flex: 1 },
-  rows: { paddingHorizontal: 24, paddingTop: 14 },
-  rowsHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  rowsBars: { flexDirection: 'row', gap: 4 },
-  rowCell: { flex: 1, alignItems: 'center' },
-  rowTrack: { alignSelf: 'stretch', height: 8, borderRadius: 4, overflow: 'hidden' },
+  map: { paddingHorizontal: 24, paddingTop: 14, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44 },
+  mapTrack: { flex: 1, height: 8, borderRadius: 4, overflow: 'hidden' },
+  tag: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, marginBottom: 2 },
+  nextLine: { marginTop: 10, minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  duePill: {
+    marginTop: 10,
+    minHeight: 38,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   cta: { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 16 },
 });

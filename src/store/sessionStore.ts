@@ -8,6 +8,7 @@ import { create } from 'zustand';
 import type { Progress, Script } from '../data/types';
 import {
   buildAutoPractice10,
+  buildFocusPractice,
   buildQuickConfuse10,
   confusionCounts,
   type ConfusionCounts,
@@ -117,6 +118,8 @@ export interface SessionState {
    * counts 預設取 progressStore 目前的易混淆答錯次數。
    */
   startAuto: (allProgress: Progress[], now: number, rng?: Rng, counts?: ConfusionCounts) => boolean;
+  /** 練剛學的字：只出這幾個字的題目（看字選音、聽音選字、默寫） */
+  startFocus: (focusIds: string[], allProgress: Progress[], now: number, rng?: Rng) => boolean;
   /**
    * 開始易混淆字組快速辨識 10 題；字組不存在或資料不足時回傳 false。
    * 已學的字照常更新 SRS；未學的字只記答錯次數，不寫 SRS。
@@ -287,6 +290,23 @@ export const useSessionStore = create<SessionState>()((set, get) => {
       phase: 'quiz',
       // newKanaIds 在自動練習中不代表新字，不放進狀態；讀外來語題沒有對應假名，不列入
       reviewKanaIds: [...new Set(questions.filter((q) => q.kanaId !== '').map((q) => q.kanaId))],
+      learnedIds: [...learnedIdSet(allProgress)],
+      questions,
+      startedAt: now,
+    }));
+    return true;
+  },
+
+  startFocus(focusIds, allProgress, now, rng = Math.random) {
+    const questions = buildFocusPractice(focusIds, allProgress, rng);
+    if (questions.length === 0) return false;
+    set((s) => ({
+      ...empty,
+      sid: s.sid + 1,
+      active: true,
+      mode: 'auto',
+      phase: 'quiz',
+      reviewKanaIds: [...new Set(questions.map((q) => q.kanaId))],
       learnedIds: [...learnedIdSet(allProgress)],
       questions,
       startedAt: now,

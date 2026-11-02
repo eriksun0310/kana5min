@@ -30,9 +30,11 @@ appId: com.ptalk.kana5min
     id: cell-h-a
 - tapOn:
     id: script-hiragana
-# 練習分頁沒有片假名組
+# 易混淆字目錄沒有片假名組
 - tapOn:
     id: tab-practice
+- tapOn:
+    id: see-all-groups
 - assertVisible:
     id: group-nume
 - assertNotVisible:
@@ -103,16 +105,13 @@ appId: com.ptalk.kana5min
 # 練習分頁出現片假名的易混淆字組
 - tapOn:
     id: tab-practice
-- assertVisible:
-    id: group-shitsu
-- assertVisible: "シ・ツ，錯 0 次"
-# 練習頁只放最常搞混的 3 組（預設 ぬ・め、る・ろ、シ・ツ），其餘在「看全部」的片假名分頁
-- assertNotVisible:
-    id: group-son
 - tapOn:
     id: see-all-groups
 - tapOn:
     id: catalog-tab-katakana
+- assertVisible:
+    id: group-shitsu
+- assertVisible: "シ・ツ，錯 0 次"
 - assertVisible:
     id: group-son
 - assertVisible: "ソ・ン，錯 0 次"

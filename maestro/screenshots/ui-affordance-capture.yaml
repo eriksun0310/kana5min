@@ -46,7 +46,9 @@ tags:
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/ui-affordance/5-Practice-${THEME}
 - tapOn:
-    id: special-youon
+    id: open-special
+- tapOn:
+    id: seg-youon
 - assertVisible:
     id: youon-kya
 - waitForAnimationToEnd

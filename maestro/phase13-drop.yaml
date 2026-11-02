@@ -202,10 +202,14 @@ appId: com.ptalk.kana5min
 - tapOn:
     id: back
 - tapOn:
+    id: see-all-groups
+- tapOn:
     id: group-ruro
 - assertVisible:
     id: confuse-misses
 - assertVisible: "[1-9][0-9]* 次"
+- tapOn:
+    id: back
 - tapOn:
     id: back
 # 點籃子模式（上面已在設定改成「點籃子」）：真的玩一關。字掉下來時輪流點四個籃子，

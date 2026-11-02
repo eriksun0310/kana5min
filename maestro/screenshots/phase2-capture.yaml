@@ -19,6 +19,8 @@ tags:
 # 對比頁（三個字的組，還沒有答錯紀錄）
 - tapOn:
     id: tab-practice
+- tapOn:
+    id: see-all-groups
 - assertVisible:
     id: group-wanere
 - tapOn:
@@ -106,15 +108,13 @@ tags:
 - tapOn:
     id: tab-practice
 - assertVisible:
-    id: group-nume
-- assertVisible:
-    id: group-nume
-    leftOf:
-      id: group-ruro
+    id: see-all-groups
 - waitForAnimationToEnd
 - takeScreenshot: screenshots/phase2/C2-13-Practice-${THEME}
 
 # C2-14 對比頁（兩個字的組，有答錯次數）
+- tapOn:
+    id: see-all-groups
 - tapOn:
     id: group-nume
 - assertVisible:
@@ -123,12 +123,14 @@ tags:
 - takeScreenshot: screenshots/phase2/C2-14-Confuse-${THEME}
 - tapOn:
     id: back
+- tapOn:
+    id: back
 - assertVisible:
-    id: special-long
+    id: open-special
 
 # C2-15 長音、C2-16 促音、C2-17 拗音
 - tapOn:
-    id: special-long
+    id: open-special
 - assertVisible:
     id: play-w-obaasan
 - waitForAnimationToEnd

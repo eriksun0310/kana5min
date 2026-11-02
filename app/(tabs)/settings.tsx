@@ -285,6 +285,15 @@ export default function SettingsScreen() {
               <Icon name="chevronRight" size={16} color={t.muted} />
             </Pressable>
             <Pressable
+              testID="row-help"
+              accessibilityRole="button"
+              onPress={() => router.push('/help')}
+              style={rowStyle}
+            >
+              <Text style={{ fontSize: 15, color: t.text }}>幫助與聯絡</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            <Pressable
               testID="row-next"
               accessibilityRole="button"
               onPress={() => router.push('/next')}

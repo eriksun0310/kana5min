@@ -39,10 +39,10 @@ describe('entryRoute', () => {
 });
 
 describe('首頁說明與導覽內容', () => {
-  it('說明 5 項，最後一項帶入每日目標分鐘', () => {
+  it('說明 4 項，最後一項帶入每日目標分鐘', () => {
     const items = homeHelpItems(10);
-    expect(items.map((i) => i.key)).toEqual(['learned', 'due', 'new', 'rows', 'start']);
-    expect(items[4].title).toBe('開始今天的 10 分鐘');
+    expect(items.map((i) => i.key)).toEqual(['learned', 'new', 'due', 'start']);
+    expect(items[3].title).toBe('開始今天的 10 分鐘');
     expect(items[0].body).toContain('46');
     expect(items.every((i) => i.body.length > 0)).toBe(true);
   });

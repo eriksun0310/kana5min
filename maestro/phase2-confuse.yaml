@@ -12,23 +12,20 @@ appId: com.ptalk.kana5min
       PRESET: hiragana-almost
 - tapOn:
     id: tab-practice
+# 練習頁只有一份清單：易混淆字那一行進目錄（沒有答錯紀錄時寫「長得很像的字放一起比較」）
+- assertVisible: ".*長得很像的字放一起比較.*"
+- tapOn:
+    id: see-all-groups
 - assertVisible:
     id: group-nume
 - assertVisible:
     id: group-ruro
 - assertVisible:
     id: group-wanere
-- assertVisible: 最常搞混的
-# 平假名階段只有 3 組：全放在練習頁，「看全部」顯示 3 組
-- tapOn:
-    id: see-all-groups
+# 平假名階段只有 3 組
 - assertVisible:
     id: catalog-count
     text: "12 組.*"
-- assertVisible:
-    id: group-wanere
-- tapOn:
-    id: back
 # 平假名還沒學完（hiragana-almost：只差 ん）時片假名組不會出現；
 # 平假名學完（hiragana-done）會解鎖片假名並先跳出 C2-18，所以這支流程不用它（見 phase3-unlock.yaml）
 - assertNotVisible: "(シツ|シ・ツ).*"
@@ -214,12 +211,12 @@ appId: com.ptalk.kana5min
 # 回練習分頁：わねれ 組顯示「錯 N 次」（N≥1）並排到第一（清單最上面，在 ぬ・め 上方）
 - tapOn:
     id: tab-practice
+# 練習頁「易混淆字」那一行右邊寫錯最多的一組（わ・ね・れ，錯 N 次）
+- assertVisible: ".*わ・ね・れ 錯 [1-9] 次.*"
+- tapOn:
+    id: see-all-groups
 # 故意答錯的那題（找出所有／聽音選字串可能點到混入的別組字）可能同時記到別組，所以只確認本組至少 1 次且排第一
 - assertVisible: "わ・ね・れ，錯 [1-9] 次"
-- assertVisible:
-    id: group-wanere
-    above:
-      id: group-nume
 - scrollUntilVisible:
     element: "ぬ・め，錯 0 次"
 - assertVisible: "ぬ・め，錯 0 次"

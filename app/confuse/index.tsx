@@ -25,7 +25,7 @@ export default function ConfuseCatalog() {
 
   return (
     <Screen>
-      <BackHeader title="最常搞混的" onBack={() => router.back()} />
+      <BackHeader title="易混淆字" onBack={() => router.back()} />
       <ScrollView style={styles.flex} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text testID="catalog-count" style={{ fontSize: 13, color: t.muted }}>
           {total} 組，點一組看對比和 10 題

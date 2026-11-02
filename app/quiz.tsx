@@ -18,6 +18,7 @@ import { isLoanwordQuestion, type AnswerDetail, type QuizQuestion } from '../src
 import { recordConfusion } from '../src/scoring';
 import { elapsedMinutes, elapsedMs, EXTEND_MINUTES } from '../src/logic/practiceTimer';
 import { confirmExitFlow } from '../src/nav/exitToHome';
+import { justLearnedIds } from '../src/logic/justLearned';
 import { currentProgressList, useSessionStore } from '../src/store/sessionStore';
 
 // 開發用按鈕只在 __DEV__ 載入，正式包的 bundle 不會包含 src/dev
@@ -30,6 +31,7 @@ const QuizDevBar: React.ComponentType<{ question: QuizQuestion }> | null = __DEV
  * - 預設（每日練習）：session 已由 /learn 建好，這裡只負責出題與作答。
  * - mode=auto：自動練習，看字選音、聽音選字與易混淆字題型（找出所有、念出一串、聽音選字串）混合 10 題，同一題型最多 2 題（片假名有可讀外來語時含看詞選拼音）；
  *   進畫面時建立新的一輪。
+ * - mode=focus：練剛學的字，只出今天最近一輪學的字（看字選音、聽音選字、默寫各 1 題）。
  * - loanword／wordread 題（讀外來語、看詞選拼音）不屬於任何假名：作答只計入答對數，不更新 SRS。
  * - mode=confuse&group=<id>：易混淆字組快速辨識 10 題（找出所有、念出一串、聽音選字串、看字選音、聽音選字，字限該組）。
  * 最後一題按「完成，看結果」→ 提交 SRS → 到結果頁。
@@ -91,6 +93,14 @@ export default function QuizScreen() {
     if (mode === 'auto') {
       // 沒有任何已學字就沒有題目可出，回首頁
       if (!store.startAuto(currentProgressList(), Date.now())) {
+        router.replace('/');
+        return;
+      }
+      setOwnedSid(useSessionStore.getState().sid);
+    } else if (mode === 'focus') {
+      // 練剛學的字：只出今天最近一輪學的字；沒有就回首頁
+      const list = currentProgressList();
+      if (!store.startFocus(justLearnedIds(list, Date.now()), list, Date.now())) {
         router.replace('/');
         return;
       }

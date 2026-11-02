@@ -308,6 +308,30 @@ export function buildAutoPractice10(
 }
 
 /**
+ * 「練剛學的字」：每個字出 看字選音、聽音選字、默寫（有標準筆畫才出）各 1 題，打散且同一個字不相鄰（可行時）。
+ * 選項的干擾字取自所有已學字。沒有可出的字時回傳空陣列。
+ */
+export function buildFocusPractice(
+  focusIds: readonly string[],
+  allProgress: readonly Progress[],
+  rng: Rng = Math.random,
+): QuizQuestion[] {
+  const known = learnedIdSet([...allProgress]);
+  for (const id of focusIds) known.add(id);
+  const drafts: QuizDraft[] = [];
+  for (const id of focusIds) {
+    const k = byId(id);
+    if (!k) continue;
+    for (const type of ['see', 'hear'] as const) {
+      const d = makeChoiceQuestion(id, type, known, rng);
+      if (d) drafts.push(d);
+    }
+    if (strokesOf(k.char) !== undefined) drafts.push({ kanaId: id, type: 'recall', options: [], answerId: id });
+  }
+  return arrange(drafts, rng).map((d, i) => ({ id: `q-${i}`, ...d }));
+}
+
+/**
  * 易混淆字對比頁的「快速辨識 10 題」：找出所有、念出一串、聽音選字串、看字選音、聽音選字（組內）輪流出，
  * 同一種題型最多 2 題；每題的目標字在組內輪流（次數相差最多 1、不相鄰）。
  * 組成員不足 2 個（資料查不到）時回傳空陣列。

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } fr
 import { Icon, KanaText, Screen } from '../../src/components';
 import { byId, kanaOfKind, seionGrid, type KanaKind, type Script } from '../../src/data';
 import { isLearned } from '../../src/logic/srs';
+import { computeHomeStats } from '../../src/logic/progressStats';
 import { useProgressStore } from '../../src/store';
 import { useTopPad } from '../../src/theme/layout';
 import { useTheme } from '../../src/theme/useTheme';
@@ -42,6 +43,10 @@ export default function ChartScreen() {
   const [script, setScript] = useState<Script>('hiragana');
   const shownScript = script; // 片假名分頁一直可以瀏覽（沒有未解鎖的限制）
 
+  const rowStats = useMemo(
+    () => computeHomeStats(Object.values(progress), Date.now(), shownScript).rows,
+    [progress, shownScript],
+  );
   const cols = kind === 'youon' ? 3 : 5;
   const cells = useMemo(() => cellsFor(kind, shownScript), [kind, shownScript]);
   const rows = useMemo(() => {
@@ -142,12 +147,31 @@ export default function ChartScreen() {
             })}
           </View>
         ))}
+        {kind === 'seion' ? (
+          <View testID="chart-rows" style={styles.rowsWrap}>
+            <Text style={{ fontSize: 13, color: t.muted, marginBottom: 6 }}>各行進度</Text>
+            <View style={styles.rowsBars} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              {rowStats.map((r) => (
+                <View key={r.row} style={styles.rowCell}>
+                  <View style={[styles.rowTrack, { backgroundColor: t.track }]}>
+                    <View style={{ width: `${(r.learned / Math.max(1, r.total)) * 100}%`, height: '100%', backgroundColor: t.accent }} />
+                  </View>
+                  <Text style={{ fontSize: 11, marginTop: 3, color: t.muted }}>{r.head}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  rowsWrap: { paddingTop: 18 },
+  rowsBars: { flexDirection: 'row', gap: 4 },
+  rowCell: { flex: 1, alignItems: 'center' },
+  rowTrack: { alignSelf: 'stretch', height: 6, borderRadius: 3, overflow: 'hidden' },
   header: {
     paddingHorizontal: SIDE,
     flexDirection: 'row',

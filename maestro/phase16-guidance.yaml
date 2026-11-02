@@ -1,0 +1,120 @@
+# 引導：首頁「今天學…」→ 學完一輪 → 首頁變成「再學 3 個」＋「今天已學」標籤＋「練剛學的字」連結（沒有每日上限，不擋）
+# → 練習頁最上面「練剛學的字」卡 → 練完回結果頁 → 設定 → 幫助與聯絡（常見問題摺疊、聯絡方式、回報問題）。
+appId: com.ptalk.kana5min
+---
+- runFlow:
+    file: common/onboard.yaml
+    env:
+      GOAL: '10'
+# 還沒學任何字：首頁寫「今天學 あ、い、う」，沒有「今天已學」標籤、沒有待複習、沒有練剛學的字
+- assertVisible:
+    id: stat-new
+- assertNotVisible:
+    id: home-learned-tag
+- assertNotVisible:
+    id: stat-due
+- assertNotVisible:
+    id: home-practice-link
+- assertVisible: 開始今天的 10 分鐘
+# 練習頁：今天還沒學新字，不顯示「練剛學的字」
+- tapOn:
+    id: tab-practice
+- assertNotVisible:
+    id: practice-focus
+- assertVisible:
+    id: practice-empty-hint
+- tapOn:
+    id: tab-home
+- tapOn:
+    id: start-today
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/answer-quiz.yaml
+- tapOn:
+    id: result-home
+# 學完一輪後：標籤、再學 3 個、練剛學的字（あ い う）
+- assertVisible:
+    id: home-learned-tag
+- assertVisible: 今天已學 3 個
+- assertVisible: 再學 3 個
+- assertVisible: "練剛學的字（あ い う）"
+- assertVisible: "3 / 46"
+- assertVisible:
+    id: home-next-kana
+    text: え
+# 再學不會被擋：按「再學 3 個」再學一輪（え お か），已學變 6
+- tapOn:
+    id: start-today
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/learn-one-kana.yaml
+- runFlow: common/answer-quiz.yaml
+- tapOn:
+    id: result-home
+# あ行 學滿了：先跳「一行學完」，選「先複習一下」做一輪自動練習再回首頁
+- runFlow:
+    when:
+      visible:
+        id: row-title
+    commands:
+      - tapOn:
+          id: row-review
+      - runFlow: common/answer-quiz.yaml
+      - tapOn:
+          id: result-home
+- assertVisible: "6 / 46"
+- assertVisible: 今天已學 3 個
+- assertVisible: "練剛學的字（え お か）"
+# 首頁連結：練剛學的字（只出最近一輪的 え お か）
+- tapOn:
+    id: home-practice-link
+- runFlow: common/answer-quiz.yaml
+- tapOn:
+    id: result-home
+# 練習頁：最上面「練剛學的字」卡
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: practice-focus
+- assertVisible: "え お か"
+- assertVisible:
+    id: start-auto-practice
+- assertVisible:
+    id: open-drop
+- assertVisible:
+    id: see-all-groups
+- assertVisible:
+    id: open-special
+- tapOn:
+    id: start-focus-practice
+- runFlow: common/answer-quiz.yaml
+- tapOn:
+    id: result-home
+# 設定 → 幫助與聯絡
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-help
+    centerElement: true
+- tapOn:
+    id: row-help
+- assertVisible: 常見問題
+- assertNotVisible:
+    id: faq-amount-answer
+- tapOn:
+    id: faq-amount
+- assertVisible:
+    id: faq-amount-answer
+- tapOn:
+    id: faq-amount
+- assertNotVisible:
+    id: faq-amount-answer
+- scrollUntilVisible:
+    element:
+      id: report-problem
+- assertVisible: ".*connect.ptalk@gmail.com.*"
+- assertVisible: ".*@ptalk.design.*"
+- assertVisible:
+    id: report-problem

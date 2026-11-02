@@ -59,7 +59,7 @@ export function entryRoute(s: { onboarded: boolean; tourSeen: boolean }): EntryR
 }
 
 export interface HomeHelpItem {
-  key: 'learned' | 'due' | 'new' | 'rows' | 'start';
+  key: 'learned' | 'new' | 'due' | 'start';
   title: string;
   body: string;
 }
@@ -67,14 +67,13 @@ export interface HomeHelpItem {
 /** 首頁「？」說明面板的內容（每項一句話）；goalMinutes 是每日目標分鐘數。 */
 export function homeHelpItems(goalMinutes: number): HomeHelpItem[] {
   return [
-    { key: 'learned', title: '已學', body: '你學過的字有幾個，總共 46 個清音。' },
-    { key: 'due', title: '待複習', body: '快忘記、該複習的字，按開始會先考你。' },
-    { key: 'new', title: '今天新字', body: '今天要學的新字，最多 3 個。' },
-    { key: 'rows', title: '各行進度', body: 'あ行到わ行，紅色越滿越熟。' },
+    { key: 'learned', title: '上方的進度條', body: '你學過的字有幾個，總共 46 個清音；點一下看五十音表和各行進度。' },
+    { key: 'new', title: '今天學／再學', body: '接下來要學的 3 個字，點一下可以先看。今天學完還想多學，按「再學 3 個」，沒有上限。' },
+    { key: 'due', title: '待複習', body: '快忘記、該複習的字，只有在需要複習時才會出現。' },
     {
       key: 'start',
       title: `開始今天的 ${goalMinutes} 分鐘`,
-      body: '時間到會問你要不要再練；中途離開，回來可以接續。',
+      body: '每個新字依序：看字 → 聽音 → 寫筆順 → 小測驗。時間到會問你要不要再練；中途離開，回來可以接續。',
     },
   ];
 }
@@ -86,7 +85,7 @@ export interface TourPage {
 }
 
 export const TOUR_PAGES: readonly TourPage[] = [
-  { key: 'daily', title: '每天只學 3 個字', desc: '看、聽、寫，最後小測驗。5 分鐘就夠，不用硬撐。' },
+  { key: 'daily', title: '建議每天學 3 個字', desc: '看字、聽音、寫筆順，最後小測驗。5 分鐘就夠，不用硬撐。' },
   { key: 'pun', title: 'く＝哭', desc: '看到字，想到梗，就記住了。' },
   { key: 'review', title: '答錯的字，我會再叫你', desc: '在你快忘記的時候出現，複習剛剛好。' },
 ];
