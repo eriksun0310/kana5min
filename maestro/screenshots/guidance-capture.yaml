@@ -1,0 +1,62 @@
+# 引導改版後的畫面截圖：首頁（第一天／學完一輪後）、結果頁、練習頁（有剛學的字）、幫助與聯絡。
+# 用 maestro/screenshots/run-guidance.sh 執行（亮色、暗色各一次，THEME 由它傳入）。
+appId: com.ptalk.kana5min
+tags:
+  - screenshots
+---
+- runFlow:
+    file: ../common/onboard.yaml
+    env:
+      GOAL: '5'
+- assertVisible:
+    id: stat-new
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/1-Home-first-${THEME}
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: practice-empty-hint
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/2-Practice-locked-${THEME}
+- tapOn:
+    id: tab-home
+- tapOn:
+    id: start-today
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/learn-one-kana.yaml
+- runFlow: ../common/answer-quiz.yaml
+- assertVisible:
+    id: result-focus
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/3-Result-learned-${THEME}
+- tapOn:
+    id: result-home
+- assertVisible:
+    id: home-learned-tag
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/4-Home-after-${THEME}
+- tapOn:
+    id: tab-practice
+- assertVisible:
+    id: practice-focus
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/5-Practice-focus-${THEME}
+- tapOn:
+    id: tab-settings
+- scrollUntilVisible:
+    element:
+      id: row-help
+    centerElement: true
+- tapOn:
+    id: row-help
+- assertVisible:
+    id: faq-amount
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/6-Help-${THEME}
+- tapOn:
+    id: faq-romaji
+- assertVisible:
+    id: faq-romaji-answer
+- waitForAnimationToEnd
+- takeScreenshot: screenshots/guidance/7-Help-faq-${THEME}

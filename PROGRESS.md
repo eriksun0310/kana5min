@@ -592,7 +592,7 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **沒做（已和使用者確認先不做）**：各入口第一次進入的說明彈窗（每行已有一句說明）。
 - **順手修**：學新字第一頁在 iPhone SE 上大字太大，新手提示氣泡被諧音卡蓋住、點不到；矮螢幕大字縮成 120。
 - **假設**：「剛學的字」以本地時區的「今天」、`learnedAt` 判斷；沒有新字時，「再學 N 個」的 N 取剩餘的新字數（最多 3）。
-- **測試**：新增 `justLearned.test.ts`（9 個）；Maestro 新增 `phase16-guidance.yaml`；因為練習頁入口改變，更新了 `phase2-confuse`、`phase2-special`、`phase3-unlock`、`phase10-affordance`、`phase10-mnemonic`、`phase11`、`phase13`、`phase14`、`phase15`、`phase7-tour` 與截圖流程；`run-small-screen.sh` 加到 16 支。iPhone SE 與 iPhone 17 各 15 支流程全部通過。截圖尚未重拍（待補：首頁、練習頁、幫助頁，亮暗各一）。
+- **測試**：新增 `justLearned.test.ts`（9 個）；Maestro 新增 `phase16-guidance.yaml`；因為練習頁入口改變，更新了 `phase2-confuse`、`phase2-special`、`phase3-unlock`、`phase10-affordance`、`phase10-mnemonic`、`phase11`、`phase13`、`phase14`、`phase15`、`phase7-tour` 與截圖流程；`run-small-screen.sh` 加到 16 支。iPhone SE 與 iPhone 17 各 15 支流程全部通過。截圖已補拍（2026-11-03，iPhone 17，亮暗各 7 張：第一天首頁、練習頁鎖定、結果頁、學完後首頁、練習頁、幫助頁、常見問題展開）在 `screenshots/guidance/`，逐張看過，暗色下沒有元件顏色沒跟著切換。
 
 ## 結果頁引導到練習（2026-11-02）
 
@@ -604,3 +604,8 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
   - 練剛學的字：「練習完成」；「再練一次這 3 個字」，回 focus 模式。
 - 新增 session 模式 `focus`（`startFocus` 原本記成 `auto`，結果頁分不出來）。
 - Maestro：自動練習、易混淆字、外來語、phase14 的結果頁斷言由「今天完成了」改成「練習完成」；phase16 加驗結果頁的三處文字。iPhone SE 上 phase16、2-auto-practice、14、2-confuse、3-loanword、1-daily-practice 通過；iPhone 17 未重跑（只改結果頁文字與導向）。
+
+## 商店截圖重拍（2026-11-03）
+
+- 首頁改版後商店第 1 張已換新、新增第 9 張練習頁，見 `store/screenshots.md` 末段。流程：`maestro/screenshots/guidance-capture.yaml`、`run-guidance.sh`。
+- 提醒：模擬器用的 Metro 埠 8081 曾被其他專案佔用，App 只連 8081，要先停掉才能拍。

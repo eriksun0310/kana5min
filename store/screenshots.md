@@ -41,7 +41,7 @@ Apple 取 1～8 即可（至少 3 張，建議 6～8 張）；Google Play 取 1�
 
 | # | 檔名 | 畫面 | 賣點 |
 |---|---|---|---|
-| 1 | `01-home.png` | 首頁：各行進度、開始今天的 5 分鐘 | 每天只要 5 分鐘 |
+| 1 | `01-home.png` | 首頁：進度條、今天已學、再學 3 個（2026-11-03 改版後重拍） | 每天只要 5 分鐘 |
 | 2 | `02-pun-detail.png` | 「か」詳情：好笑記法、正常／慢速 | 用諧音梗記假名 |
 | 3 | `03-stroke.png` | 筆順動畫 | 跟著筆順寫一次 |
 | 4 | `04-quiz-hear.png` | 聽音選字測驗 | 用耳朵記讀音 |
@@ -49,9 +49,17 @@ Apple 取 1～8 即可（至少 3 張，建議 6～8 張）；Google Play 取 1�
 | 6 | `06-youon.png` | 拗音合成 | 拗音一看就懂 |
 | 7 | `07-katakana-word.png` | 片假名測驗「ケーキ」 | 用外來語學片假名 |
 | 8 | `08-pun-overview.png` | 好笑記法總覽 | 全部諧音梗一次看 |
+| 9 | `09-practice.png` | 練習頁：練剛學的字＋四種練習（2026-11-03 新增） | 學完馬上練，不容易忘 |
 
 - `store/screenshots/ios-6.9/`：原圖 1320×2868（6.9 吋模擬器直出，作為來源）。
 - `store/screenshots/ios-6.3/`：由 6.9 吋原圖縮成 1206×2622，**上傳 App Store 用這組**（2026-10-28 已上傳到 1.0 版本的「配備動態島的 iPhone（中型顯示器）」）。
 - `store/screenshots/google-play/`：同一組裁掉頂部 180 px（狀態列）與底部 48 px，成 1320×2640（長寬比剛好 2:1），符合 Google Play「長邊不超過短邊 2 倍」。
 - 上傳備註：App Store Connect 有一次把 `07-katakana-word.png` 卡在「處理中」（雲朵圖示），重新編碼（PNG optimize）後重傳就正常；Google Play 一次傳多張時順序會亂，要一張一張依序傳或傳完檢查順序。
 - 重截方式：6.9 吋模擬器跑 `maestro/screenshots/phase{1,2,3,5}-capture.yaml`（THEME=light）。注意：清除狀態後開發版 App 第一次啟動偶爾停在「No script URL」紅畫面，需點 Reload 才會連上 Metro。
+
+## 2026-11-03 更新：首頁改版後重拍
+
+- `01-home.png` 換成改版後的首頁、新增 `09-practice.png`（練習頁）。這兩張用 iPhone 17（6.3 吋，1206×2622）模擬器直接拍，亮色、狀態列 9:41（`maestro/screenshots/run-guidance.sh`，原圖在 `screenshots/guidance/`）。`ios-6.3/` 直接可用；`google-play/` 由同一張裁掉頂部 164 px、底部 46 px（2:1）後放大到 1320×2640，與其他張同尺寸。
+- **`ios-6.9/` 沒有更新**（那是 6.9 吋模擬器的原圖，後台不接受 6.9 吋，所以只用 `ios-6.3/`）；若之後要 6.9 吋版本，需在 6.9 吋模擬器重拍這兩張。
+- 其餘 7 張（詳情、筆順、測驗、易混淆、拗音、外來語、諧音總覽）畫面沒有改，沿用。
+- 上傳：App Store 與 Google Play 都要把 01 換掉、加上 09，Google Play 上傳順序要一張一張檢查。
