@@ -624,3 +624,4 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - **付費牆（`app/punpack.tsx`）**：標題改成價值主張「最難記的字，一句話就記住」；免費範例改成一張「そ」試玩卡（點一下聽發音，そ 是第一個被鎖住的行）；「永久免廣告」升級成獨立卡；按鈕改「一次買斷」並加「不是訂閱，買一次用到永遠」。亮暗截圖在 `screenshots/punpack/`。
 - **自動提示時機**：看完第 2 支與第 6 支獎勵廣告時各跳一次（`PROMPT_AT_ADS`），之後只留被動入口（設定頁、解鎖面板、片假名開始頁連結）。用「計數剛好等於 2 或 6」判斷，所以 `punPromptAfterAdsShown` 不再被讀寫，欄位暫留在 store（避免動資料格式），之後可清掉。
 - **假設**：試玩字固定用 そ；第一次點到鎖不直接跳付費牆（維持解鎖面板，看廣告是免費路徑）。
+- **購買失敗診斷碼（暫時）**：`purchases.ts` 記錄最近一次失敗原因（`no-key`、`no-current-offering`、`offering-has-no-packages(store-returned-no-product)`、`no-lifetime-package`、`purchase-error:<code>` 等），`punpack.tsx` 在「目前無法購買／購買失敗」提示底部顯示「原因代碼」。目的是查實機「目前無法購買」的原因；查清楚、購買流程確認可用後，可以拿掉畫面上的代碼（`getPurchaseDiagnostic` 可留作 log 用）。

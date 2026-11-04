@@ -4,7 +4,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { playKana } from '../src/audio/playKana';
 import { Icon, KanaText, PrimaryButton, Screen, SecondaryButton } from '../src/components';
 import { punFor, PUN_COUNT } from '../src/data';
-import { buyPunPack, restorePunPack } from '../src/monetization/purchases';
+import { buyPunPack, getPurchaseDiagnostic, restorePunPack } from '../src/monetization/purchases';
 import { usePunPackPrice } from '../src/monetization/usePunPackPrice';
 import { useSettingsStore } from '../src/store/settingsStore';
 import { useBottomPad, useTopPad } from '../src/theme/layout';
@@ -37,9 +37,11 @@ export default function PunPackScreen() {
     setBusy(true);
     try {
       const r = await buyPunPack();
+      const why = getPurchaseDiagnostic();
+      const code = why ? `\n\n原因代碼：${why}` : '';
       if (r === 'purchased') Alert.alert('購買成功', '好笑記憶包已全部解鎖，感謝支持！');
-      else if (r === 'error') Alert.alert('購買失敗', '這次沒有買成功，請稍後再試。');
-      else if (r === 'unavailable') Alert.alert('目前無法購買', '暫時連不上商店，請稍後再試。');
+      else if (r === 'error') Alert.alert('購買失敗', `這次沒有買成功，請稍後再試。${code}`);
+      else if (r === 'unavailable') Alert.alert('目前無法購買', `暫時連不上商店，請稍後再試。${code}`);
       // cancelled：使用者自己取消，不跳提示
     } finally {
       setBusy(false);

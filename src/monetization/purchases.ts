@@ -22,6 +22,21 @@ export type RestoreResult = 'restored' | 'none' | 'error' | 'unavailable';
 
 let configured = false;
 
+/** 最近一次失敗的原因代碼（診斷用，顯示在「目前無法購買」的提示裡）；成功時為空字串。 */
+let lastDiagnostic = '';
+export function getPurchaseDiagnostic(): string {
+  return lastDiagnostic;
+}
+function diag(code: string): void {
+  lastDiagnostic = code;
+}
+function errorCode(e: unknown): string {
+  const err = e as { code?: unknown; message?: unknown } | null;
+  const code = err?.code != null ? String(err.code) : 'unknown';
+  const msg = typeof err?.message === 'string' ? err.message.slice(0, 60) : '';
+  return msg ? `${code}:${msg}` : code;
+}
+
 function apiKey(): string | undefined {
   const key =
     Platform.OS === 'ios'
@@ -34,13 +49,20 @@ function apiKey(): string | undefined {
 function ensureConfigured(): boolean {
   if (configured) return true;
   const key = apiKey();
-  if (!key) return false;
-  if (!Purchases || typeof Purchases.configure !== 'function') return false;
+  if (!key) {
+    diag('no-key');
+    return false;
+  }
+  if (!Purchases || typeof Purchases.configure !== 'function') {
+    diag('no-native-module');
+    return false;
+  }
   try {
     Purchases.configure({ apiKey: key });
     configured = true;
     return true;
-  } catch {
+  } catch (e) {
+    diag(`configure-failed:${errorCode(e)}`);
     return false;
   }
 }
@@ -67,13 +89,23 @@ export async function initPurchases(): Promise<void> {
 
 async function lifetimePackage(): Promise<PurchasesPackage | null> {
   const offerings = await Purchases.getOfferings();
-  const pkgs = offerings.current?.availablePackages ?? [];
-  return (
+  if (!offerings.current) {
+    diag(`no-current-offering(all=${Object.keys(offerings.all ?? {}).length})`);
+    return null;
+  }
+  const pkgs = offerings.current.availablePackages ?? [];
+  if (pkgs.length === 0) {
+    diag('offering-has-no-packages(store-returned-no-product)');
+    return null;
+  }
+  const found = (
     pkgs.find((p) => p.identifier === '$rc_lifetime') ??
     pkgs.find((p) => p.packageType === PACKAGE_TYPE.LIFETIME) ??
     pkgs.find((p) => p.product.identifier === PUN_PACK_PRODUCT_ID) ??
     null
   );
+  if (!found) diag(`no-lifetime-package(packages=${pkgs.length})`);
+  return found;
 }
 
 /** 商店在地化價格字串；沒設定或失敗回傳 null（畫面 fallback「NT$90」）。 */
@@ -89,6 +121,7 @@ export async function getPunPackPrice(): Promise<string | null> {
 
 /** 買斷。成功即寫入 punPackPurchased = true。 */
 export async function buyPunPack(): Promise<BuyResult> {
+  diag('');
   if (!ensureConfigured()) return 'unavailable';
   try {
     const pkg = await lifetimePackage();
@@ -98,9 +131,11 @@ export async function buyPunPack(): Promise<BuyResult> {
       markPurchased();
       return 'purchased';
     }
+    diag('purchased-but-no-entitlement');
     return 'error';
   } catch (e) {
     if ((e as { userCancelled?: boolean } | null)?.userCancelled) return 'cancelled';
+    diag(`purchase-error:${errorCode(e)}`);
     return 'error';
   }
 }
