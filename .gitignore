@@ -6,8 +6,6 @@ ios/
 android/
 *.log
 .DS_Store
-.env
-.env.local
 coverage/
 /screenshots/**/tmp/
 expo-env.d.ts
@@ -17,3 +15,20 @@ expo-env.d.ts
 build-*.ipa
 build-*.aab
 build-*.apk
+# xprem OTA secrets (added by gitignore_setup.py)
+private-key.pem
+**/private-key.pem
+public-key.pem
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+r2Token.json
+r2token.json
+.env
+.env.local
+.env.*.local
+.env*.local
+.env.production
+!certs/certificate.pem

@@ -16,7 +16,10 @@
     "prebuild": "expo prebuild",
     "gen:puns": "node scripts/gen-puns.mjs",
     "check:puns": "node scripts/gen-puns.mjs --check",
-    "build:ios:dev": "eas build --platform ios --profile development-device --local"
+    "build:ios:dev": "eas build --platform ios --profile development-device --local",
+    "ota:publish": "node scripts/ota.mjs publish",
+    "ota:rollback": "node scripts/ota.mjs rollback",
+    "ota:republish": "node scripts/ota.mjs republish"
   },
   "dependencies": {
     "@expo-google-fonts/klee-one": "^0.4.2",
@@ -35,6 +38,7 @@
     "expo-sqlite": "~58.0.14",
     "expo-status-bar": "~58.0.4",
     "expo-system-ui": "~58.0.6",
+    "expo-updates": "~58.0.21",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.0",
@@ -54,6 +58,7 @@
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
     "eas-cli": "^26.0.0",
+    "eoas": "3.2.4",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.12",
     "msedge-tts": "^2.1.1",

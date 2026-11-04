@@ -609,3 +609,13 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 
 - 首頁改版後商店第 1 張已換新、新增第 9 張練習頁，見 `store/screenshots.md` 末段。流程：`maestro/screenshots/guidance-capture.yaml`、`run-guidance.sh`。
 - 提醒：模擬器用的 Metro 埠 8081 曾被其他專案佔用，App 只連 8081，要先停掉才能拍。
+
+## OTA 接入（xprem）
+
+- 伺服器 `https://ota.moushih.com`（與壽司日檢、忍者信鴿同一台）。App「諧音五十音」、Branch `production`、Channel `production` 已在 Dashboard 建立（xprem-ota-setup 佈建；APP_ID 記在 `docs/xprem-ota-setup.md` 與 skill registry）。
+- 專案端：安裝 `expo-updates ~58.0.21`、devDependency `eoas@3.2.4`（釘死版本）；`app.config.js` 只覆蓋 `updates`（app.json 保留），`runtimeVersion` 用 `appVersion` 策略；`certs/certificate.pem` 是公開憑證，進 git。
+- `eas.json` 每個 profile 補 `channel` 與 `env.RELEASE_CHANNEL`；**假設**：`production-apk` 用 `production` 頻道（內部測試 APK 與正式版收同一條 OTA），其餘用同名頻道。
+- 發布：`pnpm ota:publish` / `ota:rollback` / `ota:republish`（`scripts/ota.mjs`，從被忽略的 `.env` 讀 `EOO_TOKEN`）。`.env`、`.env.local` 不進版控。
+- `pnpm-workspace.yaml` 的 `minimumReleaseAgeExclude` 加了 `expo-updates@58.0.21`、`@expo/env@2.5.4`（pnpm 為了安裝剛發布的版本）。
+- **注意**：加了 expo-updates 屬於原生變更，接入前打的 `.ipa`（build 6）沒有更新模組，不能收 OTA，上架要用接入後重新打的包。
+- 尚未做：OTA TEST 001／002 實機驗證（需新原生包上 TestFlight）。

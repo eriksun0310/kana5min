@@ -8,6 +8,10 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "channel": "development",
+      "env": {
+        "RELEASE_CHANNEL": "development"
       }
     },
     "production": {
@@ -15,6 +19,10 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "channel": "production",
+      "env": {
+        "RELEASE_CHANNEL": "production"
       }
     },
     "production-apk": {
@@ -23,12 +31,20 @@
       "autoIncrement": false,
       "android": {
         "buildType": "apk"
+      },
+      "channel": "production",
+      "env": {
+        "RELEASE_CHANNEL": "production"
       }
     },
     "development-device": {
       "developmentClient": true,
       "distribution": "internal",
-      "environment": "production"
+      "environment": "production",
+      "channel": "development-device",
+      "env": {
+        "RELEASE_CHANNEL": "development-device"
+      }
     }
   },
   "submit": {
