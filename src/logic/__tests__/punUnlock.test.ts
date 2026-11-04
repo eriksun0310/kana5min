@@ -81,13 +81,10 @@ describe('nextUnlockBatch', () => {
 });
 
 describe('shouldPromptPurchase', () => {
-  it('看完第 2 支廣告且還沒提示過才提示', () => {
-    expect(shouldPromptPurchase(0, false)).toBe(false);
-    expect(shouldPromptPurchase(1, false)).toBe(false);
-    expect(shouldPromptPurchase(2, false)).toBe(true);
-    expect(shouldPromptPurchase(5, false)).toBe(true);
-    expect(shouldPromptPurchase(2, true)).toBe(false);
-    expect(shouldPromptPurchase(9, true)).toBe(false);
+  it('只在剛看完第 2 支、第 6 支廣告時提示', () => {
+    expect([0, 1, 2, 3, 4, 5, 6, 7, 20].map((n) => shouldPromptPurchase(n))).toEqual([
+      false, false, true, false, false, false, true, false, false,
+    ]);
   });
 });
 

@@ -619,3 +619,8 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pnpm exec expo run:ios --configuration Relea
 - `pnpm-workspace.yaml` 的 `minimumReleaseAgeExclude` 加了 `expo-updates@58.0.21`、`@expo/env@2.5.4`（pnpm 為了安裝剛發布的版本）。
 - **注意**：加了 expo-updates 屬於原生變更，接入前打的 `.ipa`（build 6）沒有更新模組，不能收 OTA，上架要用接入後重新打的包。
 - 尚未做：OTA TEST 001／002 實機驗證（需新原生包上 TestFlight）。
+
+## 付費牆改版與提示時機
+- **付費牆（`app/punpack.tsx`）**：標題改成價值主張「最難記的字，一句話就記住」；免費範例改成一張「そ」試玩卡（點一下聽發音，そ 是第一個被鎖住的行）；「永久免廣告」升級成獨立卡；按鈕改「一次買斷」並加「不是訂閱，買一次用到永遠」。亮暗截圖在 `screenshots/punpack/`。
+- **自動提示時機**：看完第 2 支與第 6 支獎勵廣告時各跳一次（`PROMPT_AT_ADS`），之後只留被動入口（設定頁、解鎖面板、片假名開始頁連結）。用「計數剛好等於 2 或 6」判斷，所以 `punPromptAfterAdsShown` 不再被讀寫，欄位暫留在 store（避免動資料格式），之後可清掉。
+- **假設**：試玩字固定用 そ；第一次點到鎖不直接跳付費牆（維持解鎖面板，看廣告是免費路徑）。

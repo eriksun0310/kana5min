@@ -52,8 +52,7 @@ export function PunUnlockSheet({ visible, sound, script, onClose }: PunUnlockShe
       const s = useSettingsStore.getState();
       s.unlockPuns(batch);
       const count = s.addPunAdWatched();
-      const prompt = shouldPromptPurchase(count, useSettingsStore.getState().punPromptAfterAdsShown);
-      if (prompt) useSettingsStore.getState().setPunPromptAfterAdsShown(true);
+      const prompt = shouldPromptPurchase(count);
       close();
       if (prompt) router.push({ pathname: '/punpack', params: { from: 'ads' } });
       return;

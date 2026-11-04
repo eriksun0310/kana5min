@@ -15,8 +15,8 @@ export interface PunAccess {
 /** 一次看廣告解鎖的讀音數量上限（點到的字 + 往後 2 個）。 */
 export const BATCH_SIZE = 3;
 
-/** 買斷提示：看完幾支廣告後提示一次。 */
-export const PROMPT_AFTER_ADS = 2;
+/** 買斷提示：看完第幾支廣告時各提示一次（只跳這兩次，之後只留被動入口）。 */
+export const PROMPT_AT_ADS: readonly number[] = [2, 6];
 
 /** 讀音是否已解鎖：買斷、免費讀音、或已用廣告解鎖。 */
 export function isPunUnlocked(sound: string, access: PunAccess): boolean {
@@ -55,9 +55,9 @@ export function nextUnlockBatch(sound: string, unlocked: readonly string[]): str
   return [...batch, ...extra];
 }
 
-/** 看完第 2 支廣告後提示一次買斷：adsWatched ≥ 2 且還沒提示過。 */
-export function shouldPromptPurchase(adsWatched: number, alreadyPrompted: boolean): boolean {
-  return adsWatched >= PROMPT_AFTER_ADS && !alreadyPrompted;
+/** 剛看完第 2 支、第 6 支廣告時提示買斷。計數只會 +1，所以每個時間點只會碰到一次。 */
+export function shouldPromptPurchase(adsWatched: number): boolean {
+  return PROMPT_AT_ADS.includes(adsWatched);
 }
 
 export type PunCardState = 'none' | 'unlocked' | 'locked';
