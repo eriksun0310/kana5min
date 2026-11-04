@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Icon, PrimaryButton, Screen, SecondaryButton } from '../src/components';
+import { playKana } from '../src/audio/playKana';
+import { Icon, KanaText, PrimaryButton, Screen, SecondaryButton } from '../src/components';
 import { punFor, PUN_COUNT } from '../src/data';
 import { buyPunPack, restorePunPack } from '../src/monetization/purchases';
 import { usePunPackPrice } from '../src/monetization/usePunPackPrice';
@@ -9,8 +10,9 @@ import { useSettingsStore } from '../src/store/settingsStore';
 import { useBottomPad, useTopPad } from '../src/theme/layout';
 import { useTheme } from '../src/theme/useTheme';
 
-/** 免費範例：く、こ（あ行與か行本來就免費） */
-const SAMPLE_IDS = ['h-ku', 'h-ko'];
+/** 試玩範例：さ行的そ（あ行與か行本來就免費，そ是第一個被鎖住的行，讓人先試一句再決定）。 */
+const SAMPLE_ID = 'h-so';
+const SAMPLE_CHAR = 'そ';
 
 /** F3 買斷頁：好笑記憶包。 */
 export default function PunPackScreen() {
@@ -58,11 +60,7 @@ export default function PunPackScreen() {
     }
   };
 
-  const points = [
-    `解鎖全部 ${PUN_COUNT} 句諧音梗`,
-    '永久免廣告',
-    '之後新增的諧音梗自動取得',
-  ];
+  const points = [`解鎖全部 ${PUN_COUNT} 句諧音梗`, '之後新增的諧音梗自動取得'];
 
   return (
     <Screen>
@@ -90,18 +88,32 @@ export default function PunPackScreen() {
           </View>
         ) : null}
 
-        <Text style={[styles.title, { color: t.text }]}>好笑記憶包</Text>
-        <Text style={[styles.sub, { color: t.muted }]}>
-          每個假名一句諧音梗，一句話就記住。
-        </Text>
+        <Text style={[styles.title, { color: t.text }]}>最難記的字，{'\n'}一句話就記住</Text>
+        <Text style={[styles.sub, { color: t.muted }]}>每個假名都有一句諧音梗。先試一句：</Text>
 
-        <View style={styles.samples}>
-          {SAMPLE_IDS.map((id) => (
-            <Card flat key={id} testID={`punpack-sample-${id}`}>
-              <Text style={[styles.sampleTag, { color: t.accentText }]}>免費範例</Text>
-              <Text style={[styles.sampleBody, { color: t.text }]}>{punFor(id)}</Text>
-            </Card>
-          ))}
+        <Pressable
+          testID="punpack-sample"
+          accessibilityRole="button"
+          accessibilityLabel={`試聽${SAMPLE_CHAR}的發音`}
+          onPress={() => void playKana(SAMPLE_ID)}
+          style={[styles.sample, { backgroundColor: t.surface, borderColor: t.line }]}
+        >
+          <KanaText size={40} color={t.accentText} style={styles.sampleKana}>
+            {SAMPLE_CHAR}
+          </KanaText>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sampleTag, { color: t.accentText }]}>免費試玩 · 點一下聽發音</Text>
+            <Text style={[styles.sampleBody, { color: t.text }]}>{punFor(SAMPLE_ID)}</Text>
+          </View>
+          <View style={[styles.play, { backgroundColor: t.accentSoft }]}>
+            <Icon name="speaker" size={18} color={t.accentText} />
+          </View>
+        </Pressable>
+        <Text style={[styles.note, { color: t.muted }]}>あ行、か行已免費，從さ行開始需要解鎖</Text>
+
+        <View style={[styles.adFree, { backgroundColor: t.accentSoft }]}>
+          <Text style={[styles.adFreeTitle, { color: t.accentText }]}>永久免廣告</Text>
+          <Text style={[styles.adFreeSub, { color: t.muted }]}>不再被打斷，專心練習</Text>
         </View>
 
         <View style={styles.points}>
@@ -128,10 +140,11 @@ export default function PunPackScreen() {
           <View style={styles.actions}>
             <PrimaryButton
               testID="punpack-buy"
-              label={`${price} 買斷`}
+              label={`${price} 一次買斷`}
               disabled={busy}
               onPress={buy}
             />
+            <Text style={[styles.once, { color: t.muted }]}>不是訂閱，買一次用到永遠</Text>
             <Pressable
               testID="punpack-restore"
               accessibilityRole="button"
@@ -154,11 +167,27 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 4, gap: 12 },
   banner: { borderRadius: 14, paddingVertical: 10, paddingHorizontal: 14, marginBottom: 4 },
   bannerText: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
-  title: { fontSize: 28, fontWeight: '700' },
+  title: { fontSize: 26, fontWeight: '700', lineHeight: 34 },
   sub: { fontSize: 15, lineHeight: 24 },
-  samples: { gap: 10, marginTop: 4 },
+  sample: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginTop: 4,
+  },
+  sampleKana: { minWidth: 48, textAlign: 'center' },
   sampleTag: { fontSize: 12, fontWeight: '700' },
-  sampleBody: { fontSize: 16, lineHeight: 24, marginTop: 4 },
+  sampleBody: { fontSize: 15, lineHeight: 22, marginTop: 2 },
+  play: { width: 38, height: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  note: { fontSize: 12, lineHeight: 18 },
+  adFree: { borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, marginTop: 6 },
+  adFreeTitle: { fontSize: 16, fontWeight: '700' },
+  adFreeSub: { fontSize: 13, marginTop: 2 },
+  once: { fontSize: 12, textAlign: 'center' },
   points: { gap: 14, marginTop: 10 },
   point: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   pointIcon: {
