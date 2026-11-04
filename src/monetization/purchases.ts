@@ -22,13 +22,9 @@ export type RestoreResult = 'restored' | 'none' | 'error' | 'unavailable';
 
 let configured = false;
 
-/** 最近一次失敗的原因代碼（診斷用，顯示在「目前無法購買」的提示裡）；成功時為空字串。 */
-let lastDiagnostic = '';
-export function getPurchaseDiagnostic(): string {
-  return lastDiagnostic;
-}
+/** 失敗原因代碼，只在開發版寫進 console（正式版畫面不顯示）；查實機問題時可暫時改成顯示。 */
 function diag(code: string): void {
-  lastDiagnostic = code;
+  if (__DEV__ && code) console.warn(`[purchases] ${code}`);
 }
 function errorCode(e: unknown): string {
   const err = e as { code?: unknown; message?: unknown } | null;
