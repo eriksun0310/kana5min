@@ -46,6 +46,33 @@ if (!['publish', 'rollback', 'republish'].includes(command)) {
   process.exit(1);
 }
 
+// OTA 的 JS 是在這台電腦打包的，不會經過 EAS build 的雲端環境變數：沒帶 EXPO_PUBLIC_*（RevenueCat key、
+// AdMob 廣告 ID）打包出來的 bundle 會讓 App 的購買與廣告失效。publish 前先從 EAS production 環境讀進來（不印值）。
+const REQUIRED_PUBLIC_ENV = [
+  'EXPO_PUBLIC_RC_IOS_KEY',
+  'EXPO_PUBLIC_RC_ANDROID_KEY',
+  'EXPO_PUBLIC_ADMOB_REWARDED_IOS',
+  'EXPO_PUBLIC_ADMOB_REWARDED_ANDROID',
+];
+if (command === 'publish') {
+  if (REQUIRED_PUBLIC_ENV.some((k) => !process.env[k])) {
+    const r = spawnSync('eas', ['env:list', 'production', '--format', 'short'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+    });
+    for (const line of (r.stdout ?? '').split(/\r?\n/)) {
+      const m = line.match(/^(EXPO_PUBLIC_[A-Z0-9_]+)=(.*)$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+    }
+  }
+  const missing = REQUIRED_PUBLIC_ENV.filter((k) => !process.env[k]);
+  if (missing.length > 0) {
+    console.error(`[ota] 缺少 ${missing.join('、')}：沒有它們打包出的 bundle 會讓購買或廣告失效。請確認 eas 已登入、production 環境有這些變數。`);
+    process.exit(1);
+  }
+  console.log('[ota] 已從 EAS production 環境載入 EXPO_PUBLIC_* 變數（4 個，未顯示值）');
+}
+
 // RELEASE_CHANNEL 會寫進 export 時的 expo-channel-name；eoas 3.2.4 的 --channel 已 deprecated，改用環境變數。
 process.env.RELEASE_CHANNEL ||= DEFAULT_CHANNEL;
 if (!args.some((a) => a.startsWith('--branch'))) args.push(`--branch=${DEFAULT_BRANCH}`);
