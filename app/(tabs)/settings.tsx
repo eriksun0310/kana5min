@@ -269,7 +269,7 @@ export default function SettingsScreen() {
             <View style={rowStyle}>
               <Text style={{ fontSize: 15, color: t.text, flex: 1 }}>{appName}</Text>
               <Text testID="about-version" style={{ fontSize: 14, color: t.muted }}>
-                版本 {version}
+                版本 {version} · OTA TEST 001
               </Text>
             </View>
             <Pressable
