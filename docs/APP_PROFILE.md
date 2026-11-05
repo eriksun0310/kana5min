@@ -43,8 +43,7 @@
 | 每日提醒與召回通知 | 本機通知，滾動排 7 天；3、7 天沒開 App 召回；練過的日子不打擾 | 免費 | 兩者（權限行為各平台不同，待確認） | `src/notifications/reminder.ts`、`app/(tabs)/settings.tsx:173` |
 | 畢業紀念 | 平假名與片假名清音都學完後顯示統計（真實已學數、練習天數） | 免費 | 兩者 | `app/graduate.tsx`、`src/logic/graduate.ts` |
 | 學完推薦下一款 App | 畢業頁帶到推薦卡（目前推薦壽司日檢，圖示＋一句話＋「去下載」，可關閉）；iOS 開 App Store、Android 開 Google Play。名單與 `released` 開關集中在 `src/content/ptalkApps.ts`（壽司轉珠已備好但隱藏） | 免費 | 兩者 | `app/next.tsx`、`src/content/ptalkApps.ts`、`src/components/PtalkAppIcon.tsx` |
-| 更多 PTalk App（設定） | 設定頁依日文、英文分組列出另外已上架的 PTalk App（不含自己、未上架者），點了開商店 | 免費 | 兩者 | `app/(tabs)/settings.tsx`、`src/content/ptalkApps.ts` |
-| 看我們更多產品（設定） | 設定頁「更多 PTalk App」第一列，開 PTalk 學習地圖官網 | 免費 | 兩者 | `app/(tabs)/settings.tsx`、`src/logic/appStore.ts` |
+| 推薦給你（設定） | 設定頁列出最相關的 3 款已上架 PTalk App（壽司日檢、日日一字、披薩多益），點了開商店；最後一列「看全部 App」開 PTalk 學習地圖官網 | 免費 | 兩者 | `app/(tabs)/settings.tsx`、`src/content/ptalkApps.ts`、`src/logic/appStore.ts` |
 | 給我們五星好評 | 設定頁「支持我們」：直接開商店評分頁（iOS App Store 寫評論、Android Google Play 評論），打不開時開網頁版商店 | 免費 | 兩者 | `app/(tabs)/settings.tsx`、`src/logic/appStore.ts` |
 | 推薦給朋友 | 設定頁「支持我們」：系統分享面板，附一句介紹與商店網址（iOS 給 App Store、Android 給 Google Play） | 免費 | 兩者 | `app/(tabs)/settings.tsx`、`src/logic/appStore.ts` |
 | 推廣夥伴計畫 | 設定頁「支持我們」進入說明頁：分潤 10%～30%、3 個參加步驟、可複製的私訊範本、按鈕開 Threads @ptalk.design | 免費 | 兩者 | `app/affiliate.tsx` |

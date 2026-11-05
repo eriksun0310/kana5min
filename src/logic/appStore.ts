@@ -3,7 +3,7 @@
 export const IOS_APP_ID = '6827398112';
 export const ANDROID_PACKAGE = 'com.ptalk.kana5min';
 
-/** PTalk 學習地圖官網：設定頁「看我們更多產品」。 */
+/** PTalk 學習地圖官網：設定頁「看全部 App」。 */
 export const LEARNING_MAP_URL = 'https://p-talk-learning-map.vercel.app/';
 
 /** 商店網頁版連結：分享用，也是評分頁打不開時的退路。 */

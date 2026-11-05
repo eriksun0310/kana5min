@@ -5,7 +5,7 @@ import { Alert, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Tex
 import { Card, Icon, PtalkAppIcon, Screen } from '../../src/components';
 import { OptionSheet, type SheetOption } from '../../src/components/OptionSheet';
 import { Toggle } from '../../src/components/Toggle';
-import { listOtherApps, storeLinkFor, type PtalkApp } from '../../src/content/ptalkApps';
+import { recommendedApps, storeLinkFor, type PtalkApp } from '../../src/content/ptalkApps';
 import type { Settings, ThemeSetting } from '../../src/data/types';
 import { LEARNING_MAP_URL, rateAppUrl, shareAppMessage, storeWebUrl } from '../../src/logic/appStore';
 import { REMINDER_TIME_OPTIONS } from '../../src/notifications/reminder';
@@ -318,42 +318,35 @@ export default function SettingsScreen() {
           </View>
         </Section>
 
-        <Section title="更多 PTalk App">
+        <Section title="推薦給你">
           <View style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
+            {recommendedApps().map((a) => (
+              <Pressable
+                key={a.id}
+                testID={`row-app-${a.id}`}
+                accessibilityRole="button"
+                accessibilityLabel={`${a.name}，${a.tagline}`}
+                onPress={() => openPtalkApp(a)}
+                style={[rowStyle, { gap: 12 }]}
+              >
+                <PtalkAppIcon id={a.id} size={40} />
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: t.text }}>{a.name}</Text>
+                  <Text style={{ fontSize: 12, color: t.muted }}>{a.tagline}</Text>
+                </View>
+                <Icon name="chevronRight" size={16} color={t.muted} />
+              </Pressable>
+            ))}
             <Pressable
               testID="row-learning-map"
               accessibilityRole="button"
               onPress={openLearningMap}
               style={[styles.row, { borderBottomWidth: 0 }]}
             >
-              <RowText label="看我們更多產品" sub="PTalk 學習地圖，找適合你的下一款" />
+              <Text style={{ fontSize: 15, color: t.text }}>看全部 App</Text>
               <Icon name="chevronRight" size={16} color={t.muted} />
             </Pressable>
           </View>
-          {(['jp', 'en'] as const).map((g) => (
-            <View key={g} style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
-              <Text style={{ fontSize: 12, color: t.muted, paddingHorizontal: 16, paddingTop: 12 }}>
-                {g === 'jp' ? '日文' : '英文'}
-              </Text>
-              {listOtherApps(g).map((a) => (
-                <Pressable
-                  key={a.id}
-                  testID={`row-app-${a.id}`}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${a.name}，${a.tagline}`}
-                  onPress={() => openPtalkApp(a)}
-                  style={[rowStyle, { gap: 12 }]}
-                >
-                  <PtalkAppIcon id={a.id} size={36} />
-                  <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={{ fontSize: 15, color: t.text }}>{a.name}</Text>
-                    <Text style={{ fontSize: 12, color: t.muted }}>{a.tagline}</Text>
-                  </View>
-                  <Icon name="chevronRight" size={16} color={t.muted} />
-                </Pressable>
-              ))}
-            </View>
-          ))}
         </Section>
 
         <Section title="關於">

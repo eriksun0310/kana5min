@@ -5,7 +5,9 @@ import { Icon } from './Icon';
 
 // 有圖示檔的 App 用圖示，其餘用統一線條圖示。
 const ICONS: Record<string, number> = {
-  sushijp: require('../../assets/images/sushi-jp-icon.png'),
+  sushijp: require('../../assets/images/ptalk-apps/sushijp.png'),
+  hitofude: require('../../assets/images/ptalk-apps/hitofude.png'),
+  pizzatoeic: require('../../assets/images/ptalk-apps/pizzatoeic.png'),
 };
 
 export function PtalkAppIcon({ id, size = 48 }: { id: string; size?: number }) {

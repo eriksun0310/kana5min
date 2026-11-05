@@ -1,4 +1,4 @@
-import { PTALK_APPS, graduateRecommendation, listOtherApps, storeLinkFor } from '../content/ptalkApps';
+import { PTALK_APPS, graduateRecommendation, listOtherApps, recommendedApps, storeLinkFor } from '../content/ptalkApps';
 
 describe('ptalkApps', () => {
   it('未上架與自己都不列出', () => {
@@ -10,6 +10,10 @@ describe('ptalkApps', () => {
   it('分組', () => {
     expect(listOtherApps('jp').map((a) => a.id)).toEqual(['sushijp', 'ninbato', 'hitofude']);
     expect(listOtherApps('en')).toHaveLength(3);
+  });
+  it('推薦清單只取前 3 款已上架，依優先順序', () => {
+    expect(recommendedApps().map((a) => a.id)).toEqual(['sushijp', 'hitofude', 'pizzatoeic']);
+    expect(recommendedApps(2)).toHaveLength(2);
   });
   it('推薦壽司日檢，依平台給連結', () => {
     const app = graduateRecommendation()!;
