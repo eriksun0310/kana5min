@@ -19,3 +19,4 @@ export { KanaListSheet, type KanaListItem, type KanaListSheetProps } from './Kan
 export { MnemonicGlyph, type MnemonicGlyphProps } from './MnemonicGlyph';
 export { MnemonicSheet, type MnemonicSheetProps } from './MnemonicSheet';
 export { DropHowTo, type DropHowToProps } from './DropHowTo';
+export { PtalkAppIcon } from './PtalkAppIcon';

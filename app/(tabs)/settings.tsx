@@ -1,11 +1,13 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Icon, Screen } from '../../src/components';
+import { Alert, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Card, Icon, PtalkAppIcon, Screen } from '../../src/components';
 import { OptionSheet, type SheetOption } from '../../src/components/OptionSheet';
 import { Toggle } from '../../src/components/Toggle';
+import { listOtherApps, storeLinkFor, type PtalkApp } from '../../src/content/ptalkApps';
 import type { Settings, ThemeSetting } from '../../src/data/types';
+import { LEARNING_MAP_URL, rateAppUrl, shareAppMessage, storeWebUrl } from '../../src/logic/appStore';
 import { REMINDER_TIME_OPTIONS } from '../../src/notifications/reminder';
 import { syncRemindersFromStores, turnOnReminder } from '../../src/notifications/syncReminders';
 import { loadPrivacyOptionsRequired, openPrivacyOptionsForm } from '../../src/monetization/privacyOptions';
@@ -38,6 +40,36 @@ const SPEED_OPTIONS: SheetOption[] = [
 ];
 
 const TIME_OPTIONS: SheetOption[] = REMINDER_TIME_OPTIONS.map((v) => ({ value: v, label: v }));
+
+async function openPtalkApp(app: PtalkApp) {
+  const { url, storeName } = storeLinkFor(Platform.OS, app);
+  try {
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert('無法開啟連結', `請稍後再試，或直接到 ${storeName} 搜尋「${app.name}」。`);
+  }
+}
+
+// 直接開商店評分頁；打不開（例如模擬器沒有商店）就退回網頁版商店
+async function rateApp() {
+  try {
+    await Linking.openURL(rateAppUrl(Platform.OS));
+  } catch {
+    Linking.openURL(storeWebUrl(Platform.OS)).catch(() => {});
+  }
+}
+
+function shareApp() {
+  Share.share({ message: shareAppMessage(Platform.OS) }).catch(() => {});
+}
+
+async function openLearningMap() {
+  try {
+    await Linking.openURL(LEARNING_MAP_URL);
+  } catch {
+    Alert.alert('無法開啟連結', '請稍後再試，或用瀏覽器搜尋「PTalk 學習地圖」。');
+  }
+}
 
 type SheetKind = 'goal' | 'speed' | 'time' | 'drop' | null;
 
@@ -264,6 +296,66 @@ export default function SettingsScreen() {
           ) : null}
         </Section>
 
+        <Section title="支持我們">
+          <View style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
+            <Pressable testID="row-rate" accessibilityRole="button" onPress={rateApp} style={rowStyle}>
+              <Text style={{ fontSize: 15, color: t.text }}>給我們五星好評</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            <Pressable testID="row-share-app" accessibilityRole="button" onPress={shareApp} style={rowStyle}>
+              <Text style={{ fontSize: 15, color: t.text }}>推薦給朋友</Text>
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+            <Pressable
+              testID="row-affiliate"
+              accessibilityRole="button"
+              onPress={() => router.push('/affiliate')}
+              style={[styles.row, { borderBottomWidth: 0 }]}
+            >
+              <RowText label="推廣夥伴計畫" sub="分享給朋友，賺最高 30% 分潤" />
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+          </View>
+        </Section>
+
+        <Section title="更多 PTalk App">
+          <View style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
+            <Pressable
+              testID="row-learning-map"
+              accessibilityRole="button"
+              onPress={openLearningMap}
+              style={[styles.row, { borderBottomWidth: 0 }]}
+            >
+              <RowText label="看我們更多產品" sub="PTalk 學習地圖，找適合你的下一款" />
+              <Icon name="chevronRight" size={16} color={t.muted} />
+            </Pressable>
+          </View>
+          {(['jp', 'en'] as const).map((g) => (
+            <View key={g} style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
+              <Text style={{ fontSize: 12, color: t.muted, paddingHorizontal: 16, paddingTop: 12 }}>
+                {g === 'jp' ? '日文' : '英文'}
+              </Text>
+              {listOtherApps(g).map((a) => (
+                <Pressable
+                  key={a.id}
+                  testID={`row-app-${a.id}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${a.name}，${a.tagline}`}
+                  onPress={() => openPtalkApp(a)}
+                  style={[rowStyle, { gap: 12 }]}
+                >
+                  <PtalkAppIcon id={a.id} size={36} />
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={{ fontSize: 15, color: t.text }}>{a.name}</Text>
+                    <Text style={{ fontSize: 12, color: t.muted }}>{a.tagline}</Text>
+                  </View>
+                  <Icon name="chevronRight" size={16} color={t.muted} />
+                </Pressable>
+              ))}
+            </View>
+          ))}
+        </Section>
+
         <Section title="關於">
           <View style={[styles.group, { backgroundColor: t.surface, borderColor: t.line }]}>
             <View style={rowStyle}>
@@ -291,15 +383,6 @@ export default function SettingsScreen() {
               style={rowStyle}
             >
               <Text style={{ fontSize: 15, color: t.text }}>幫助與聯絡</Text>
-              <Icon name="chevronRight" size={16} color={t.muted} />
-            </Pressable>
-            <Pressable
-              testID="row-next"
-              accessibilityRole="button"
-              onPress={() => router.push('/next')}
-              style={rowStyle}
-            >
-              <Text style={{ fontSize: 15, color: t.text }}>下一步：壽司日檢</Text>
               <Icon name="chevronRight" size={16} color={t.muted} />
             </Pressable>
             {graduated ? (

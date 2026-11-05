@@ -2,7 +2,7 @@
 
 export const CONTACT_EMAIL = 'connect.ptalk@gmail.com';
 export const THREADS_HANDLE = '@ptalk.design';
-export const THREADS_URL = 'https://www.threads.net/@ptalk.design';
+export const THREADS_URL = 'https://www.threads.com/@ptalk.design';
 
 export interface FaqItem {
   key: string;

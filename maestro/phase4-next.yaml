@@ -54,23 +54,11 @@ appId: com.ptalk.kana5min
       id: home-next-link
     timeout: 10000
 
-# 設定頁「下一步：壽司日檢」也能進來
+# 設定頁「更多 PTalk App」有壽司日檢
 - tapOn:
     id: tab-settings
 - scrollUntilVisible:
     element:
-      id: row-next
+      id: row-app-sushijp
     direction: DOWN
     timeout: 20000
-- tapOn:
-    id: row-next
-- extendedWaitUntil:
-    visible:
-      id: next-later
-    timeout: 10000
-- tapOn:
-    id: next-later
-- extendedWaitUntil:
-    visible:
-      id: home-next-link
-    timeout: 10000
